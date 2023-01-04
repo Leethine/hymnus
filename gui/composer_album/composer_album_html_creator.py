@@ -149,16 +149,15 @@ class ComposerAlbumHtmlCreator(HtmlCreator):
     else:
       return self.create_small_album_html_file(name_list, icon_list, year_list)
 
+
 if __name__ == "__main__":
   cac = ComposerAlbumHtmlCreator()
-  """
   names = ["J.S BACH","J.S BACH","J.S BACH"]
   icons = ["jsbach.jpg","jsbach.jpg","jsbach.jpg"]
   years = ["XXXX","XXXX","XXXX"]
 
   cac.create_album_html_file(names, icons, years)
 
-  """
   names = ["J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH"]
   icons = ["jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg"]
   years = ["XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX"]
