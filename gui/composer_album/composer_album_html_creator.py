@@ -1,177 +1,167 @@
 #!/usr/bin/python3
+import sys, os, shutil, re
+from math import ceil as m_ceil
+sys.path.append('../')
+from html_creator import HtmlCreator
 
-HTML_TAG_BEGIN = 0
-HTML_TAG_END = 1
-MAX_ALBUM_PER_PAGE = 9
+class ComposerAlbumHtmlCreator(HtmlCreator):
+  def __init__(self) -> None:
+    super().__init__()
+    self.ICON_DIR = "thumbnail"
+    self.MAX_ALBUM_PER_PAGE = 9
 
-ALBUM_TAG_BEGIN = "<!--#TOBESET-->"
-ALBUM_TAG_END = "<!--#TOBESET-->"
-
-PAGING_TAG_BEGIN = "<!--#TOBESET-->"
-PAGING_TAG_END = "<!--#TOBESET-->"
-
-ICON_DIR = ""
-
-COMPOSER_NAME_LIST = []
-COMPOSER_ICON_LIST = []
-COMPOSER_YEAR_LIST = []
-
-def reset_album_tag(tag_begin: str, tag_end: str):
-  global ALBUM_TAG_BEGIN
-  global ALBUM_TAG_END
-  ALBUM_TAG_BEGIN = tag_begin
-  ALBUM_TAG_END = tag_end
-
-def reset_paging_tag(tag_begin: str, tag_end: str):
-  global PAGING_TAG_BEGIN
-  global PAGING_TAG_END
-  PAGING_TAG_BEGIN = tag_begin
-  PAGING_TAG_END = tag_end
-
-def reset_icon_dir(icon_dir: str):
-  global ICON_DIR
-  ICON_DIR = icon_dir
-
-def create_new_album(composer_name: str, iconfile: str, year: str):
-  iconfile = ICON_DIR + "/" + iconfile
-
-  HTML_DIV_TAG_END = "</div>"
-  html_str = "<div class=\"col\">\n<div class=\"card shadow-sm\">\n" \
-    + "<svg class=\"bd-placeholder-img card-img-top\" width=\"100%\" height=\"225\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Placeholder: Thumbnail\" preserveAspectRatio=\"xMidYMid slice\" focusable=\"false\"><title>COMPOSERNAMEFIELD</title><image href=\"ICONFILENAMEFIELD\" width=\"100%\" height=\"100%\"/></svg>\n" \
-    + "<div class=\"card-body\">\n<p class=\"card-text\">COMPOSERNAMEFIELD</p>\n" \
-    + "<div class=\"d-flex justify-content-between align-items-center\">\n<div class=\"btn-group\">\n" \
-    + "<button type=\"button\" class=\"btn btn-sm btn-outline-secondary\">View</button>\n" \
-    + "<button type=\"button\" class=\"btn btn-sm btn-outline-secondary\">Edit</button>\n" \
-    + HTML_DIV_TAG_END + "\n<small class=\"text-muted\">YEARFIELD</small>\n" \
-    + HTML_DIV_TAG_END + "\n" + HTML_DIV_TAG_END + "\n" + HTML_DIV_TAG_END + "\n" + HTML_DIV_TAG_END + "\n"
-
-  return html_str.replace("COMPOSERNAMEFIELD",composer_name).replace("ICONFILENAMEFIELD",iconfile).replace("YEARFIELD",year)
-
-def create_page_section(nbr_of_pages: int, next_page: int):
-  assert(nbr_of_pages >= 2)
-  assert(next_page <= nbr_of_pages)
-  html_str = "<footer class=\"text-muted py-5\">\n<div class=\"container\">\n" \
-    + "<p class=\"float-end mb-1\"><a href=\"" + "index_" + str(next_page) + ".html\">&thinsp; next</a></p>\n" \
-    + "<p class=\"float-end mb-1\">&emsp;</p>\n" \
-    + "<p class=\"float-end mb-1\"><a href=\"" + "index_" + str(nbr_of_pages) + ".html\">&thinsp; end</a></p>\n" \
-    + "<p class=\"float-end mb-1\">&emsp;</p>\n" \
-    + "<p class=\"float-end mb-1\">...</a></p>\n"
+  def reset_tag(self, tag_begin: str, tag_end: str) -> None:
+    super().reset_tag(tag_begin, tag_end)
   
-  for pagenumber in range(1,nbr_of_pages+1):
-    new_p_str = "<p class=\"float-end mb-1\">&emsp;</p>\n<p class=\"float-end mb-1\"><a href=\"" + "index_" + str(pagenumber) + ".html\">&thinsp; " + str(pagenumber) + "</a></p>\n"
-    html_str += new_p_str
+  def create_new_album(self, name: str, iconfile: str, year: str) -> str:
+    iconfile = self.ICON_DIR + "/" + iconfile
 
-  return html_str + "</div>\n</footer>\n"
+    HTML_DIV_TAG_END = "</div>"
+    html_str = "<div class=\"col\">\n<div class=\"card shadow-sm\">\n" \
+      + "<svg class=\"bd-placeholder-img card-img-top\" width=\"100%\" height=\"225\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Placeholder: Thumbnail\" preserveAspectRatio=\"xMidYMid slice\" focusable=\"false\"><title>COMPOSERNAMEFIELD</title><image href=\"ICONFILENAMEFIELD\" width=\"100%\" height=\"100%\"/></svg>\n" \
+      + "<div class=\"card-body\">\n<p class=\"card-text\">COMPOSERNAMEFIELD</p>\n" \
+      + "<div class=\"d-flex justify-content-between align-items-center\">\n<div class=\"btn-group\">\n" \
+      + "<button type=\"button\" class=\"btn btn-sm btn-outline-secondary\">View</button>\n" \
+      + "<button type=\"button\" class=\"btn btn-sm btn-outline-secondary\">Edit</button>\n" \
+      + HTML_DIV_TAG_END + "\n<small class=\"text-muted\">YEARFIELD</small>\n" \
+      + HTML_DIV_TAG_END + "\n" + HTML_DIV_TAG_END + "\n" + HTML_DIV_TAG_END + "\n" + HTML_DIV_TAG_END + "\n"
 
-def create_album_section(name_list: list, icon_list: list, year_list: list):
-  html_album_section_str = ""
-  assert(len(name_list) == len(icon_list))
-  assert(len(year_list) == len(icon_list))
-  assert(len(name_list) == len(year_list))
-  assert(len(name_list) <= MAX_ALBUM_PER_PAGE)
+    return html_str.replace("COMPOSERNAMEFIELD",name).replace("ICONFILENAMEFIELD",iconfile).replace("YEARFIELD",year)
 
-  for i in range(0, len(name_list)):
-    html_album_section_str += create_new_album(name_list[i], icon_list[i], year_list[i])
+  def create_page_section(self, nbr_of_pages: int, next_page: int) -> str:
+    assert(nbr_of_pages >= 2)
+    assert(next_page <= nbr_of_pages)
+    html_str = "<footer class=\"text-muted py-5\">\n<div class=\"container\">\n" \
+      + "<p class=\"float-end mb-1\"><a href=\"" + "index_" + str(next_page) + ".html\">&thinsp; next</a></p>\n" \
+      + "<p class=\"float-end mb-1\">&emsp;</p>\n" \
+      + "<p class=\"float-end mb-1\"><a href=\"" + "index_" + str(nbr_of_pages) + ".html\">&thinsp; end</a></p>\n" \
+      + "<p class=\"float-end mb-1\">&emsp;</p>\n" \
+      + "<p class=\"float-end mb-1\">...</a></p>\n"
+    
+    for pagenumber in range(1,nbr_of_pages+1):
+      new_p_str = "<p class=\"float-end mb-1\">&emsp;</p>\n<p class=\"float-end mb-1\"><a href=\"" + "index_" + str(pagenumber) + ".html\">&thinsp; " + str(pagenumber) + "</a></p>\n"
+      html_str += new_p_str
 
-  return html_album_section_str
+    return html_str + "</div>\n</footer>\n"
 
-def create_html_file_simple(template_fname: str, new_fname: str, dbg = False):
-  assert(len(COMPOSER_NAME_LIST) == len(COMPOSER_ICON_LIST))
-  assert(len(COMPOSER_NAME_LIST) == len(COMPOSER_YEAR_LIST))
-  assert(len(COMPOSER_YEAR_LIST) == len(COMPOSER_ICON_LIST))
-  assert(len(COMPOSER_NAME_LIST) <= 9)
+  def create_album_section(self, name_list: list, icon_list: list, year_list: list):
+    html_album_section_str = ""
+    assert(len(name_list) == len(icon_list))
+    assert(len(year_list) == len(icon_list))
+    assert(len(name_list) == len(year_list))
+    assert(len(name_list) <= self.MAX_ALBUM_PER_PAGE)
 
-  html_albumsection_str = create_album_section(COMPOSER_NAME_LIST, COMPOSER_ICON_LIST, COMPOSER_YEAR_LIST)
-  newhtmlfile_str = ""
-  with open(template_fname, "r") as htmlfile:
-    isInsideAlbumBlock = False
-    isInsidePagingBlock = False
-    for line in htmlfile.readlines():
-      if isInsideAlbumBlock:
-        if ALBUM_TAG_END in line:
-          isInsideAlbumBlock = False
-          newhtmlfile_str += html_albumsection_str
-        else:
-          pass
-      elif isInsidePagingBlock:
-        if PAGING_TAG_END in line:
-          isInsidePagingBlock = False
-          pass
-        else:
-          pass
-      else:
-        if ALBUM_TAG_BEGIN in line:
-          isInsideAlbumBlock = True
-        elif PAGING_TAG_BEGIN in line:
-          isInsidePagingBlock = True
-        else:
-          newhtmlfile_str += line
+    for i in range(0, len(name_list)):
+      html_album_section_str += self.create_new_album(name_list[i], icon_list[i], year_list[i])
+
+    return html_album_section_str
+
+  def create_small_album_html_file(self, name_list: list, icon_list: list, year_list: list) -> str:
+    """
+    Create album index.html, for less than 9 composers.
+    Without paging number.
+    """
+    assert(len(name_list) == len(icon_list))
+    assert(len(name_list) == len(year_list))
+    assert(len(year_list) == len(icon_list))
+    assert(len(name_list) <= self.MAX_ALBUM_PER_PAGE)
+
+    #TODO add sort method
+    
+    # reset tag for album section
+    self.reset_tag("<!--#CAVRFBEGIN-->", "<!--#CAVRFEND-->")
+    
+    # read template file, replace album section
+    self.read_template_file()
+    self.replace_html_section(self.create_album_section(name_list, icon_list, year_list))
+
+    # reset tag for page section
+    self.reset_tag("<!--CAVPNRFBEGIN-->", "<!--CAVPNRFEND-->")
+
+    # replace page section, write to new file
+    self.replace_html_section('')
+    self.write_index_file()
+
+    return self.HTMLFILE_BUFFER
   
-  if dbg:
-    print(newhtmlfile_str)
+  def create_big_album_html_file(self, name_list: list, icon_list: list, year_list: list) -> str:
+    """
+    Create album index.html, for more than 9 composers.
+    With paging number.
+    """
+    assert(len(name_list) == len(icon_list))
+    assert(len(name_list) == len(year_list))
+    assert(len(year_list) == len(icon_list))
+    assert(len(name_list) > self.MAX_ALBUM_PER_PAGE)
 
-  with open(new_fname, "w") as htmlfile:
-    htmlfile.write(newhtmlfile_str)
+    #TODO add sort method
 
-def create_html_file(template_fname: str, new_fname: str, dbg = False):
-  from math import ceil as m_ceil
-  assert(len(COMPOSER_NAME_LIST) == len(COMPOSER_ICON_LIST))
-  assert(len(COMPOSER_NAME_LIST) == len(COMPOSER_YEAR_LIST))
-  assert(len(COMPOSER_YEAR_LIST) == len(COMPOSER_ICON_LIST))
+    nbr_composers = len(name_list)
 
-  html_albumsection_str = ""
-  nbr_composers = len(COMPOSER_NAME_LIST)
-  if nbr_composers <= MAX_ALBUM_PER_PAGE:
-    create_html_file_simple(template_fname, new_fname, dbg)
-  else:
-    for i in range(0, nbr_composers, MAX_ALBUM_PER_PAGE):
+    for i in range(0, nbr_composers, self.MAX_ALBUM_PER_PAGE):
       # get sublist from the complete list
-      name_sublist = COMPOSER_NAME_LIST[i:i+MAX_ALBUM_PER_PAGE]
-      icon_sublist = COMPOSER_ICON_LIST[i:i+MAX_ALBUM_PER_PAGE]
-      year_sublist = COMPOSER_YEAR_LIST[i:i+MAX_ALBUM_PER_PAGE]
-      html_albumsection_str = create_album_section(name_sublist, icon_sublist, year_sublist)
-      html_pagesection_str = create_page_section(int(m_ceil(nbr_composers/MAX_ALBUM_PER_PAGE)),int(m_ceil(i/MAX_ALBUM_PER_PAGE)+1))
-      newhtmlfile_str = ""
-      with open(template_fname, "r") as htmlfile:
-        isInsideAlbumBlock = False
-        isInsidePagingBlock = False
-        for line in htmlfile.readlines():
-          if isInsideAlbumBlock:
-            if ALBUM_TAG_END in line:
-              isInsideAlbumBlock = False
-              newhtmlfile_str += html_albumsection_str
-            else:
-              pass
-          elif isInsidePagingBlock:
-            if PAGING_TAG_END in line:
-              isInsidePagingBlock = False
-              newhtmlfile_str += html_pagesection_str
-            else:
-              pass
-          else:
-            if ALBUM_TAG_BEGIN in line:
-              isInsideAlbumBlock = True
-            elif PAGING_TAG_BEGIN in line:
-              isInsidePagingBlock = True
-            else:
-              newhtmlfile_str += line
+      name_sublist = name_list[i:i+self.MAX_ALBUM_PER_PAGE]
+      icon_sublist = icon_list[i:i+self.MAX_ALBUM_PER_PAGE]
+      year_sublist = year_list[i:i+self.MAX_ALBUM_PER_PAGE]
+
+      # calculate new file number
+      newfile_nbr = m_ceil(i / self.MAX_ALBUM_PER_PAGE) + 1
+      # calculate end file number (aka number of pages)
+      endfile_nbr = m_ceil(nbr_composers / self.MAX_ALBUM_PER_PAGE)
+
+      # reset tag for album section
+      self.reset_tag("<!--#CAVRFBEGIN-->", "<!--#CAVRFEND-->")
       
-      if dbg:
-        print("htmlfile_" + str(i+1) + ".html")
+      # read template file, replace album section
+      self.read_template_file()
+      self.replace_html_section(self.create_album_section(name_sublist, icon_sublist, year_sublist))
+
+      # reset tag for page section
+      self.reset_tag("<!--CAVPNRFBEGIN-->", "<!--CAVPNRFEND-->")
+
+      # replace page section, write to new file
+      self.replace_html_section(self.create_page_section(endfile_nbr, newfile_nbr))
       
-      next_fname = "index_" + str((m_ceil(i/MAX_ALBUM_PER_PAGE)+1)) + ".html"
-      print(next_fname)
-      with open(next_fname, "w") as htmlfile:
-        htmlfile.write(newhtmlfile_str)
+      # reset new file name, write new file
+      self.HTML_INDEX_FILE = self.HTML_INDEX \
+                           + "_" + str(newfile_nbr) \
+                           + self.HTML_EXTENSION
+      self.write_index_file()
+    
+    # reset entry file name to index.html
+    self.HTML_INDEX_FILE = self.HTML_INDEX + self.HTML_EXTENSION
+
+    # set default entry file index.html
+    if os.path.exists("index_1.html"):
+      shutil.copyfile("index_1.html", self.HTML_INDEX_FILE)
+    
+    return self.HTMLFILE_BUFFER
+
+  def create_album_html_file(self, name_list: list, icon_list: list, year_list: list) -> str:
+    """
+    Create album html pages from the list given.
+    """
+    assert(len(name_list) == len(icon_list))
+    assert(len(name_list) == len(year_list))
+    assert(len(year_list) == len(icon_list))
+    if len(name_list) > self.MAX_ALBUM_PER_PAGE:
+      return self.create_big_album_html_file(name_list, icon_list, year_list)
+    else:
+      return self.create_small_album_html_file(name_list, icon_list, year_list)
 
 if __name__ == "__main__":
-  reset_album_tag("<!--#CAVRFBEGIN-->", "<!--#CAVRFEND-->")
-  reset_paging_tag("<!--CAVPNRFBEGIN-->", "<!--CAVPNRFEND-->")
-  reset_icon_dir("thumbnail")
-  COMPOSER_NAME_LIST = ["J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH"]
-  COMPOSER_ICON_LIST = ["jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg"]
-  COMPOSER_YEAR_LIST = ["XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX"]
+  cac = ComposerAlbumHtmlCreator()
+  """
+  names = ["J.S BACH","J.S BACH","J.S BACH"]
+  icons = ["jsbach.jpg","jsbach.jpg","jsbach.jpg"]
+  years = ["XXXX","XXXX","XXXX"]
 
-  create_html_file("index_t.html", "index.html")
+  cac.create_album_html_file(names, icons, years)
 
+  """
+  names = ["J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH"]
+  icons = ["jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg"]
+  years = ["XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX"]
 
+  cac.create_album_html_file(names, icons, years)
+  
