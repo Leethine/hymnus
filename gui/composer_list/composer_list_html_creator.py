@@ -1,81 +1,102 @@
 #!/usr/bin/python3
+import sys, os, shutil, re
 
-HTML_TAG_BEGIN = 0
-HTML_TAG_END = 1
+sys.path.append('../')
+from html_creator import HtmlCreator
 
-REPLACE_TAG_BEGIN = "<!--#TOBESET-->"
-REPLACE_TAG_END = "<!--#TOBESET-->"
-
-TABLE_HEAD = []
-TABLE_ROWS = [[]]
-
-def reset_tag(tag_begin: str, tag_end: str):
-  global REPLACE_TAG_BEGIN
-  global REPLACE_TAG_END
-  REPLACE_TAG_BEGIN = tag_begin
-  REPLACE_TAG_END = tag_end
-
-def create_new_row(row: list):
-  html_td_str = "".join([f"<td>{elem}</td>\n" for elem in row])
-  return f"<tr>\n{html_td_str}\n</tr>"
-
-def create_table(table_head: list, table_rows: list):
-  """
-  Create table according to composer list.
-  table_head and table_rows should have the same dimention.
-  """
-  assert(len(table_head) == len(table_rows))
-
-  html_table = ""
-  html_elem_table = ("<table class=\"table table-sm\">", "</table>")
-  # create table head
-  html_str_th = "".join([f"<th scope=\"col\">{col}</th>\n" for col in table_head])
-  html_elem_thead = ("<thead>\n" + "<tr>\n" + html_str_th + "</tr>\n", "</thead>")
-
-  html_elem_tbody = ("<tbody>", "</tbody>")
-  html_str_tr = "".join([create_new_row(row) for row in table_rows]) 
-
-  html_table += html_elem_table[HTML_TAG_BEGIN] + "\n"
-  html_table += html_elem_thead[HTML_TAG_BEGIN] + "\n"
-  html_table += html_elem_tbody[HTML_TAG_BEGIN] + "\n"
-  html_table += html_str_tr + "\n"
-  html_table += html_elem_tbody[HTML_TAG_END] + "\n"
-  html_table += html_elem_thead[HTML_TAG_END] + "\n"
-  html_table += html_elem_table[HTML_TAG_END] + "\n"
-
-  return html_table
-
-def create_html_file(template_fname: str, new_fname: str, dbg = False):
-  """
-  Iterate lines in html template file until replacement tag is found,
-  create and fill the table between replacement tags,
-  create new html file with the new table.
-  """
-  newhtmlfile_str = ""
-  isInsideBlock = False
-  with open(template_fname, "r") as htmlfile:
-    for line in htmlfile.readlines():
-      if isInsideBlock:
-        if REPLACE_TAG_END in line:
-          isInsideBlock = False
-          newhtmlfile_str += create_table(TABLE_HEAD, TABLE_ROWS)
-        else:
-          pass
-      else:
-        if REPLACE_TAG_BEGIN in line:
-          isInsideBlock = True
-        else:
-          newhtmlfile_str += line
+class ComposerListHtmlCreator(HtmlCreator):
+  def __init__(self) -> None:
+    super().__init__()
   
-  with open(new_fname, "w") as htmlfile:
-    htmlfile.write(newhtmlfile_str)
-  
-  if dbg:
-    print(newhtmlfile_str)
+  def create_new_row(self, row: list) -> str:
+    html_td_str = "".join([f"<td>{elem}</td>\n" for elem in row])
+    return f"<tr>\n{html_td_str}\n</tr>"
+
+  def create_table(self, table_head: list, table_rows: list) -> str:
+    """
+    Create table according to composer list.
+    table_head and table_rows should have the same dimention.
+    """
+    assert(len(table_head) == len(table_rows[0]))
+
+    html_table_section = ""
+    html_elem_table = ("<table class=\"table table-sm\">", "</table>")
+    # create table head
+    html_str_th = "".join([f"<th scope=\"col\">{col}</th>\n" for col in table_head])
+    html_elem_thead = ("<thead>\n" + "<tr>\n" + html_str_th + "</tr>\n", "</thead>")
+
+    html_elem_tbody = ("<tbody>", "</tbody>")
+    html_tr_section = "".join([self.create_new_row(row) for row in table_rows]) 
+
+    html_table_section += html_elem_table[0] + "\n"
+    html_table_section += html_elem_thead[0] + "\n"
+    html_table_section += html_elem_tbody[0] + "\n"
+    html_table_section += html_tr_section + "\n"
+    html_table_section += html_elem_tbody[1] + "\n"
+    html_table_section += html_elem_thead[1] + "\n"
+    html_table_section += html_elem_table[1] + "\n"
+
+    return html_table_section
+
+  def create_alphabetical_list_html_file(self, table_head: list, table_rows: list) -> str:
+    """
+    Create composer alphabetical list according to the table given.
+    Examle:
+      table_head:
+      ["Name", Year"]
+      table_rows:
+      [["Bach J.S.", "(? - ?)"],["Handel G.F.", "(1600 - ?)"],["Scarlatti D.", "(1600 - ?)"]]
+    """
+    #TODO add sorting method
+
+    # reset replaceable field tag
+    self.reset_tag("<!--#CALRFBEGIN-->", "<!--#CALRFEND-->")
+    # reset template file
+    self.HTML_TEMPLATE_FILE = self.HTML_TEMPLATE + "_alpha" + self.HTML_EXTENSION
+    # set output file name and create the file
+    self.HTML_INDEX_FILE = self.HTML_INDEX + "_alpha" + self.HTML_EXTENSION
+    
+    # read template file, replace section, write to new file
+    self.read_template_file()
+    self.replace_html_section(self.create_table(table_head, table_rows))
+    self.write_index_file()
+
+    # create default index file, since alphabetical list the default entry
+    shutil.copyfile(self.HTML_INDEX_FILE, "index.html")
+
+    return self.HTMLFILE_BUFFER
+
+  def create_chronological_list_html_file(self, table_head: list, table_rows: list) -> str:
+    """
+    Create composer chronological list according to the table given.
+    Examle:
+      table_head:
+      ["Name", Year"]
+      table_rows:
+      [["Bach J.S.", "(? - ?)"],["Handel G.F.", "(1600 - ?)"],["Scarlatti D.", "(1600 - ?)"]]
+    """
+    #TODO add sorting method
+
+    # reset replaceable field tag
+    self.reset_tag("<!--#CCLRFBEGIN-->", "<!--#CCLRFEND-->")
+    # reset template file
+    self.HTML_TEMPLATE_FILE = self.HTML_TEMPLATE + "_chrono" + self.HTML_EXTENSION
+    # set output file name and create the file
+    self.HTML_INDEX_FILE = self.HTML_INDEX + "_chrono" + self.HTML_EXTENSION
+
+    # read template file, replace section, write to new file
+    self.read_template_file()
+    self.replace_html_section(self.create_table(table_head, table_rows))
+    self.write_index_file()
+
+    return self.HTMLFILE_BUFFER
 
 if __name__ == "__main__":
-  TABLE_HEAD = ["Name", "Year"]
-  TABLE_ROWS = [["Bach J.S.", "(? - ?)"], ["Handel G.F.", "(1600 - ?)"],  ["Scarlatti D.", "(1600 - ?)"]]
+  heads = ["Name", "Year"]
+  rows = [["Bach J.S.", "(? - ?)"], ["Handel G.F.", "(1600 - ?)"], ["Scarlatti D.", "(1600 - ?)"]]
 
-  reset_tag("<!--#CALRFBEGIN-->", "<!--#CALRFEND-->")
-  create_html_file("index_t.html", "index.html")
+  clc = ComposerListHtmlCreator()
+  clc.create_alphabetical_list_html_file(heads, rows)
+  rows = [["Bach J.S.", "(1600 - ?)"], ["Handel G.F.", "(1600 - ?)"]]
+
+  clc.create_chronological_list_html_file(heads, rows)
