@@ -8,7 +8,7 @@ class ComposerAlbumHtmlCreator(HtmlCreator):
   def __init__(self) -> None:
     super().__init__()
     self.ICON_DIR = "thumbnail"
-    self.PAGE_DIR = "../composer_page"
+    self.PAGE_DIR = "../composer_page/info"
     self.MAX_ALBUM_PER_PAGE = 9
 
   def reset_tag(self, tag_begin: str, tag_end: str) -> None:

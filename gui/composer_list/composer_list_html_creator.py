@@ -7,7 +7,7 @@ from html_creator import HtmlCreator
 class ComposerListHtmlCreator(HtmlCreator):
   def __init__(self) -> None:
     super().__init__()
-    self.PAGE_DIR = "../composer_page"
+    self.PAGE_DIR = "../composer_page/info"
   
   def create_new_row(self, row: list, page_link="") -> str:
     assert(len(row) != 0)
