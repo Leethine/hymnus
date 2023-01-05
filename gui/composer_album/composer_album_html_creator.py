@@ -8,22 +8,27 @@ class ComposerAlbumHtmlCreator(HtmlCreator):
   def __init__(self) -> None:
     super().__init__()
     self.ICON_DIR = "thumbnail"
+    self.PAGE_DIR = "../composer_page"
     self.MAX_ALBUM_PER_PAGE = 9
 
   def reset_tag(self, tag_begin: str, tag_end: str) -> None:
     super().reset_tag(tag_begin, tag_end)
   
-  def create_new_album(self, name: str, iconfile: str, year: str) -> str:
+  def create_new_album(self, name: str, iconfile: str, year: str, pagelink="") -> str:
     iconfile = self.ICON_DIR + "/" + iconfile
+    if ".html" in pagelink:
+      pagelink = self.PAGE_DIR + "/" + pagelink
+    else:
+      pagelink = "#"
 
     HTML_DIV_TAG_END = "</div>"
     html_str = "<div class=\"col\">\n<div class=\"card shadow-sm\">\n" \
-      + "<svg class=\"bd-placeholder-img card-img-top\" width=\"100%\" height=\"225\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Placeholder: Thumbnail\" preserveAspectRatio=\"xMidYMid slice\" focusable=\"false\"><title>COMPOSERNAMEFIELD</title><image href=\"ICONFILENAMEFIELD\" width=\"100%\" height=\"100%\"/></svg>\n" \
-      + "<div class=\"card-body\">\n<p class=\"card-text\">COMPOSERNAMEFIELD</p>\n" \
-      + "<div class=\"d-flex justify-content-between align-items-center\">\n<div class=\"btn-group\">\n" \
-      + "<button type=\"button\" class=\"btn btn-sm btn-outline-secondary\">View</button>\n" \
-      + "<button type=\"button\" class=\"btn btn-sm btn-outline-secondary\">Edit</button>\n" \
-      + HTML_DIV_TAG_END + "\n<small class=\"text-muted\">YEARFIELD</small>\n" \
+      + "<svg class=\"bd-placeholder-img card-img-top\" width=\"100%\" height=\"225\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Placeholder: Thumbnail\" preserveAspectRatio=\"xMidYMid slice\" focusable=\"false\">" \
+      + "<title>COMPOSERNAMEFIELD</title>" + "<a href=\"" + pagelink + "\">" + "<image href=\"ICONFILENAMEFIELD\" width=\"100%\" height=\"100%\"/></a></svg>\n" \
+      + "<div class=\"card-body\">\n<p class=\"card-text\">" \
+      + "<a href=\"" + pagelink + "\" class=\"composer-name-link\">COMPOSERNAMEFIELD</a></p>\n" \
+      + "<div class=\"d-flex justify-content-between align-items-center\">\n" \
+      + "\n<small class=\"text-muted\">YEARFIELD</small>\n" \
       + HTML_DIV_TAG_END + "\n" + HTML_DIV_TAG_END + "\n" + HTML_DIV_TAG_END + "\n" + HTML_DIV_TAG_END + "\n"
 
     return html_str.replace("COMPOSERNAMEFIELD",name).replace("ICONFILENAMEFIELD",iconfile).replace("YEARFIELD",year)
@@ -44,19 +49,20 @@ class ComposerAlbumHtmlCreator(HtmlCreator):
 
     return html_str + "</div>\n</footer>\n"
 
-  def create_album_section(self, name_list: list, icon_list: list, year_list: list):
+  def create_album_section(self, name_list: list, icon_list: list, year_list: list, page_list=[]):
     html_album_section_str = ""
     assert(len(name_list) == len(icon_list))
     assert(len(year_list) == len(icon_list))
     assert(len(name_list) == len(year_list))
     assert(len(name_list) <= self.MAX_ALBUM_PER_PAGE)
+    assert(len(page_list) == 0 or len(page_list) == len(name_list))
 
     for i in range(0, len(name_list)):
-      html_album_section_str += self.create_new_album(name_list[i], icon_list[i], year_list[i])
+      html_album_section_str += self.create_new_album(name_list[i], icon_list[i], year_list[i], page_list[i])
 
     return html_album_section_str
 
-  def create_small_album_html_file(self, name_list: list, icon_list: list, year_list: list) -> str:
+  def create_small_album_html_file(self, name_list: list, icon_list: list, year_list: list, page_list=[]) -> str:
     """
     Create album index.html, for less than 9 composers.
     Without paging number.
@@ -65,15 +71,14 @@ class ComposerAlbumHtmlCreator(HtmlCreator):
     assert(len(name_list) == len(year_list))
     assert(len(year_list) == len(icon_list))
     assert(len(name_list) <= self.MAX_ALBUM_PER_PAGE)
+    assert(len(page_list) == 0 or len(page_list) == len(name_list))
 
-    #TODO add sort method
-    
     # reset tag for album section
     self.reset_tag("<!--#CAVRFBEGIN-->", "<!--#CAVRFEND-->")
     
     # read template file, replace album section
     self.read_template_file()
-    self.replace_html_section(self.create_album_section(name_list, icon_list, year_list))
+    self.replace_html_section(self.create_album_section(name_list, icon_list, year_list, page_list))
 
     # reset tag for page section
     self.reset_tag("<!--CAVPNRFBEGIN-->", "<!--CAVPNRFEND-->")
@@ -84,7 +89,7 @@ class ComposerAlbumHtmlCreator(HtmlCreator):
 
     return self.HTMLFILE_BUFFER
   
-  def create_big_album_html_file(self, name_list: list, icon_list: list, year_list: list) -> str:
+  def create_big_album_html_file(self, name_list: list, icon_list: list, year_list: list, page_list=[]) -> str:
     """
     Create album index.html, for more than 9 composers.
     With paging number.
@@ -93,8 +98,7 @@ class ComposerAlbumHtmlCreator(HtmlCreator):
     assert(len(name_list) == len(year_list))
     assert(len(year_list) == len(icon_list))
     assert(len(name_list) > self.MAX_ALBUM_PER_PAGE)
-
-    #TODO add sort method
+    assert(len(page_list) == 0 or len(page_list) == len(name_list))
 
     nbr_composers = len(name_list)
 
@@ -103,6 +107,7 @@ class ComposerAlbumHtmlCreator(HtmlCreator):
       name_sublist = name_list[i:i+self.MAX_ALBUM_PER_PAGE]
       icon_sublist = icon_list[i:i+self.MAX_ALBUM_PER_PAGE]
       year_sublist = year_list[i:i+self.MAX_ALBUM_PER_PAGE]
+      page_sublist = page_list[i:i+self.MAX_ALBUM_PER_PAGE]
 
       # calculate new file number
       newfile_nbr = m_ceil(i / self.MAX_ALBUM_PER_PAGE) + 1
@@ -114,7 +119,7 @@ class ComposerAlbumHtmlCreator(HtmlCreator):
       
       # read template file, replace album section
       self.read_template_file()
-      self.replace_html_section(self.create_album_section(name_sublist, icon_sublist, year_sublist))
+      self.replace_html_section(self.create_album_section(name_sublist, icon_sublist, year_sublist, page_sublist))
 
       # reset tag for page section
       self.reset_tag("<!--CAVPNRFBEGIN-->", "<!--CAVPNRFEND-->")
@@ -137,30 +142,35 @@ class ComposerAlbumHtmlCreator(HtmlCreator):
     
     return self.HTMLFILE_BUFFER
 
-  def create_album_html_file(self, name_list: list, icon_list: list, year_list: list) -> str:
+  def create_album_html_file(self, name_list: list, icon_list: list, year_list: list, page_list=[]) -> str:
     """
     Create album html pages from the list given.
     """
     assert(len(name_list) == len(icon_list))
     assert(len(name_list) == len(year_list))
     assert(len(year_list) == len(icon_list))
+    assert(len(page_list) == 0 or len(page_list) == len(name_list))
+
     if len(name_list) > self.MAX_ALBUM_PER_PAGE:
-      return self.create_big_album_html_file(name_list, icon_list, year_list)
+      return self.create_big_album_html_file(name_list, icon_list, year_list, page_list)
     else:
-      return self.create_small_album_html_file(name_list, icon_list, year_list)
+      return self.create_small_album_html_file(name_list, icon_list, year_list, page_list)
 
 
 if __name__ == "__main__":
   cac = ComposerAlbumHtmlCreator()
-  names = ["J.S BACH","J.S BACH","J.S BACH"]
-  icons = ["jsbach.jpg","jsbach.jpg","jsbach.jpg"]
+  names = ["J.S. BACH","J.S. BACH","J.S. BACH"]
+  icons = ["jsbach.png","jsbach.png","jsbach.png"]
   years = ["XXXX","XXXX","XXXX"]
+  links = ["jsbach.html","jsbach.html","jsbach.html"]
 
-  cac.create_album_html_file(names, icons, years)
-
-  names = ["J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH","J.S BACH"]
-  icons = ["jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg","jsbach.jpg"]
+  cac.create_album_html_file(names, icons, years, links)
+  
+  names = ["J.S. BACH","J.S. BACH","J.S. BACH","J.S. BACH","J.S. BACH","J.S. BACH","J.S. BACH","J.S. BACH","J.S. BACH","J.S. BACH","J.S. BACH","J.S. BACH","J.S. BACH","J.S. BACH","J.S. BACH","J.S. BACH","J.S. BACH"]
+  icons = ["jsbach.png","jsbach.png","jsbach.png","jsbach.png","jsbach.png","jsbach.png","jsbach.png","jsbach.png","jsbach.png","jsbach.png","jsbach.png","jsbach.png","jsbach.png","jsbach.png","jsbach.png","jsbach.png","jsbach.png"]
   years = ["XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX","XXXX"]
+  links = ["jsbach.html","jsbach.html","jsbach.html","jsbach.html","jsbach.html","jsbach.html","jsbach.html","jsbach.html","jsbach.html","jsbach.html","jsbach.html","jsbach.html","jsbach.html","jsbach.html","jsbach.html","jsbach.html","jsbach.html"]
 
-  cac.create_album_html_file(names, icons, years)
+  cac.create_album_html_file(names, icons, years, links)
+  
   
