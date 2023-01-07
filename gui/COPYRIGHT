@@ -1,0 +1,7 @@
+The GUI is built on bootstrap-5.0 which is released under MIT license.
+The files in this directory is hence not bound to GPL-2.0.
+
+For detailed copyright information, please see:
+https://getbootstrap.com/docs/5.0/about/license/
+And:
+https://github.com/twbs/bootstrap/blob/v5.0.2/LICENSE
