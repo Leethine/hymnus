@@ -40,7 +40,7 @@ class HtmlCreator:
     assert(os.path.exists(self.HTML_TEMPLATE_FILE))
 
     with open(self.HTML_TEMPLATE_FILE, "r") as htmlfile:
-      self.HTMLFILE_BUFFER = "".join(htmlfile.readlines())
+      self.HTMLFILE_BUFFER = htmlfile.read()
     
     # prepare the new html file while reading the template file
     return self.HTMLFILE_BUFFER
