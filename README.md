@@ -1,2 +1,11 @@
 # hymnus
-Hautbois - Hypertext Managemen for Musical Notation Scripts
+Hypertext Management Interface for Musical Notation Scripts
+
+### HTML templates
+
+### Updating static pages
+
+### Interfacing with back-ends
+
+### Deployment
+
