@@ -6,11 +6,12 @@
     <meta name="description" content="">
     <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
     <meta name="generator" content="Hugo 0.84.0">
-    <title>Composers - List View · Hymnus</title>
+    <!--
+    <title>Fixed top navbar example · Bootstrap v5.0</title>
+    -->
 
-    <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/grid/">
-
-    
+    <title>Create Items · Hymnus</title>
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/navbar-fixed/">
 
     <!-- Bootstrap core CSS -->
 <link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -29,28 +30,14 @@
           font-size: 3.5rem;
         }
       }
-
-      a:link.composer-name-link, a:visited.composer-name-link {
-        color: black;
-        text-align: left;
-        text-decoration: none;
-        display: inline-block;
-      }
-
-      a:hover.composer-name-link, a:active.composer-name-link {
-        color: rgb(84, 84, 84);
-      }
-      
     </style>
 
     
     <!-- Custom styles for this template -->
-    <link href="grid.css" rel="stylesheet">
+    <link href="navbar-top-fixed.css" rel="stylesheet">
   </head>
   <body>
-
-
-
+    
 <nav class="navbar navbar-expand-lg fixed-top navbar-dark bg-dark" aria-label="Main navigation">
   <div class="container-fluid">
     <a class="navbar-brand" href="#">hymnus</a>
@@ -64,16 +51,16 @@
           <a class="nav-link" href="../about/index.html">About</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="../create/create.html">Create</a>
+          <a class="nav-link active" href="#">Create</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" aria-current="page" href="../recently_added/index.html">Recently Added</a>
         </li>
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle active" href="#" id="dropdown01" data-bs-toggle="dropdown" aria-expanded="false">Composers</a>
+          <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-bs-toggle="dropdown" aria-expanded="false">Composers</a>
           <ul class="dropdown-menu" aria-labelledby="dropdown01">
             <li><a class="dropdown-item" href="../composer_album/index.html">Album</a></li>
-            <li><a class="dropdown-item active" href="#">List</a></li>
+            <li><a class="dropdown-item" href="../composer_list/index.html">List</a></li>
           </ul>
         </li>
         <li class="nav-item dropdown">
@@ -98,54 +85,27 @@
   </div>
 </nav>
 
-
-
-<main>
-
-  <section class="py-5 text-center container">
-    <div class="row py-lg-5">
-      <div class="col-lg-6 col-md-8 mx-auto">
-        <h1 class="fw-light">Composers · List View</h1>
-        <p class="lead text-muted">Order by:</p>
-        <p>
-          <a href="#" class="btn btn-primary my-2">Alphabetical</a>
-          <a href="index_chrono.html" class="btn btn-secondary my-2">Chronoligical</a>
-        </p>
-      </div>
+<main class="container">
+  <div class="bg-light p-5 rounded">
+    <h2>Create New Item</h2>
+    
+    <p class="lead">
+      Create new item.
+    </p>
+    
+    <div>
+      <a class="btn btn-lg btn-primary" href="new_composer.html" role="button">Create Composer</a>
     </div>
-  </section>
-
-  <div class="container">
-    <!-- COMPOSER ALPHABETIC LIST REPLACEABLE FIELD -->
-    <table class="table table-sm">
-<thead>
-<tr>
-<th scope="col">Name</th>
-<th scope="col">Year</th>
-</tr>
-
-<tbody>
-<tr>
-<td><a href="#" class="composer-name-link">Bach J.S.</a></td>
-<td>(? - ?)</td>
-
-</tr><tr>
-<td><a href="../composer_page/info/handel_g_f.html" class="composer-name-link">Handel G.F.</a></td>
-<td>(1600 - ?)</td>
-
-</tr><tr>
-<td><a href="#" class="composer-name-link">Scarlatti D.</a></td>
-<td>(1600 - ?)</td>
-
-</tr>
-</tbody>
-</thead>
-</table>
-
+      <br>
+    <div>
+      <a class="btn btn-lg btn-primary" href="new_work.html" role="button">Create Music Sheet</a>
+    </div>
+  
   </div>
+
 </main>
 
-<script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
-    
+    <script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
+
   </body>
 </html>

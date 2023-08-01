@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.84.0">
+    <title>Create - New work</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/checkout/">
+
+    
+
+    <!-- Bootstrap core CSS -->
+<link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+
+    
+    <!-- Custom styles for this template -->
+    <link href="new-item.css" rel="stylesheet">
+  </head>
+  <body class="bg-light">
+    
+<div class="container">
+  <main>
+    <div class="py-5 text-center">
+      <img class="d-block mx-auto mb-4" src="../assets/brand/hymnus_icon.png" alt="Hymnus" width="30%">
+      <h2>Create work</h2>
+      <p class="lead">Add work: piece, collection, arrangement, template.</p>
+    </div>
+
+      <div class="col-md-7 col-lg-12">
+        <h4 class="mb-3">Info</h4>
+        <form class="needs-validation" novalidate>
+          <div class="row g-3">
+            <div class="col-sm-4">
+              <label for="title-text" class="form-label">Title</label>
+              <input type="text" class="form-control" id="title-text" placeholder="" value="" required>
+              <div class="invalid-feedback">
+                Valid first name is required.
+              </div>
+            </div>
+
+            <div class="col-sm-4">
+              <label for="subtitle-text" class="form-label">Subtitle</label>
+              <input type="text" class="form-control" id="subtitle-text" placeholder="" value="" required>
+              <div class="invalid-feedback">
+                Valid first name is required.
+              </div>
+            </div>
+
+            <div class="col-sm-4">
+              <label for="subsubtitle-text" class="form-label">Subsubtitle</label>
+              <input type="text" class="form-control" id="subsubtitle-text" placeholder="" value="" required>
+              <div class="invalid-feedback">
+                Valid first name is required.
+              </div>
+            </div>
+
+            <div class="col-sm-8">
+              <label for="composer-code" class="form-label">Composer Code</label>
+              <div class="input-group has-validation">
+                <span class="input-group-text">@</span>
+                <input type="text" class="form-control" id="composer-code" placeholder="Code" required>
+              <div class="invalid-feedback">
+                  Your username is required.
+                </div>
+              </div>
+            </div>
+
+            <div class="col-sm-4">
+              <label for="anti-conclict" class="form-label">Anti-conflict count<span class="text-muted">(Optional)</span></label>
+              <input type="number" class="form-control" id="anti-conclict" placeholder="0">
+              <div class="invalid-feedback">
+                Please enter a valid email address for shipping updates.
+              </div>
+            </div>
+
+            <div class="col-xxl-4">
+              <label for="customizedname" class="form-label">Customize Name <span class="text-muted">(Optional)</span></label>
+              <input type="text" class="form-control" id="customizedname" placeholder="">
+            </div>
+
+            <div class="col-xxl-4">
+              <label for="description" class="form-label">Description <span class="text-muted">(Optional)</span></label>
+              <input type="text" class="form-control" id="description" placeholder="">
+            </div>
+
+            <div class="col-12">
+              <label for="composer-code" class="form-label">Composer Code</label>
+              <select class="form-select" id="composer-code" required>
+                <option value="">Choose...</option>
+
+                <!--
+                  <option>COMPOSERCODE</option>
+                -->
+
+              </select>
+              <div class="invalid-feedback">
+                Please select a valid country.
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <h4 class="mb-3">Type of Work</h4>
+
+          <div class="d-block my-3">
+            <div class="d-block my-3">
+              <div class="custom-control custom-radio">
+                <input id="type-piece" name="TypeWork" type="radio" class="custom-control-input" checked required>
+                <label class="custom-control-label" for="type-piece">Piece</label>
+              </div>
+              <div class="custom-control custom-radio">
+                <input id="type-collection" name="TypeWork" type="radio" class="custom-control-input" required>
+                <label class="custom-control-label" for="type-collection">Collection</label>
+              </div>
+              <div class="custom-control custom-radio">
+                <input id="type-arrangement" name="TypeWork" type="radio" class="custom-control-input" required>
+                <label class="custom-control-label" for="type-arrangement">Arrangement</label>
+              </div>
+              <div class="custom-control custom-radio">
+                <input id="type-template" name="TypeWork" type="radio" class="custom-control-input" required>
+                <label class="custom-control-label" for="type-template">Template</label>
+              </div>
+            </div>
+          </div>
+
+          <h4 class="mb-3">Instrument</h4>
+
+          <div class="col-lg-8">
+            
+          <div class="order-md-last d-flex justify-content-between align-items-center my-2">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="instrument-klavier">
+              <label class="form-check-label" for="instrument-klavier">Klavier</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="instrument-piano">
+              <label class="form-check-label" for="instrument-piano">Piano</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="instrument-organ">
+              <label class="form-check-label" for="instrument-organ">Organ</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="instrument-harpsichord">
+              <label class="form-check-label" for="instrument-harpsichord">Harpsichord</label>
+            </div>
+          </div>
+
+          <div class="order-md-last d-flex justify-content-between align-items-center my-2">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="instrument-string">
+              <label class="form-check-label" for="instrument-string">Strings</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="instrument-violin">
+              <label class="form-check-label" for="instrument-violin">Violin</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="instrument-viola">
+              <label class="form-check-label" for="instrument-viola">Viola</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="instrument-cello">
+              <label class="form-check-label" for="instrument-cello">Cello</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="instrument-contrabass">
+              <label class="form-check-label" for="instrument-contrabass">Contrabass</label>
+            </div>
+          </div>
+          
+          <div class="order-md-last d-flex justify-content-between align-items-center my-2">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="instrument-woodwind">
+              <label class="form-check-label" for="instrument-woodwind">Woodwinds</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="instrument-flute">
+              <label class="form-check-label" for="instrument-flute">Flute</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="instrument-clarinet">
+              <label class="form-check-label" for="instrument-clarinet">Clarinet</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="instrument-oboe">
+              <label class="form-check-label" for="instrument-oboe">Oboe</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="instrument-basson">
+              <label class="form-check-label" for="instrument-basson">Basson</label>
+            </div>
+          </div>
+          
+          <div class="order-md-last d-flex justify-content-between align-items-center my-2">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="instrument-brass">
+              <label class="form-check-label" for="instrument-brass">Brass</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="instrument-cor">
+              <label class="form-check-label" for="instrument-cor">Cor</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="instrument-trumpet">
+              <label class="form-check-label" for="instrument-trumpet">Trumpet</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="instrument-trombone">
+              <label class="form-check-label" for="instrument-trombone">Trombone</label>
+            </div>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="instrument-tuba">
+              <label class="form-check-label" for="instrument-tuba">Tuba</label>
+            </div>
+          </div>
+        
+        </div>
+
+          <hr class="my-4">
+
+          <button class="w-100 btn btn-primary btn-lg" type="submit">Create Work</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <footer class="my-5 pt-5 text-muted text-center text-small">
+    <!--
+      <p class="mb-1">&copy; 2017–2021 Company Name</p>
+    -->
+    <ul class="list-inline">
+      <li class="list-inline-item"><a href="../about/index.html">Go Home</a></li>
+      <li class="list-inline-item"><a href="new_composer.html">Add Composer</a></li>
+    </ul>
+  </footer>
+
+
+    <script src="../assets/dist/js/bootstrap.bundle.min.js"></script>
+
+      <script src="new-work.js"></script>
+  </body>
+</html>
