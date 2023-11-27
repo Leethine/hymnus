@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Home</title>
+  <link rel="icon" type="image/x-icon" href="icon.ico">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+<ul>
+  <li><a href="home.html">Home</a></li>
+  <li><a href="composers.html">Composers</a></li>
+  <li><a href="collections.html">Collections</a></li>
+  <li><a href="about.html">About</a></li>
+</ul>
+
+<h1>Add collection</h1>
+<p><a href="../help/help-collection.html" target="_blank">&#9835 How to fill collection information?</a></p>
+
+<form action="action_page.php">
+  <label for="collection-title">Title:</label><br>
+  <input type="text" id="collection-title" name="collection-title" style="width: 50%"><br><br>
+
+  <label for="collection-sub-title">Subtitle:</label><br>
+  <input type="text" id="collection-sub-title" name="collection-sub-title" style="width: 50%"><br><br>
+
+  <label for="collection-subsub-title">Subsubtitle:</label><br>
+  <input type="text" id="collection-subsub-title" name="collection-subsub-title" style="width: 50%"><br><br>
+
+  <label for="collection-composer">Related composer:</label><br>
+  <input type="text" id="collection-composer" name="collection-composer" style="width: 50%"><br><br>
+
+  <label for="collection-opus">Related opus:</label><br>
+  <input type="text" id="collection-opus" name="collection-opus" style="width: 20%"><br><br>
+
+  <label for="collection-comment">Description:</label><br>
+  <textarea id="collection-comment" name="collection-comment" rows="3" cols="50" style="height:80px; width: 50%"></textarea><br><br>
+
+  <input type="submit" value="Create">
+</form>
+
+<br><br>
+
+</body>
+</html>
