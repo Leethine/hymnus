@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Add Composer</title>
   <link rel="icon" type="image/x-icon" href="icon.ico">
@@ -17,20 +18,20 @@
 <h1>Add composer</h1>
 <p><a href="../help/help-composer.html" target="_blank">&#9835 How to fill composer information?</a></p>
 
-<form action="action_page.php">
+<form action="cgi-bin" method="POST">
   <label for="full-name">Composer full name (known-as):</label><br>
-  <input type="text" id="composer-full-name" name="composer-full-name" style="width: 50%"><br><br>
+  <input type="text" id="full-name" name="full-name" style="width: 50%"><br><br>
 
   <label for="first-name">Composer first name:</label><br>
-  <input type="text" id="composer-first-name" name="composer-first-name" style="width: 50%"><br>
+  <input type="text" id="first-name" name="first-name" style="width: 50%"><br>
   <label for="last-name">Composer last name:</label><br>
-  <input type="text" id="composer-last-name" name="composer-last-name" style="width: 50%">
+  <input type="text" id="last-name" name="last-name" style="width: 50%">
   <br><br>
 
   <label for="born-year">Born year:</label><br>
-  <input type="text" id="composer-born-year" name="composer-born-year" style="width: 15%"><br>
-  <label for="dead-year">Dead year:</label><br>
-  <input type="text" id="composer-dead-year" name="composer-dead-year" style="width: 15%">
+  <input type="text" id="born-year" name="born-year" style="width: 15%"><br>
+  <label for="died-year">Died year:</label><br>
+  <input type="text" id="died-year" name="died-year" style="width: 15%">
   <br><br>
 
   <input type="submit" value="Create">
