@@ -32,7 +32,6 @@ my $composer = $FORM{"related-composer"};
 my $opus = $FORM{"collection-opus"};
 my $comment = $FORM{"collection-comment"};
 
-
 print "Content-type:text/html\r\n\r\n";
 print "<html>";
 print "<head>";

@@ -13,7 +13,7 @@ cd ${CONTENTPATH}
 
 HASH=$(sha1sum ${TEMPFILE} | cut -d ' ' -f 1)
 SHORTHASH=$(sha1sum ${TEMPFILE} | cut -d ' ' -f 1 | cut -c 1-6)
-LASTNAME=$(head -n 1 ${TEMPFILE} | grep -o '[^ ]*$' | tr '[:upper:]' '[:lower:]')
+LASTNAME=$(head -n 1 ${TEMPFILE} | grep -o '[^ ]*$' | sed 's/\ //g' | tr '[:upper:]' '[:lower:]')
 
 echo ${HASH} >> ${TEMPFILE};
 NAMECODE="${LASTNAME}_${SHORTHASH}"

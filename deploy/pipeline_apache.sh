@@ -5,8 +5,8 @@ cd ..
 podman container stop --all
 podman container prune -f
 podman image prune -f
-podman build -t my-httpd .
-podman run -d --name hymnus-app -p 8080:80 my-httpd
+podman build -t hymnus-httpd .
+podman run -d --name hymnus-app -p 8080:80 hymnus-httpd
 #podman exec -it hymnus-app bash
 rm Dockerfile
 rm hymnus-httpd.conf

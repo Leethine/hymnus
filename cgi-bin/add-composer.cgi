@@ -56,10 +56,14 @@ close(FH);
 
 system("new_composer.sh " . $tempfile);
 my $indexhtml = "http://" . $ENV{'HTTP_HOST'} . "/index.html";
+my $composerhtml = "http://" . $ENV{'HTTP_HOST'} . "/composers.html";
 
 print "<h3>New composer created.</h3><br>";
 print qq(<h3>&#9842; <a href="$indexhtml">Go back to main page</a></h3>);
+print qq(<h3>&#9842; <a href="$composerhtml">Go back to composer page</a></h3>);
 print "</body>";
 print "</html>";
+
+system("perl /usr/local/bin/update_composer.pl");
 
 1;

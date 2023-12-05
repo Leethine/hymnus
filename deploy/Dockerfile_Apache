@@ -8,7 +8,9 @@ COPY ./hymnus-httpd.conf /usr/local/apache2/conf/httpd.conf
 RUN chmod 755 /usr/local/apache2/cgi-bin/*.cgi
 RUN chmod 755 /usr/local/apache2/scripts/*.sh
 RUN cp /usr/local/apache2/scripts/*.sh /usr/local/bin/
+RUN cp /usr/local/apache2/scripts/*.pl /usr/local/bin/
 RUN create_schema.sh
+RUN chmod a+rwx /usr/local/apache2/scripts/htdocs/
 RUN rm /usr/local/apache2/htdocs/index.html
 RUN cp /usr/local/apache2/htdocs/home.html /usr/local/apache2/htdocs/index.html
 
