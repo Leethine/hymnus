@@ -3,6 +3,14 @@
 use strict;
 use warnings;
 
+sub filter_input {
+  my $input = shift;
+  my @plain = split(" ", $input);
+  @plain= grep { $_ ne '' } @plain;
+  my $out = join(' ', @plain);
+  return $out;
+}
+
 my $CONTENTPATH="/var/sanctus_db/collection/";
 
 # Read in text
@@ -32,6 +40,13 @@ my $composer = $FORM{"related-composer"};
 my $opus = $FORM{"collection-opus"};
 my $comment = $FORM{"collection-comment"};
 
+# Filter the input
+$title = filter_input($title);
+$subtitle = filter_input($subtitle);
+$subsubtitle = filter_input($subsubtitle);
+$composer = filter_input($composer);
+$opus = filter_input($opus);
+
 print "Content-type:text/html\r\n\r\n";
 print "<html>";
 print "<head>";
@@ -58,9 +73,11 @@ close(FH);
 
 system("new_collection.sh " . $tempfile);
 my $indexhtml = "http://" . $ENV{'HTTP_HOST'} . "/index.html";
+my $collectionhtml = "http://" . $ENV{'HTTP_HOST'} . "/content/collections.html";
 
 print "<h3>New collection created.</h3><br>";
-print qq(<h3>&#9842; <a href="$indexhtml">Go back to main page</a></h3>);
+print qq(<h3>&#11148; <a href="$indexhtml">Go back to main page</a></h3>);
+print qq(<h3>&#8678; <a href="$collectionhtml">Go back to collection list</a></h3>);
 print "</body>";
 print "</html>";
 

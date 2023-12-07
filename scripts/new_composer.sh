@@ -19,3 +19,4 @@ echo ${HASH} >> ${TEMPFILE};
 NAMECODE="${LASTNAME}_${SHORTHASH}"
 
 mv ${TEMPFILE} "${NAMECODE}.cat"
+mkdir "${NAMECODE}"

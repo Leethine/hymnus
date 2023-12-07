@@ -3,6 +3,14 @@
 use strict;
 use warnings;
 
+sub filter_input {
+  my $input = shift;
+  my @plain = split(" ", $input);
+  @plain= grep { $_ ne '' } @plain;
+  my $out = join(' ', @plain);
+  return $out;
+}
+
 my $CONTENTPATH="/var/sanctus_db/composer/";
 
 # Read in text
@@ -34,6 +42,13 @@ my $dyear = $FORM{"died-year"};
 $byear = "?" unless ($byear =~ /[0-9]{2,4}/);
 $dyear = "?" unless ($dyear =~ /[0-9]{2,4}/);
 
+# Filter the input
+$fullname = filter_input($fullname);
+$lastname = filter_input($lastname);
+$firstname = filter_input($firstname);
+$byear = filter_input($byear);
+$dyear = filter_input($dyear);
+
 print "Content-type:text/html\r\n\r\n";
 print "<html>";
 print "<head>";
@@ -56,14 +71,15 @@ close(FH);
 
 system("new_composer.sh " . $tempfile);
 my $indexhtml = "http://" . $ENV{'HTTP_HOST'} . "/index.html";
-my $composerhtml = "http://" . $ENV{'HTTP_HOST'} . "/composers.html";
+my $composerhtml = "http://" . $ENV{'HTTP_HOST'} . "/content/composers.html";
 
 print "<h3>New composer created.</h3><br>";
-print qq(<h3>&#9842; <a href="$indexhtml">Go back to main page</a></h3>);
-print qq(<h3>&#9842; <a href="$composerhtml">Go back to composer page</a></h3>);
-print "</body>";
-print "</html>";
+print qq(<h3>&#11148; <a href="$indexhtml">Go back to main page</a></h3>);
 
 system("perl /usr/local/bin/update_composer.pl");
+
+print qq(<h3>&#8678; <a href="$composerhtml">Go back to composer list</a></h3>);
+print "</body>";
+print "</html>";
 
 1;

@@ -19,3 +19,4 @@ TITLECODE="${TITLE}_${SHORTHASH}"
 echo ${HASH} >> ${TEMPFILE};
 
 mv ${TEMPFILE} "${TITLECODE}.cat"
+mkdir "${TITLECODE}"
