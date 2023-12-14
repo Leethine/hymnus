@@ -13,6 +13,7 @@ sub make_row {
 }
 
 system("rm /usr/local/apache2/htdocs/content/composers.html");
+# TODO chronological order
 #system("rm /usr/local/apache2/htdocs/content/composers-alt.html");
 
 my @catfiles = glob($CONTENTDIR . '/*.cat');
