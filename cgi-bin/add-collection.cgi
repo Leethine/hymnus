@@ -77,6 +77,9 @@ my $collectionhtml = "http://" . $ENV{'HTTP_HOST'} . "/content/collections.html"
 
 print "<h3>New collection created.</h3><br>";
 print qq(<h3>&#11148; <a href="$indexhtml">Go back to main page</a></h3>);
+
+system("perl /usr/local/bin/update_collection_page.pl");
+
 print qq(<h3>&#8678; <a href="$collectionhtml">Go back to collection list</a></h3>);
 print "</body>";
 print "</html>";
