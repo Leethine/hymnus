@@ -21,13 +21,16 @@ my $rows = "";
 
 foreach (@catfiles) {
   my $thisfile = "$_";
+  my @catfilename = split("/", $thisfile);
+  my $code = $catfilename[-1] =~ s/.cat//r;
+
   open(FH, '<', $thisfile);
   my $fullname = <FH>;
   my $firstname = <FH>;
   my $lastname = <FH>;
   my $byear = <FH>;
   my $dyear = <FH>;
-  $rows .= make_row("$fullname", "($byear - $dyear)", "#");
+  $rows .= make_row("$fullname", "($byear - $dyear)", "../../cgi-bin/composer.cgi?$code");
   close(FH);
 }
 

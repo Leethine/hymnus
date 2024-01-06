@@ -13,6 +13,5 @@ RUN chmod a+rwx /usr/local/apache2/htdocs/content
 RUN rm /usr/local/apache2/htdocs/index.html
 RUN cp /usr/local/apache2/htdocs/home.html /usr/local/apache2/htdocs/index.html
 RUN apt-get update -y || apt-get upgrade -y
-RUN apt-get install -y vim
-RUN apt-get install -y libpath-tiny-perl
-RUN cpan force install CGI
+RUN apt-get install -y vim lilypond
+RUN apt-get install -y libpath-tiny-perl libcgi-pm-perl
