@@ -26,3 +26,11 @@ printf "${FIRSTNAME},${LASTNAME},${KNOWNASNAME},${BORNYEAR},${DIEDYEAR},${COMPOS
 fi
 
 done < script/famous-composers.csv
+
+# Delete header
+sqlite3 "${DBFILE}" <<EOF
+DELETE FROM composers WHERE
+code IS 'code' AND firstname IS 'firstname' AND
+lastname IS 'lastname' AND knownas_name IS 'knownas_name' AND
+bornyear IS 'bornyear' AND diedyear IS 'diedyear';
+EOF
