@@ -23,7 +23,9 @@ if [ ! -z "${EXISTING}" ]; then
   if [[ ${CONFIRM} != "y" ]]; then
     echo "Abandoned."
     exit 0
+
   else
+
 sqlite3 -csv "${DBFILE}" <<EOF
   DELETE FROM pieces WHERE
   folder_hash = '${FOLDERHASH}';
