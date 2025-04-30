@@ -41,7 +41,8 @@ $(cat ${SQL_SCRIPT})
 EOF
 
 # Create filesystem's subdirectories by sha-1 hash
-mkdir -p "${FSPATH}"
+chmod --recursive a+rwx ${FSPATH}
+IGNORE='mkdir -p "${FSPATH}"
 for i in {0..9}{a..f}; do
   mkdir "${FSPATH}/${i}"
 done
@@ -49,6 +50,7 @@ for i in {a..f}{0..9}; do
   mkdir "${FSPATH}/${i}"
 done
 chmod --recursive a+rwx ${FSPATH}
+'
 
 echo "DB created at: ${DBFILE}"
 echo "File storage created at: ${FSPATH}"
