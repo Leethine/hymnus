@@ -22,4 +22,8 @@ if [ -f ${OUT_DIR}/composer-data.js ]; then
 fi
 mv ${OUT_DIR}/composer-data2.js ${OUT_DIR}/composer-data.js
 
-# Dump composer list
+# Dump works
+#TODO
+
+# Dump collections
+#TODO

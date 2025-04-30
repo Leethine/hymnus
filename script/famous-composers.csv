@@ -1,64 +1,64 @@
 firstname,lastname,knownas_name,bornyear,diedyear,code
-Girolamo Alessandro,Frescobaldi,Girolamo Frescobaldi,1583,1643,g_frescobaldi
-Claudio Giovanni Antonio,Monteverdi,Claudio Monteverdi,1567,1643,c_monteverdi
-Jean-Baptiste,Lully,Jean-Baptiste Lully,1632,1687,j_b_lully
-Dieterich,Buxtehude,Dieterich Buxtehude,1637,1707,d_buxtehude
-Henry,Purcell,Henry Purcell,1659,1695,h_purcell
-Johann Sebastian,Bach,Johann Sebastian Bach,1685,1750,j_s_bach
-Johann,Pachelbel,Johann Pachelbel,1653,1706,j_pachelbel
-George Frideric,Handel,George Frideric Handel,1685,1759,g_f_handel
-Giuseppe Domenico,Scarlatti,Domenico Scarlatti,1685,1757,d_scarlatti
-Pietro Alessandro Gaspare,Scarlatti,Alessandro Scarlatti,1660,1725,a_scarlatti
-François,Couperin,François Couperin,1668,1733,f_couperin
-Georg Philipp,Telemann,Georg Philipp Telemann,1681,1767,g_p_telemann
-Jean-Philippe Rameau,Rameau,Jean-Philippe Rameau,1683,1764,j_p_rameau
-Antonio Lucio,Vivaldi,Antonio Vivaldi,1678,1741,a_vivaldi
-Wolfgang Amadeus,Mozart,Wolfgang Amadeus Mozart,1756,1791,w_a_mozart
-Ludwig,Beethoven,Ludwig van Beethoven,1770,1827,l_van_beethoven
-Carl Philipp Emanuel,Bach,Carl Philipp Emanuel Bach,1714,1788,c_p_e_bach
-Franz Joseph,Haydn,Joseph Haydn,1732,1809,j_haydn
-Johann Christian,Bach,Johann Christian Bach,1735,1782,j_c_bach
-Franz Peter,Schubert,Franz Schubert,1797,1828,f_schubert
-Gioachino Antonio,Rossini,Gioachino Rossini,1792,1868,g_rossini
-Domenico Gaetano Maria,Donizetti,Gaetano Donizetti,1797,1848,g_donizetti
-Jakob Ludwig Felix,Mendelssohn Bartholdy,Felix Mendelssohn,1809,1847,f_mendelssohn
-Frédéric François,Chopin,Frédéric Chopin,1810,1849,f_chopin
-Robert,Schumann,Robert Schumann,1810,1856,r_schumann
-Franz,Liszt,Franz Liszt,1811,1886,f_liszt
-Wilhelm Richard,Wagner,Richard Wagner,1813,1883,r_wagner
-Giuseppe Fortunino Francesco,Verdi,Giuseppe Verdi,1813,1901,g_verdi
-César-Auguste-Jean-Guillaume-Hubert,Franck,César Franck,1822,1890,c_franck
-Johannes,Brahms,Johannes Brahms,1833,1897,j_brahms
-Charles-Camille,Saint-Saëns,Camille Saint-Saëns,1835,1921,c_saint_saens
-Charles-François,Gounod,Charles Gounod,1818,1893,c_gounod
-Georges,Bizet,Georges Bizet,1838,1875,g_bizet
-Modest Petrovich,Mussorgsky,Modest Mussorgsky,1839,1881,m_mussorgsky
-Josef Gabriel,Rheinberger,Josef Rheinberger,1839,1901,j_rheinberger
-Pyotr Ilyich,Tchaikovsky,Pyotr Ilyich Tchaikovsky,1840,1893,p_tchaikovsky
-Edward William,Elgar,Edward Elgar,1857,1934,e_elgar
-Antonín Leopold,Dvořák,Antonín Dvořák,1841,1904,a_dvorak
-Edvard Hagerup,Grieg,Edvard Grieg,1843,1907,e_grieg
-Nikolai Andreyevich,Rimsky-Korsakov,Nikolai Rimsky-Korsakov,1844,1908,n_rimsky_korsakov
-Gabriel Urbain,Fauré,Gabriel Fauré,1845,1924,g_faure
-Charles-Marie-Jean-Albert,Widor,Charles-Marie Widor,1844,1937,c_m_widor
-Domenico,Zipoli,Domenico Zipoli,1688,1726,d_zipoli
-Giacomo,Puccini,Giacomo Puccini,1858,1924,g_puccini
-Louis-Hector,Berlioz,Hector Berlioz,1803,1869,h_berlioz
-Gustav,Mahler,Gustav Mahler,1860,1911,g_mahler
-Richard Georg,Strauss,Richard Strauss,1864,1949,r_strauss
-Eugène-Auguste,Ysaÿe,Eugène Ysaÿe,1858,1931,e_ysaye
-Jean,Sibelius,Jean Sibelius,1865,1957,j_sibelius
-Sergei Vasilyevich,Rachmaninoff,Sergei Rachmaninoff,1873,1943,s_rachmaninoff
-Alexander Nikolayevich,Scriabin,Alexander Scriabin,1872,1915,a_scriabin
-Claude Achille,Debussy,Claude Debussy,1862,1918,c_debussy
-Johann Baptist Joseph Maximilian,Reger,Max Reger,1873,1916,max_reger
-Joseph Anton,Bruckner,Anton Bruckner,1824,1896,a_bruckner
-Arnold,Schoenberg,Arnold Schoenberg,1874,1951,a_schoenberg
-Béla Viktor János,Bartók,Béla Bartók,1881,1945,b_bartok
-Joseph Maurice,Ravel,Maurice Ravel,1875,1937,m_ravel
-Igor Fyodorovich,Stravinsky,Igor Stravinsky,1882,1971,igor_stravinsky
-Alban Maria Johannes,Berg,Alban Berg,1885,1935,a_berg
-Anton Friedrich Wilhelm,von Webern,Anton Webern,1883,1945,a_webern
-Sergei Sergeyevich,Prokofiev,Sergei Prokofiev,1891,1953,s_prokofiev
-Dmitri Dmitriyevich,Shostakovich,Dmitri Shostakovich,1906,1975,d_shostakovich
-Louis Victor Jules,Vierne,Louis Vierne,1870,1937,l_vierne
+Girolamo Alessandro,Frescobaldi,Girolamo Frescobaldi,1583,1643,frescobaldi_g
+Claudio Giovanni Antonio,Monteverdi,Claudio Monteverdi,1567,1643,monteverdi_c
+Jean-Baptiste,Lully,Jean-Baptiste Lully,1632,1687,lully_j_b
+Dieterich,Buxtehude,Dieterich Buxtehude,1637,1707,buxtehude_d
+Henry,Purcell,Henry Purcell,1659,1695,purcell_h
+Johann Sebastian,Bach,Johann Sebastian Bach,1685,1750,bach_j_s
+Johann,Pachelbel,Johann Pachelbel,1653,1706,pachelbel_j
+George Frideric,Handel,George Frideric Handel,1685,1759,handel_g_f
+Giuseppe Domenico,Scarlatti,Domenico Scarlatti,1685,1757,scarlatti_d
+Pietro Alessandro Gaspare,Scarlatti,Alessandro Scarlatti,1660,1725,scarlatti_a
+François,Couperin,François Couperin,1668,1733,couperin_f
+Georg Philipp,Telemann,Georg Philipp Telemann,1681,1767,telemann_g_p
+Jean-Philippe Rameau,Rameau,Jean-Philippe Rameau,1683,1764,rameau_j_p
+Antonio Lucio,Vivaldi,Antonio Vivaldi,1678,1741,vivaldi_a
+Wolfgang Amadeus,Mozart,Wolfgang Amadeus Mozart,1756,1791,mozart_w_a
+Ludwig,Beethoven,Ludwig van Beethoven,1770,1827,beethoven_l_van
+Carl Philipp Emanuel,Bach,Carl Philipp Emanuel Bach,1714,1788,bach_c_p_e
+Franz Joseph,Haydn,Joseph Haydn,1732,1809,haydn_j
+Johann Christian,Bach,Johann Christian Bach,1735,1782,bach_j_c
+Franz Peter,Schubert,Franz Schubert,1797,1828,schubert_f
+Gioachino Antonio,Rossini,Gioachino Rossini,1792,1868,rossini_g
+Domenico Gaetano Maria,Donizetti,Gaetano Donizetti,1797,1848,donizetti_g
+Jakob Ludwig Felix,Mendelssohn Bartholdy,Felix Mendelssohn,1809,1847,mendelssohn_fe
+Frédéric François,Chopin,Frédéric Chopin,1810,1849,chopin_f
+Robert,Schumann,Robert Schumann,1810,1856,schumann_r
+Franz,Liszt,Franz Liszt,1811,1886,liszt_f
+Wilhelm Richard,Wagner,Richard Wagner,1813,1883,wagner_r
+Giuseppe Fortunino Francesco,Verdi,Giuseppe Verdi,1813,1901,verdi_g
+César-Auguste-Jean-Guillaume-Hubert,Franck,César Franck,1822,1890,franck_c
+Johannes,Brahms,Johannes Brahms,1833,1897,brahms_j
+Charles-Camille,Saint-Saëns,Camille Saint-Saëns,1835,1921,saintsaens_c
+Charles-François,Gounod,Charles Gounod,1818,1893,gounod_c
+Georges,Bizet,Georges Bizet,1838,1875,bizet_g
+Modest Petrovich,Mussorgsky,Modest Mussorgsky,1839,1881,mussorgsky_m
+Josef Gabriel,Rheinberger,Josef Rheinberger,1839,1901,rheinberger_j
+Pyotr Ilyich,Tchaikovsky,Pyotr Ilyich Tchaikovsky,1840,1893,tchaikovsky_p
+Edward William,Elgar,Edward Elgar,1857,1934,elgar_e
+Antonín Leopold,Dvořák,Antonín Dvořák,1841,1904,dvorak_a
+Edvard Hagerup,Grieg,Edvard Grieg,1843,1907,grieg_e
+Nikolai Andreyevich,Rimsky-Korsakov,Nikolai Rimsky-Korsakov,1844,1908,rimskykorsakov_n
+Gabriel Urbain,Fauré,Gabriel Fauré,1845,1924,faure_g
+Charles-Marie-Jean-Albert,Widor,Charles-Marie Widor,1844,1937,widor_c_m
+Domenico,Zipoli,Domenico Zipoli,1688,1726,zipoli_d
+Giacomo,Puccini,Giacomo Puccini,1858,1924,puccini_g
+Louis-Hector,Berlioz,Hector Berlioz,1803,1869,berlioz_h
+Gustav,Mahler,Gustav Mahler,1860,1911,mahler_g
+Richard Georg,Strauss,Richard Strauss,1864,1949,strauss_r
+Eugène-Auguste,Ysaÿe,Eugène Ysaÿe,1858,1931,ysaye_e
+Jean,Sibelius,Jean Sibelius,1865,1957,sibelius_j
+Sergei Vasilyevich,Rachmaninoff,Sergei Rachmaninoff,1873,1943,rachmaninoff_s
+Alexander Nikolayevich,Scriabin,Alexander Scriabin,1872,1915,scriabin_a
+Claude Achille,Debussy,Claude Debussy,1862,1918,debussy_c
+Johann Baptist Joseph Maximilian,Reger,Max Reger,1873,1916,reger_max
+Joseph Anton,Bruckner,Anton Bruckner,1824,1896,bruckner_a
+Arnold,Schoenberg,Arnold Schoenberg,1874,1951,schoenberg_a
+Béla Viktor János,Bartók,Béla Bartók,1881,1945,bartok_b
+Joseph Maurice,Ravel,Maurice Ravel,1875,1937,ravel_m
+Igor Fyodorovich,Stravinsky,Igor Stravinsky,1882,1971,stravinsky_igor
+Alban Maria Johannes,Berg,Alban Berg,1885,1935,berg_a
+Anton Friedrich Wilhelm,von Webern,Anton Webern,1883,1945,webern_a
+Sergei Sergeyevich,Prokofiev,Sergei Prokofiev,1891,1953,prokofiev_s
+Dmitri Dmitriyevich,Shostakovich,Dmitri Shostakovich,1906,1975,shostakovich_d
+Louis Victor Jules,Vierne,Louis Vierne,1870,1937,vierne_l

@@ -76,10 +76,3 @@ CREATE TABLE items (
   folder_hash TEXT
 );
 
-DROP TABLE IF EXISTS files;
-CREATE TABLE files (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  file_name TEXT NOT NULL,
-  folder_hash TEXT NOT NULL,
-  comment, TEXT
-);
