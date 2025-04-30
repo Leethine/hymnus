@@ -1,7 +1,10 @@
 #/bin/bash
 
-DBFILE="blob/tables.db"
-FSPATH="blob/files"
+if [ -z "${DATAPATH}" ]; then
+  DATAPATH="blob"
+fi
+DBFILE="${DATAPATH}/tables.db"
+FSPATH="${DATAPATH}/files"
 
 # Define functions
 create_path_with_hash() {

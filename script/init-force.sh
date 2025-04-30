@@ -15,37 +15,23 @@ fi
 
 # Check if file or directory already exists
 if [[ -f "${FSPATH}" || -d "${FSPATH}" ]]; then
-  printf "Filesystem path already exists:\n ${FSPATH}\n"
-  read -p "Override? [y/N]: " CONFIRM
-  if [[ ${CONFIRM} != "y" ]]; then
-    echo "Abandoned."
-    exit 0;
-  else
-    rm -fr "${FSPATH}"
-    mkdir -p "${FSPATH}"
-  fi
+  rm -fr "${FSPATH}"
+  mkdir -p "${FSPATH}"
+  chmod --recursive a+rwx ${FSPATH}
 else
   mkdir -p "${FSPATH}"
 fi
 
 if [[ -f "${DBFILE}" || -d "${DBFILE}" ]]; then
-  printf "DB already exists:\n ${DBFILE}\n"
-  read -p "Override? [y/N]: " CONFIRM
-  if [[ ${CONFIRM} != "y" ]]; then
-    echo "Abandoned."
-    exit 0;
-  else
-    rm ${DBFILE}
-  fi
+  rm ${DBFILE}
 fi
 
 # Create SQL schema
 sqlite3 "${DBFILE}" <<EOF
-$(cat ${SQL_SCRIPT})
+  $(cat ${SQL_SCRIPT})
 EOF
 
 # Create filesystem's subdirectories by sha-1 hash
-chmod --recursive a+rwx ${FSPATH}
 IGNORE='mkdir -p "${FSPATH}"
 for i in {0..9}{a..f}; do
   mkdir "${FSPATH}/${i}"

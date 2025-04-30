@@ -1,6 +1,10 @@
 #/bin/bash
 
-DBFILE="blob/tables.db"
+if [ -z "${DATAPATH}" ]; then
+  DATAPATH="blob"
+fi
+
+DBFILE="${DATAPATH}/tables.db"
 CSVFILE=${1}
 
 if [[ -z ${CSVFILE} && ! -f ${CSVFILE} ]]; then
@@ -36,3 +40,5 @@ sqlite3 "${DBFILE}" <<EOF
 DELETE FROM composers WHERE
 code = 'code';
 EOF
+
+echo "Done batch insert composers."

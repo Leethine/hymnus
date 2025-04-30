@@ -1,9 +1,12 @@
 #/bin/bash
 
-DBFILE="blob/tables.db"
+if [ -z "${DATAPATH}" ]; then
+  DATAPATH="blob"
+fi
+DBFILE="${DATAPATH}/tables.db"
 FOLDERHASH="${1}"
 FORCE="${2}"
-FSPATH="blob/files"
+FSPATH="${DATAPATH}/files"
 
 EXISTING="$(sqlite3 -readonly -csv "${DBFILE}" <<EOF
   SELECT id FROM pieces WHERE

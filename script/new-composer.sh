@@ -1,6 +1,9 @@
 #/bin/bash
 
-DBFILE="blob/tables.db"
+if [ -z "${DATAPATH}" ]; then
+  DATAPATH="blob"
+fi
+DBFILE="${DATAPATH}/tables.db"
 
 firstname="${1}"
 lastname="${2}"
