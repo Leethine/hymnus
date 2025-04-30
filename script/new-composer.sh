@@ -14,8 +14,20 @@ if [[ -z "${firstname}"    || -z "${lastname}" ||
       -z "${diedyear}"     || -z "${composercode}" ]]; then
   echo "Missing info, usage:"
   echo '${0} "first name" "last name" "known-as name" bornyear diedyear code'
-  exit 1;
+  exit 1
 else
+
+EXISTING="$(sqlite3 -readonly -csv "${DBFILE}" <<EOF
+SELECT id FROM composers
+WHERE knownas_name = '${knownas_name}'
+OR code = '${composercode}';
+EOF
+)"
+
+if [ ! -z "${EXISTING}" ]; then
+  echo "${knownas_name} or ${composercode} already exists in DB."
+  exit 1
+fi
 
 sqlite3 "${DBFILE}" <<EOF
 INSERT INTO composers (code, firstname, lastname, knownas_name, bornyear, diedyear)
@@ -25,7 +37,7 @@ EOF
 echo "Insertion result:"
 echo ""
 sqlite3 "${DBFILE}" -readonly -table <<EOF
-SELECT * FROM composers WHERE code IS '${composercode}';
+SELECT * FROM composers WHERE code = '${composercode}';
 EOF
 
 fi
