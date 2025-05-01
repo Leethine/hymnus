@@ -54,5 +54,5 @@ function copyScript() {
   copyText.select();
   copyText.setSelectionRange(0, 99999);
   navigator.clipboard.writeText(copyText.value);
-  alert("Copied to clipboard: " + copyText.value);
+  alert("Copied to clipboard:\n" + copyText.value);
 }

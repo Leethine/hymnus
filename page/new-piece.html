@@ -57,7 +57,7 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
     <div class="w3-twothird w3-container">
       <h1 class="w3-text-gray">Create new piece</h1>
 
-      <div id="new-piece-form">
+      <div id="new-piece-form-1">
         <label for="new-piece-title">Title</label>
         <input id="new-piece-title" type="text" class="form-control" placeholder="Title"/>
         <br>
@@ -67,8 +67,15 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
         <label for="new-piece-subsubtitle">Subsubtitle</label>
         <input id="new-piece-subsubtitle" type="text" class="form-control" placeholder="Subsubtitle"/>
         <br>
+        <label for="new-piece-dedicated">Dedicated to</label>
+        <input id="new-piece-dedicated" type="text" class="form-control" placeholder="Dedicated to"/>
+        <br>
+        <label for="new-piece-opus">Opus</label>
+        <input id="new-piece-opus" type="text" class="form-control" placeholder="Op. "/>
+        <br>
       </div>
-      <label for="select-arranger">Select composer from drop-down menu.</label>
+
+      <label for="select-composer">Select composer from drop-down menu.</label>
       <div class="form-row">
         <div class="col-auto">
           <button id="button-composer" class="btn btn-secondary" onclick="createDropDownMenu('select-composer')">Show Composers</button>
@@ -79,6 +86,7 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
         </div>
       </div>
       <br>
+
       <label for="select-arranger">For arranged piece, tick the box and select arranger.</label>
       <div class="form-row">
         <div class="col-auto">
@@ -88,11 +96,39 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
           <select class="custom-select mr-sm-1" id="select-arranger">
           </select>
         </div>
-        <div class="custom-control custom-checkbox mr-sm-2">
-          <input type="checkbox" class="custom-control-input" id="is-arranged-piece">
-          <label class="custom-control-label" for="is-arranged-piece">Arranged piece?</label>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="is-arranged-piece" id="check-arranged-piece-radio1" value="yes" onchange="setArranged()">
+          <label class="form-check-label" for="check-arranged-piece-radio1">
+            Yes
+          </label>
+          &nbsp
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="is-arranged-piece" id="check-arranged-piece-radio2" checked value="no" onchange="setNotArranged()">
+          <label class="form-check-label" for="check-arranged-piece-radio2">
+            No
+          </label>
         </div>
       </div>
+
+      <div id="new-piece-form-2">
+        <br>
+        <label for="new-piece-instrument">Instruments</label>
+        <input id="new-piece-instrument" type="text" class="form-control" placeholder="Piano, Violin, ..."/>
+        <br>
+        <label for="new-piece-comment">Comment</label>
+        <textarea class="form-control" id="new-piece-comment" placeholder="Any comment here." aria-label="new-piece-comment-label"></textarea>
+      </div>
+      <div>
+        <br>
+        <button id="new-piece-script-generate" class="btn btn-primary" onclick="generateScript()"><i class="bi bi-filetype-sh"></i>Generate</button>
+        &nbsp;
+        <button id="new-piece-script-clear" class="btn btn-primary" onclick="clearScript()">Clear</button>
+      </div>
+      <br>
+      <br>
+      <input id="new-piece-script" class="form-control" type="text">
+      <button class="btn btn-secondary" onclick="copyScript()"><i class="bi bi-copy"></i></button>
       <script src="data/composer-data.js"></script>
       <script src="js/new-piece.js"></script>
     </div>
