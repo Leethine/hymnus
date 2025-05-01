@@ -8,6 +8,19 @@ function setNotArranged() {
   is_arranged = 0;
 }
 
+function prettifyTitle(strval) {
+  // Remove extra spaces
+  var splitStr = strval.toLowerCase().split(' ');
+  var newSplitStr = [];
+  for (var elem of splitStr) {
+    if (elem && elem != "") {
+      var cleanstr = elem.replace(/ /g,'');
+      newSplitStr.push(cleanstr);
+    }
+  }
+  return newSplitStr.join(' '); 
+}
+
 function createDropDownMenu(elem_id) {
   document.getElementById(elem_id).innerHTML = "";
   var options = ""
@@ -17,6 +30,7 @@ function createDropDownMenu(elem_id) {
     var composercode = composer["code"];
     var composername = composer["fullname_ascii"];
     var namelist = composername.split(' ');
+    console.log(namelist[namelist.length - 1]);
     var lastname = namelist[namelist.length - 1] + ", ";
     var firstnames = "";
     for (var i = 0; i < namelist.length - 1; i++) {
@@ -51,16 +65,16 @@ function generateScript() {
   var instruments  = document.getElementById("new-piece-instrument").value;
   var comment      = document.getElementById("new-piece-comment").value;
 
-  var script_command = "script/new-piece.sh --title " + " \"" + title + "\" "
+  var script_command = "script/new-piece.sh --title " + " \"" + prettifyTitle(title) + "\" "
                      + " --composer-code " + composercode;
   if (subtitle && subtitle != "") {
     script_command += "  --subtitle  \"";
-    script_command += subtitle;
+    script_command += prettifyTitle(subtitle);
     script_command += "\"  ";
   }
   if (subsubtitle && subsubtitle != "") {
     script_command += "  --subsubtitle  \"";
-    script_command += subsubtitle;
+    script_command += prettifyTitle(subsubtitle);
     script_command += "\"  ";
   }
   if (dedicated_to && dedicated_to != "") {

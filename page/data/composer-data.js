@@ -187,5 +187,8 @@ var composerlistdata =
 },
 
 {"id":64,"code":"vierne_l","firstname":"Louis Victor Jules","lastname":"Vierne","knownas_name":"Louis Vierne","fullname_ascii":"Louis Vierne","bornyear":1870,"diedyear":1937
+},
+
+{"id":67,"code":"toscanini_a","firstname":"Arturo","lastname":"Toscanini","knownas_name":"Arturo Toscanini","fullname_ascii":"Arturo Toscanini","bornyear":1867,"diedyear":1957
 }]
 ;

@@ -1,18 +1,32 @@
-function titleCase(strval) {
+function prettifyNames(strval) {
+  // Uppercase the first letter of each word
   var splitStr = strval.toLowerCase().split(' ');
-  for (var i = 0; i < splitStr.length; i++) {
-      splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);     
+  var newSplitStr = [];
+  for (var elem of splitStr) {
+    // Ignore spaces and empty string
+    if (elem && elem != "") {
+      var cleanstr = elem.replace(/ /g,'');
+      cleanstr = cleanstr.charAt(0).toUpperCase() + cleanstr.substring(1);
+      newSplitStr.push(cleanstr);
+    }
   }
-  return splitStr.join(' '); 
+  return newSplitStr.join(' '); 
 }
 
 function getComposerCode(strfullname) {
   var splitStr = strfullname.toLowerCase().split(' ');
-  var newSplitStr = [splitStr[splitStr.length-1]];
-  for (var i = 0; i < splitStr.length-1; i++) {
-    newSplitStr.push(splitStr[i].charAt(0));
+  var newSplitStr = [];
+  for (var elem of splitStr) {
+    if (elem && elem != "") {
+      newSplitStr.push(elem);
+    }
   }
-  return newSplitStr.join('_');
+  var familyname = newSplitStr[newSplitStr.length-1];
+  var firstnames = [];
+  for (var elem of newSplitStr.slice(0,-1)) {
+    firstnames.push(elem.charAt(0));
+  }
+  return familyname + "_" + firstnames.join('_');
 }
 
 function generateScript() {
@@ -23,9 +37,9 @@ function generateScript() {
   var diedyear = document.getElementById("new-composer-diedyear").value;
 
   var scriptStr = "script/new-composer.sh "
-  + " \" " + titleCase(firstname) + " \" " 
-  + " \" " + titleCase(lastname)  + " \" "
-  + " \""  + titleCase(fullname)  + " \" "
+  + " \"" + prettifyNames(firstname) + "\" " 
+  + " \"" + prettifyNames(lastname)  + "\" "
+  + " \""  + prettifyNames(fullname)  + "\" "
   + bornyear + "  "
   + diedyear + "  "
   + getComposerCode(fullname);
