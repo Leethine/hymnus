@@ -18,7 +18,7 @@ fi
 
 
 # Dump composer list
-echo "var composerlistdata = " > ${OUT_DIR}/composer-data2.js
+echo "var ascii_converted = 0; var composerlistdata = " > ${OUT_DIR}/composer-data2.js
 
 echo "$(sqlite3 ${DBFILE} -json <<EOF
 SELECT 
@@ -43,7 +43,7 @@ mv ${OUT_DIR}/composer-data2.js ${OUT_DIR}/composer-data.js
 
 
 # Dump works
-echo "var piecelistdata = " > ${OUT_DIR}/piece-data2.js
+echo "var ascii_converted = 0; var piecelistdata = " > ${OUT_DIR}/piece-data2.js
 echo "$(sqlite3 ${DBFILE} -json  <<EOF
 SELECT
   id,
@@ -55,6 +55,7 @@ SELECT
   collection_id,
   collection_code,
   title,
+  title as title_ascii,
   subtitle,
   subsubtitle,
   dedicated_to,
@@ -73,7 +74,7 @@ fi
 mv ${OUT_DIR}/piece-data2.js ${OUT_DIR}/piece-data.js
 
 # Dump collections
-echo "var piecelistdata = " > ${OUT_DIR}/collection-data2.js
+echo "var ascii_converted = 0;  var collectionlistdata = " > ${OUT_DIR}/collection-data2.js
 echo "$(sqlite3 ${DBFILE} -json  <<EOF
 SELECT
   id,

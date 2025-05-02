@@ -1,4 +1,4 @@
-var composerlistdata = 
+var ascii_converted = 0; var composerlistdata = 
 [
 {"id":2,"code":"frescobaldi_g","firstname":"Girolamo Alessandro","lastname":"Frescobaldi","knownas_name":"Girolamo Frescobaldi","fullname_ascii":"Girolamo Frescobaldi","bornyear":1583,"diedyear":1643
 },
