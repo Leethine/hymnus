@@ -32,9 +32,9 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
 <div class="w3-top">
   <div class="w3-bar w3-theme w3-top w3-left-align w3-large">
     <a class="w3-bar-item w3-button w3-right w3-hide-large w3-hover-white w3-large w3-theme-l1" href="javascript:void(0)" onclick="w3_open()"><i class="fa fa-bars"></i></a>
-    <a href="index" class="w3-bar-item w3-button w3-theme-l1">Hymnus</a>
-    <a href="about" class="w3-bar-item w3-button w3-hide-small w3-hover-white">About</a>
-    <a href="contact" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Contact</a>
+    <a href="{{ root_url }}/" class="w3-bar-item w3-button w3-theme-l1">Hymnus</a>
+    <a href="{{ root_url }}/about" class="w3-bar-item w3-button w3-hide-small w3-hover-white">About</a>
+    <a href="{{ root_url }}/contact" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Contact</a>
   </div>
 </div>
 
@@ -44,10 +44,10 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
     <i class="fa fa-remove"></i>
   </a>
   <h4 class="w3-bar-item"><b>Browse</b></h4>
-  <a class="w3-bar-item w3-button w3-hover-black {{ list_items_page_property["toggle_menu_search"] }}"      href="{{ list_items_page_property["url_search"] }}">Search</a>
-  <a class="w3-bar-item w3-button w3-hover-black {{ list_items_page_property["toggle_menu_allpieces"] }}"   href="{{ list_items_page_property["url_allpieces"] }}">All Pieces</a>
-  <a class="w3-bar-item w3-button w3-hover-black {{ list_items_page_property["toggle_menu_collections"] }}" href="{{ list_items_page_property["url_collections"] }}">Collections</a>
-  <a class="w3-bar-item w3-button w3-hover-black {{ list_items_page_property["toggle_menu_composers"] }}"   href="{{ list_items_page_property["url_composers"] }}">By Composer</a>
+  <a class="w3-bar-item w3-button w3-hover-black {{ list_items_page_property["toggle_menu_search"] }}"      href="{{ root_url }}/{{ list_items_page_property["url_search"] }}">Search</a>
+  <a class="w3-bar-item w3-button w3-hover-black {{ list_items_page_property["toggle_menu_allpieces"] }}"   href="{{ root_url }}/{{ list_items_page_property["url_allpieces"] }}">All Pieces</a>
+  <a class="w3-bar-item w3-button w3-hover-black {{ list_items_page_property["toggle_menu_collections"] }}" href="{{ root_url }}/{{ list_items_page_property["url_collections"] }}">Collections</a>
+  <a class="w3-bar-item w3-button w3-hover-black {{ list_items_page_property["toggle_menu_composers"] }}"   href="{{ root_url }}/{{ list_items_page_property["url_composers"] }}">By Composer</a>
 </nav>
 
 <!-- Overlay effect when opening sidebar on small screens -->

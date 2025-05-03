@@ -41,7 +41,7 @@ def createComposerTable():
     table += "</tbody></table>"
     return table
   
-def createComposerTableAndPages():
+def createComposerTableAndPages(composer_per_page=20):
     QUERY = "SELECT * FROM composers ORDER BY lastname;"
     con = sqlite3.connect("/home/lizian/Projects/hymnus/blob/tables.db")
     con.row_factory = sqlite3.Row
@@ -60,7 +60,6 @@ def createComposerTableAndPages():
             composers.append(one_composer)
 
     tables = []
-    composer_per_page = 20
     if len(composers) > composer_per_page:
         n_pagination = math.ceil(float(len(composers)) / composer_per_page)
         for i in range(n_pagination):
