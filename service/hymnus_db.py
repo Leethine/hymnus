@@ -5,9 +5,11 @@ from markupsafe import escape
 
 DB_FILE = "/home/lizian/Projects/hymnus/blob/tables.db"
 
-def queryDB(query: str): 
+def queryDB(query: str):
   con = sqlite3.connect(DB_FILE)
+  con.create_function("strrev", 1, lambda s: s[::-1])
   con.row_factory = sqlite3.Row
+
   cur = con.cursor()
   res = cur.execute(query)
   return res
@@ -57,7 +59,8 @@ def createHtmlPagination(urlparent="", pagenumber=1, n_pages=1):
   if i_pagenumber >= 0 and i_pagenumber < n_pages:
     for i in range(n_pages):
       pagination_html.append("<a class=\"w3-button w3-hover-black\"" \
-                             + "href=\"/" + urlparent + "/" + str(i+1) + "\">" + str(i+1) + "</a>")
+                             + "href=\"/" + urlparent + "/" \
+                             + str(i+1) + "\">" + str(i+1) + "</a>")
     pagination_html[i_pagenumber] = "<a class=\"w3-button w3-black\"" \
                                   + "href=\"#\">" + str(pagenumber) + "</a>"
     return " ".join(pagination_html)
@@ -85,12 +88,15 @@ def createComposerTableAndPagination(pagenumber=1, items_per_page=20):
 
   QUERY = """
     SELECT
+      STRREV ( SUBSTR ( 
+        STRREV(knownas_name), 1, INSTR( STRREV (knownas_name), ' ') 
+      ) ) AS 'Name',
+
       code,
-      lastname AS 'Name',
       knownas_name AS 'Full Name',
       bornyear AS 'Born',
       diedyear AS 'Died'
-    FROM composers ORDER BY lastname;
+    FROM composers ORDER BY code ASC;
   """
   
   count = queryDB(QUERY_COUNT).fetchone()[0]
@@ -108,7 +114,7 @@ def createComposerTableAndPagination(pagenumber=1, items_per_page=20):
   html["Table"] = createHtmlTable(table_rows=composers, \
                                   table_head_filter=["Full Name"], \
                                   row_head_index="Name")
-  html["Pagination"] = createHtmlPagination(urlparent="composer",
+  html["Pagination"] = createHtmlPagination(urlparent="composers",
                                             pagenumber=pagenumber, \
                                             n_pages=n_pages)
   return html
@@ -133,16 +139,18 @@ def createPieceTableAndPagination(pagenumber=1, items_per_page=50):
 
   QUERY = """
     SELECT
-      title AS 'Title',
-      opus AS 'Opus',
-      arranged AS 'Arranged?',
-      composer_code,
-      arranger_code,
-      instrument AS 'For',
-      folder_hash AS 'Hash'
-    FROM pieces ORDER BY title;
+      Pieces.title AS 'Title',
+      Pieces.opus AS 'Opus',
+      Pieces.arranged AS 'Arranged?',
+      Pieces.instrument AS 'For',
+      Pieces.folder_hash AS 'Hash',
+      Pieces.composer_code,
+      Composers.knownas_name AS 'Composer Name'
+    FROM Pieces
+    JOIN Composers ON Pieces.composer_code = Composers.code
+    ORDER BY Pieces.title DESC;
   """
-  
+
   count = queryDB(QUERY_COUNT).fetchone()[0]
   n_pages = int(math.ceil(float(count / items_per_page)))
   # make sure pagenumber is within the range
@@ -156,7 +164,7 @@ def createPieceTableAndPagination(pagenumber=1, items_per_page=50):
     composers = res.fetchmany(items_per_page)
 
   html["Table"] = createHtmlTable(table_rows=composers, \
-                                  table_head_filter=["Title"], \
+                                  table_head_filter=["Title", "Composer Name"], \
                                   row_head_index="composer_code")
   html["Pagination"] = createHtmlPagination(urlparent="all-pieces", \
                                             pagenumber=pagenumber, \

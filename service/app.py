@@ -1,5 +1,6 @@
 import os, sqlite3, json
-from flask import Flask, render_template, redirect, request
+from flask import Flask, render_template
+# from flask import redirect, request
 from markupsafe import escape
 import hymnus_page, hymnus_db
 
