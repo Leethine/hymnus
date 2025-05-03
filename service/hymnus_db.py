@@ -1,84 +1,165 @@
-import os, sqlite3, json
+import sqlite3
 from flask import request
 import math
 from markupsafe import escape
 
-def createComposerTable():
-    QUERY = "SELECT * FROM composers ORDER BY lastname;"
-    con = sqlite3.connect("/home/lizian/Projects/hymnus/blob/tables.db")
-    con.row_factory = sqlite3.Row
-    cur = con.cursor()
-    res = cur.execute(QUERY)
-    
-    composers = []
-    for one in res.fetchall():
-        if one["code"]:
-            one_composer = {}
-            one_composer["fullname"] = f'{escape(one["knownas_name"])}'
-            one_composer["lastname"] = one_composer["fullname"].split(' ')[-1]
-            one_composer["code"] = one["code"]
-            one_composer["born"] = str(one["bornyear"])
-            one_composer["died"] = str(one["diedyear"])
-            composers.append(one_composer)
+DB_FILE = "/home/lizian/Projects/hymnus/blob/tables.db"
 
-    table = """<table class="table">
-        <thead><tr>
-        <th scope="col"></th><th scope="col">Full Name</th>
-        <th scope="col">Born</th>
-        <th scope="col">Died</th>
-        <th scope="col">Code</th>
-        </tr></thead>
-        <tbody>"""
+def queryDB(query: str): 
+  con = sqlite3.connect(DB_FILE)
+  con.row_factory = sqlite3.Row
+  cur = con.cursor()
+  res = cur.execute(query)
+  return res
 
-    for c in composers:
-        table += "<tr>"
-        table += "<th scope=\"row\">" + c["lastname"] + "</th>"
-        table += "<td>" + c["fullname"] + "</td>"
-        table += "<td>" + c["born"] + "</td>"
-        table += "<td>" + c["died"] + "</td>"
-        table += "<td>" + c["code"] + "</td>"
-        table += "</tr>"
-    table += "</tbody></table>"
-    return table
+
+def createHtmlTable(table_rows=[{}], table_head_filter=[], row_head_index=""):
+  html = """<table class="table">
+            <thead><tr>
+            <th scope="col"></th>"""
+  head = []
+  if table_head_filter:
+    head = table_head_filter
+  elif len(table_rows) > 0:
+    head = table_rows[0].keys()
+  else:
+    pass
+
+  for col_head in head:
+    html += f'<th scope="col">{col_head}</th>'
+  html += "</tr></thead><tbody>"
+
+  for row in table_rows:
+    html += "<tr>"
+    if row_head_index:
+      html += "<th scope=\"row\">" + row[row_head_index] + "</th>"
+    else:
+      html += "<th scope=\"row\"></th>"
+    for col_key in head:
+      html += "<td>" + row[col_key] + "</td>"
+    html += "</tr>"
+
+  html += "</tbody></table>"
+  return html
+
+
+def createHtmlPagination(urlparent="", pagenumber=1, n_pages=1):
+  if not str(pagenumber).isdigit():
+    return "Invalid page number: " + str(pagenumber)
+  if not str(n_pages).isdigit():
+    return "Invalid total pages: " + str(n_pages)
+
+  # page number as in array indexing
+  i_pagenumber = int(pagenumber) - 1
   
-def createComposerTableAndPages(composer_per_page=20):
-    QUERY = "SELECT * FROM composers ORDER BY lastname;"
-    con = sqlite3.connect("/home/lizian/Projects/hymnus/blob/tables.db")
-    con.row_factory = sqlite3.Row
-    cur = con.cursor()
-    res = cur.execute(QUERY)
-    
-    composers = []
-    for one in res.fetchall():
-        if one["code"]:
-            one_composer = {}
-            one_composer["fullname"] = f'{escape(one["knownas_name"])}'
-            one_composer["lastname"] = one_composer["fullname"].split(' ')[-1]
-            one_composer["code"] = one["code"]
-            one_composer["born"] = str(one["bornyear"])
-            one_composer["died"] = str(one["diedyear"])
-            composers.append(one_composer)
+  # generate html page list
+  pagination_html = []
+  if i_pagenumber >= 0 and i_pagenumber < n_pages:
+    for i in range(n_pages):
+      pagination_html.append("<a class=\"w3-button w3-hover-black\"" \
+                             + "href=\"/" + urlparent + "/" + str(i+1) + "\">" + str(i+1) + "</a>")
+    pagination_html[i_pagenumber] = "<a class=\"w3-button w3-black\"" \
+                                  + "href=\"#\">" + str(pagenumber) + "</a>"
+    return " ".join(pagination_html)
+  else:
+    return "Page out of range"
 
-    tables = []
-    if len(composers) > composer_per_page:
-        n_pagination = math.ceil(float(len(composers)) / composer_per_page)
-        for i in range(n_pagination):
-            table = """<table class="table">
-                <thead><tr>
-                <th scope="col"></th><th scope="col">Full Name</th>
-                <th scope="col">Born</th>
-                <th scope="col">Died</th>
-                <th scope="col">Code</th>
-                </tr></thead>
-                <tbody>"""
-            for c in composers[i*composer_per_page:(i+1)*composer_per_page]:
-                table += "<tr>"
-                table += "<th scope=\"row\">" + c["lastname"] + "</th>"
-                table += "<td>" + c["fullname"] + "</td>"
-                table += "<td>" + c["born"] + "</td>"
-                table += "<td>" + c["died"] + "</td>"
-                table += "<td>" + c["code"] + "</td>"
-                table += "</tr>"
-            table += "</tbody></table>"
-            tables.append(table)
-    return tables
+
+
+def createComposerTableAndPagination(pagenumber=1, items_per_page=20):
+  # Return dictionary with table html and pagination html
+  html = {}
+  html["Table"] = ""
+  html["Pagination"] = ""
+  
+  # make sure page number is digit
+  if not str(pagenumber).isdigit():
+    html["Table"] = "<h4>Invalid page number: " + str(pagenumber) + "!!!</h4>"
+    return html
+  i_pagenumber = int(pagenumber) - 1
+  
+  QUERY_COUNT = """
+    SELECT COUNT(lastname)
+    FROM composers;
+  """
+
+  QUERY = """
+    SELECT
+      code,
+      lastname AS 'Name',
+      knownas_name AS 'Full Name',
+      bornyear AS 'Born',
+      diedyear AS 'Died'
+    FROM composers ORDER BY lastname;
+  """
+  
+  count = queryDB(QUERY_COUNT).fetchone()[0]
+  n_pages = int(math.ceil(float(count / items_per_page)))
+  # make sure pagenumber is within the range
+  if i_pagenumber < 0 or i_pagenumber >= n_pages:
+    html["Table"] = f"<h4>Page {pagenumber} is out of range !!!</h4>"
+    return html
+
+  res = queryDB(QUERY)
+  composers = [{}]
+  for i in range(pagenumber):
+    composers = res.fetchmany(items_per_page)
+
+  html["Table"] = createHtmlTable(table_rows=composers, \
+                                  table_head_filter=["Full Name"], \
+                                  row_head_index="Name")
+  html["Pagination"] = createHtmlPagination(urlparent="composer",
+                                            pagenumber=pagenumber, \
+                                            n_pages=n_pages)
+  return html
+
+
+def createPieceTableAndPagination(pagenumber=1, items_per_page=50):
+  # Return dictionary with table html and pagination html
+  html = {}
+  html["Table"] = ""
+  html["Pagination"] = ""
+  
+  # make sure page number is digit
+  if not str(pagenumber).isdigit():
+    html["Table"] = "<h4>Invalid page number: " + str(pagenumber) + "!!!</h4>"
+    return html
+  i_pagenumber = int(pagenumber) - 1
+  
+  QUERY_COUNT = """
+    SELECT COUNT(title)
+    FROM pieces;
+  """
+
+  QUERY = """
+    SELECT
+      title AS 'Title',
+      opus AS 'Opus',
+      arranged AS 'Arranged?',
+      composer_code,
+      arranger_code,
+      instrument AS 'For',
+      folder_hash AS 'Hash'
+    FROM pieces ORDER BY title;
+  """
+  
+  count = queryDB(QUERY_COUNT).fetchone()[0]
+  n_pages = int(math.ceil(float(count / items_per_page)))
+  # make sure pagenumber is within the range
+  if i_pagenumber < 0 or i_pagenumber >= n_pages:
+    html["Table"] = f"<h4>Page {pagenumber} is out of range !!!</h4>"
+    return html
+
+  res = queryDB(QUERY)
+  composers = [{}]
+  for i in range(pagenumber):
+    composers = res.fetchmany(items_per_page)
+
+  html["Table"] = createHtmlTable(table_rows=composers, \
+                                  table_head_filter=["Title"], \
+                                  row_head_index="composer_code")
+  html["Pagination"] = createHtmlPagination(urlparent="all-pieces", \
+                                            pagenumber=pagenumber, \
+                                            n_pages=n_pages)
+  return html
+

@@ -8,64 +8,71 @@ app = Flask(__name__)
 @app.route("/")
 @app.route("/index")
 def index():
-    return render_template("index.html", page_title="Hymnus Library", root_url="")
+    return render_template("index.html", page_title="Hymnus Library")
+
+@app.route("/about")
+def about():
+    return "About Blank"
+
+@app.route("/contact")
+def contact():
+    return "Contact"
 
 @app.route("/all-pieces")
-def page_allpieces():
-    return render_template("item_list.html", page_title="All Pieces • Hymnus Library", list_items_page_property=hymnus_page.getPageSetting("p"), root_url="")
+def all_pieces():
+    html = hymnus_db.createPieceTableAndPagination(1)
+    return render_template("item_list.html", \
+        page_title="Pieces • Hymnus Library", \
+        list_items_page_property=hymnus_page.getPageSetting("p"), \
+        list_items_table=html["Table"], \
+        list_items_pagination=html["Pagination"])
+
+@app.route("/all-pieces/<pagenumber>")
+def page_pieces(pagenumber):
+    if not str(pagenumber).isdigit():
+        return "Invalid page number: " + str(pagenumber)
+    html = hymnus_db.createPieceTableAndPagination(pagenumber=int(pagenumber))
+
+    # Avoid having href="#" for composer page 
+    page_setting = hymnus_page.getPageSetting("p")
+    page_setting["url_allpieces"] = "all-pieces"
+
+    return render_template("item_list.html", \
+        page_title="Pieces • Hymnus Library", \
+        list_items_page_property=page_setting, \
+        list_items_table=html["Table"], \
+        list_items_pagination=html["Pagination"])
 
 @app.route("/composers-all")
 def all_composers():
     return render_template("item_list.html", page_title="Composers • Hymnus Library", \
         list_items_page_property=hymnus_page.getPageSetting("c"), \
-        list_items_table=hymnus_db.createComposerTable())
+        list_items_table=hymnus_db.createHtmlTable())
+
+@app.route("/composers/<pagenumber>")
+def page_composers(pagenumber):
+    if not str(pagenumber).isdigit():
+        return "Invalid page number: " + str(pagenumber)
+    html = hymnus_db.createComposerTableAndPagination(pagenumber=int(pagenumber))
+    
+    # Avoid having href="#" for composer page 
+    page_setting = hymnus_page.getPageSetting("c")
+    page_setting["url_composers"] = "composers"
+
+    return render_template("item_list.html", \
+        page_title="Composers • Hymnus Library", \
+        list_items_page_property=page_setting, \
+        list_items_table=html["Table"], \
+        list_items_pagination=html["Pagination"])
 
 @app.route("/composers")
 def composers():
-    tables = hymnus_db.createComposerTableAndPages()
-    n_pagination = len(tables)
-    pagination = ["<a class=\"w3-button w3-black\" href=\"#\">1</a>"]
-
-    for i in range(1, n_pagination):
-        pagination.append("<a class=\"w3-button w3-hover-black\" href=\"composers/" \
-                          + str(i+1) + "\">" + str(i+1) + "</a>")
-    if n_pagination > 1:
-        return render_template("item_list.html", \
-            root_url="", \
-            page_title="Composers • Hymnus Library", \
-            list_items_page_property=hymnus_page.getPageSetting("c"), \
-            list_items_table=tables[0], \
-            list_items_pagination=" ".join(pagination))
-    else:
-        return render_template("item_list.html", \
-            root_url="", \
-            page_title="Composers • Hymnus Library", \
-            list_items_page_property=hymnus_page.getPageSetting("c"), \
-            list_items_table=hymnus_db.createComposerTable(), \
-            list_items_pagination="")
-    
-@app.route("/composers/<pagenumber>")
-def page_composers(pagenumber):
-    if not pagenumber.isdigit():
-        return "Invalid page number: " + pagenumber
-    i_pagenumber = int(pagenumber) - 1
-    tables = hymnus_db.createComposerTableAndPages()
-    n_pagination = len(tables)
-    pagination = []
-    for i in range(n_pagination):
-        pagination.append("<a class=\"w3-button w3-hover-black\" href=\"" \
-                          + str(i+1) + "\">" + str(i+1) + "</a>")
-    if i_pagenumber >= 0 and i_pagenumber < n_pagination:
-        pagination[i_pagenumber] = "<a class=\"w3-button w3-black\" href=\"#\">" \
-                                 + str(pagenumber) + "</a>"
-        return render_template("item_list.html", \
-            root_url="", \
-            page_title="Composers • Hymnus Library", \
-            list_items_page_property=hymnus_page.getPageSetting("c"), \
-            list_items_table=tables[i_pagenumber], \
-            list_items_pagination=" ".join(pagination))
-    else:
-        return "Page out of range"
+    html = hymnus_db.createComposerTableAndPagination(1)
+    return render_template("item_list.html", \
+        page_title="Composers • Hymnus Library", \
+        list_items_page_property=hymnus_page.getPageSetting("c"), \
+        list_items_table=html["Table"], \
+        list_items_pagination=html["Pagination"])
 
 @app.route("/collections")
 def page_collections():

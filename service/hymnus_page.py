@@ -10,8 +10,8 @@ PAGESETTING_DEFAULT = {
 def getPageSetting(pagetype: str):
     pagesetting = PAGESETTING_DEFAULT.copy()
     if pagetype == "p":
-        pagesetting["headline"] = "All Pieces"
-        pagesetting["description"] = "Browse all pieces in this library."
+        pagesetting["headline"] = "Pieces"
+        pagesetting["description"] = "Browse all work pieces in this library."
         pagesetting["toggle_menu_allpieces"] = " w3-theme-l3 "
         pagesetting["url_allpieces"] = "#"
     elif pagetype == "c":
