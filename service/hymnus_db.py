@@ -14,8 +14,26 @@ def queryDB(query: str):
   res = cur.execute(query)
   return res
 
+def getComposerDataFromCode(composer_code: str):
+  QUERY_COUNT = f"SELECT count(*) FROM Composers WHERE code = '{composer_code}';"
+  QUERY = f"SELECT * FROM Composers WHERE code = '{composer_code}'"
+  count = queryDB(QUERY_COUNT).fetchone()[0]
+  if count == 0:
+    return f"<b><i>{composer_code} does not exist!!!!</i></b>"
+  else:
+    res = queryDB(QUERY).fetchone()
+    composer = {}
+    composer["id"] = res["id"]
+    composer["code"] = res["code"]
+    composer["firstname"] = res["firstname"]
+    composer["lastname"] = res["lastname"]
+    composer["knownas_name"] = res["knownas_name"]
+    composer["bornyear"] = res["bornyear"]
+    composer["diedyear"] = res["diedyear"]
+    return composer
+    
 
-def createHtmlTable(table_rows=[{}], table_head_filter=[], row_head_index=""):
+def createHtmlTable(table_rows=[{}], table_head_filter=[], row_head_index="", linktype=""):
   html = """<table class="table">
             <thead><tr>
             <th scope="col"></th>"""
@@ -29,6 +47,8 @@ def createHtmlTable(table_rows=[{}], table_head_filter=[], row_head_index=""):
 
   for col_head in head:
     html += f'<th scope="col">{escape(col_head)}</th>'
+  if linktype:
+    html += f'<th scope="col"></th>'
   html += "</tr></thead><tbody>"
 
   for row in table_rows:
@@ -39,6 +59,10 @@ def createHtmlTable(table_rows=[{}], table_head_filter=[], row_head_index=""):
       html += "<th scope=\"row\"></th>"
     for col_key in head:
       html += f"<td>{row[col_key]}</td>"
+    if linktype == "c":
+      code = row["code"]
+      html += f"<th scope=\"row\"><a href=\"/works-by/{code}\">" \
+              + "<i class=\"bi bi-arrow-up-right-square\"></i></a></th>"
     html += "</tr>"
 
   html += "</tbody></table>"
@@ -111,8 +135,8 @@ def createComposerTableAndPagination(pagenumber=1, items_per_page=20):
     composers = res.fetchmany(items_per_page)
 
   html["Table"] = createHtmlTable(table_rows=composers, \
-                                  table_head_filter=["Full Name"], \
-                                  row_head_index="Name")
+                                  table_head_filter=["Full Name", "Born", "Died"], \
+                                  row_head_index="Name", linktype="c")
   html["Pagination"] = createHtmlPagination(urlparent="composers",
                                             pagenumber=pagenumber, \
                                             n_pages=n_pages)

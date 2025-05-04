@@ -34,7 +34,7 @@ def page_pieces(pagenumber):
         return f"Invalid page number: {pagenumber}"
     html = hymnus_db.createPieceTableAndPagination(pagenumber=int(pagenumber))
 
-    # Avoid having href="#" for composer page 
+    # Avoid having href="#" for "all-piece" page 
     page_setting = hymnus_page.getPageSetting("p")
     page_setting["url_allpieces"] = "all-pieces"
 
@@ -83,7 +83,7 @@ def page_collections(pagenumber):
         return "Invalid page number: " + str(pagenumber)
     html = hymnus_db.createCollectionTableAndPagination(pagenumber=int(pagenumber))
 
-    # Avoid having href="#" for composer page 
+    # Avoid having href="#" for collection page 
     page_setting = hymnus_page.getPageSetting("col")
     page_setting["url_collections"] = "collections"
 
@@ -100,6 +100,43 @@ def collections():
 @app.route("/search")
 def page_search():
     return render_template("item_list.html", page_title="Search • Hymnus Library", list_items_page_property=hymnus_page.getPageSetting("s"))
+
+
+@app.route("/works-by/<composer_code>")
+def composer_pieces(composer_code):
+    html = hymnus_db.createPieceTableAndPagination(composer_code=composer_code, \
+                                                    pagenumber=1)
+
+    page_setting = hymnus_page.getPageSetting("NA")
+    composer = hymnus_db.getComposerDataFromCode(composer_code)
+    fullname = composer["knownas_name"]
+    page_setting["headline"] = f"List of works by {escape(fullname)}"
+    page_setting["description"] = "# TODO"
+
+    return render_template("item_list.html", \
+        page_title="Pieces • Hymnus Library", \
+        list_items_page_property=page_setting, \
+        list_items_table=html["Table"], \
+        list_items_pagination=html["Pagination"])
+
+@app.route("/works-by/<composer_code>/<pagenumber>")
+def composer_pieces_pagination(composer_code, pagenumber):
+    if not str(pagenumber).isdigit():
+        return f"Invalid page number: {pagenumber}"
+    html = hymnus_db.createPieceTableAndPagination(composer_code=composer_code, \
+                                                    pagenumber=int(pagenumber))
+
+    page_setting = hymnus_page.getPageSetting("NA")
+    composer = hymnus_db.getComposerDataFromCode(composer_code)
+    fullname = composer["knownas_name"]
+    page_setting["headline"] = f'List of works by {escape(fullname)}'
+    page_setting["description"] = "#TODO"
+
+    return render_template("item_list.html", \
+        page_title="Pieces • Hymnus Library", \
+        list_items_page_property=page_setting, \
+        list_items_table=html["Table"], \
+        list_items_pagination=html["Pagination"])
 
 
 # Page test
