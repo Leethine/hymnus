@@ -21,7 +21,7 @@ def contact():
 
 @app.route("/all-pieces")
 def pieces():
-    html = hymnus_db.createPieceTableAndPagination(composer_code="franck_c", pagenumber=1)
+    html = hymnus_db.createPieceTableAndPagination(pagenumber=1)
     return render_template("item_list.html", \
         page_title="Pieces • Hymnus Library", \
         list_items_page_property=hymnus_page.getPageSetting("p"), \
@@ -31,7 +31,7 @@ def pieces():
 @app.route("/all-pieces/<pagenumber>")
 def page_pieces(pagenumber):
     if not str(pagenumber).isdigit():
-        return "Invalid page number: " + str(pagenumber)
+        return f"Invalid page number: {pagenumber}"
     html = hymnus_db.createPieceTableAndPagination(pagenumber=int(pagenumber))
 
     # Avoid having href="#" for composer page 
@@ -54,7 +54,7 @@ def all_composers():
 @app.route("/composers/<pagenumber>")
 def page_composers(pagenumber):
     if not str(pagenumber).isdigit():
-        return "Invalid page number: " + str(pagenumber)
+        return f"Invalid page number: {pagenumber}"
     html = hymnus_db.createComposerTableAndPagination(pagenumber=int(pagenumber))
     
     # Avoid having href="#" for composer page 

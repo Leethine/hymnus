@@ -28,17 +28,17 @@ def createHtmlTable(table_rows=[{}], table_head_filter=[], row_head_index=""):
     pass
 
   for col_head in head:
-    html += f'<th scope="col">{col_head}</th>'
+    html += f'<th scope="col">{escape(col_head)}</th>'
   html += "</tr></thead><tbody>"
 
   for row in table_rows:
     html += "<tr>"
     if row_head_index and row_head_index in row.keys():
-      html += "<th scope=\"row\">" + row[row_head_index] + "</th>"
+      html += f"<th scope=\"row\">{escape(row[row_head_index])}</th>"
     else:
       html += "<th scope=\"row\"></th>"
     for col_key in head:
-      html += "<td>" + row[col_key] + "</td>"
+      html += f"<td>{row[col_key]}</td>"
     html += "</tr>"
 
   html += "</tbody></table>"
@@ -47,9 +47,9 @@ def createHtmlTable(table_rows=[{}], table_head_filter=[], row_head_index=""):
 
 def createHtmlPagination(urlparent="", pagenumber=1, n_pages=1):
   if not str(pagenumber).isdigit():
-    return "Invalid page number: " + str(pagenumber)
+    return f"Invalid page number: {pagenumber}"
   if not str(n_pages).isdigit():
-    return "Invalid total pages: " + str(n_pages)
+    return f"Invalid total pages: {n_pages}"
 
   # page number as in array indexing
   i_pagenumber = int(pagenumber) - 1
@@ -59,14 +59,12 @@ def createHtmlPagination(urlparent="", pagenumber=1, n_pages=1):
   if i_pagenumber >= 0 and i_pagenumber < n_pages:
     for i in range(n_pages):
       pagination_html.append("<a class=\"w3-button w3-hover-black\"" \
-                             + "href=\"/" + urlparent + "/" \
-                             + str(i+1) + "\">" + str(i+1) + "</a>")
+                             + f"href=\"/{escape(urlparent)}/{str(i+1)}\">{str(i+1)}</a>")
     pagination_html[i_pagenumber] = "<a class=\"w3-button w3-black\"" \
-                                  + "href=\"#\">" + str(pagenumber) + "</a>"
+                                  + f"href=\"#\">{pagenumber}</a>"
     return " ".join(pagination_html)
   else:
     return "Page out of range"
-
 
 
 def createComposerTableAndPagination(pagenumber=1, items_per_page=20):
@@ -77,7 +75,7 @@ def createComposerTableAndPagination(pagenumber=1, items_per_page=20):
   
   # make sure page number is digit
   if not str(pagenumber).isdigit():
-    html["Table"] = "<h4>Invalid page number: " + str(pagenumber) + "!!!</h4>"
+    html["Table"] = f"<h4>Invalid page number: {pagenumber}!!!</h4>"
     return html
   i_pagenumber = int(pagenumber) - 1
   
@@ -88,6 +86,7 @@ def createComposerTableAndPagination(pagenumber=1, items_per_page=20):
 
   QUERY = """
     SELECT
+
       STRREV ( SUBSTR ( 
         STRREV(knownas_name), 1, INSTR( STRREV (knownas_name), ' ') 
       ) ) AS 'Name',
@@ -128,7 +127,7 @@ def createPieceTableAndPagination(composer_code="", pagenumber=1, items_per_page
   
   # make sure page number is digit
   if not str(pagenumber).isdigit():
-    html["Table"] = "<h4>Invalid page number: " + str(pagenumber) + "!!!</h4>"
+    html["Table"] = f"<h4>Invalid page number: {pagenumber}!!!</h4>"
     return html
   i_pagenumber = int(pagenumber) - 1
   
@@ -188,7 +187,7 @@ def createCollectionTableAndPagination(pagenumber=1, items_per_page=30):
   
   # make sure page number is digit
   if not str(pagenumber).isdigit():
-    html["Table"] = "<h4>Invalid page number: " + str(pagenumber) + "!!!</h4>"
+    html["Table"] = f"<h4>Invalid page number: {pagenumber}!!!</h4>"
     return html
   i_pagenumber = int(pagenumber) - 1
   
