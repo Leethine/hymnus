@@ -1,6 +1,6 @@
 import os, sqlite3, json
 from flask import Flask, render_template
-# from flask import redirect, request
+from flask import redirect, request
 from markupsafe import escape
 import hymnus_page, hymnus_db
 
@@ -20,8 +20,8 @@ def contact():
     return "Contact"
 
 @app.route("/all-pieces")
-def all_pieces():
-    html = hymnus_db.createPieceTableAndPagination(1)
+def pieces():
+    html = hymnus_db.createPieceTableAndPagination(composer_code="franck_c", pagenumber=1)
     return render_template("item_list.html", \
         page_title="Pieces • Hymnus Library", \
         list_items_page_property=hymnus_page.getPageSetting("p"), \
@@ -44,6 +44,7 @@ def page_pieces(pagenumber):
         list_items_table=html["Table"], \
         list_items_pagination=html["Pagination"])
 
+# Without paging
 @app.route("/composers-all")
 def all_composers():
     return render_template("item_list.html", page_title="Composers • Hymnus Library", \
@@ -75,8 +76,25 @@ def composers():
         list_items_table=html["Table"], \
         list_items_pagination=html["Pagination"])
 
+
+@app.route("/collections/<pagenumber>")
+def page_collections(pagenumber):
+    if not str(pagenumber).isdigit():
+        return "Invalid page number: " + str(pagenumber)
+    html = hymnus_db.createCollectionTableAndPagination(pagenumber=int(pagenumber))
+
+    # Avoid having href="#" for composer page 
+    page_setting = hymnus_page.getPageSetting("col")
+    page_setting["url_collections"] = "collections"
+
+    return render_template("item_list.html", \
+        page_title="Collections • Hymnus Library", \
+        list_items_page_property=page_setting, \
+        list_items_table=html["Table"], \
+        list_items_pagination=html["Pagination"])
+
 @app.route("/collections")
-def page_collections():
+def collections():
     return render_template("item_list.html", page_title="Collections • Hymnus Library", list_items_page_property=hymnus_page.getPageSetting("col"))
 
 @app.route("/search")

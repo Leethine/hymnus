@@ -33,7 +33,7 @@ def createHtmlTable(table_rows=[{}], table_head_filter=[], row_head_index=""):
 
   for row in table_rows:
     html += "<tr>"
-    if row_head_index:
+    if row_head_index and row_head_index in row.keys():
       html += "<th scope=\"row\">" + row[row_head_index] + "</th>"
     else:
       html += "<th scope=\"row\"></th>"
@@ -120,7 +120,7 @@ def createComposerTableAndPagination(pagenumber=1, items_per_page=20):
   return html
 
 
-def createPieceTableAndPagination(pagenumber=1, items_per_page=50):
+def createPieceTableAndPagination(composer_code="", pagenumber=1, items_per_page=50):
   # Return dictionary with table html and pagination html
   html = {}
   html["Table"] = ""
@@ -137,7 +137,7 @@ def createPieceTableAndPagination(pagenumber=1, items_per_page=50):
     FROM pieces;
   """
 
-  QUERY = """
+  QUERY1 = """
     SELECT
       Pieces.title AS 'Title',
       Pieces.opus AS 'Opus',
@@ -148,6 +148,13 @@ def createPieceTableAndPagination(pagenumber=1, items_per_page=50):
       Composers.knownas_name AS 'Composer Name'
     FROM Pieces
     JOIN Composers ON Pieces.composer_code = Composers.code
+    """
+  
+  QUERY2 = ""
+  if composer_code:
+    QUERY2 = f" WHERE Pieces.composer_code = '{composer_code}'"
+  
+  QUERY3 = """
     ORDER BY Pieces.title DESC;
   """
 
@@ -158,6 +165,7 @@ def createPieceTableAndPagination(pagenumber=1, items_per_page=50):
     html["Table"] = f"<h4>Page {pagenumber} is out of range !!!</h4>"
     return html
 
+  QUERY = QUERY1 + QUERY2 + QUERY3
   res = queryDB(QUERY)
   composers = [{}]
   for i in range(pagenumber):
@@ -167,6 +175,56 @@ def createPieceTableAndPagination(pagenumber=1, items_per_page=50):
                                   table_head_filter=["Title", "Composer Name"], \
                                   row_head_index="composer_code")
   html["Pagination"] = createHtmlPagination(urlparent="all-pieces", \
+                                            pagenumber=pagenumber, \
+                                            n_pages=n_pages)
+  return html
+
+
+def createCollectionTableAndPagination(pagenumber=1, items_per_page=30):
+  # Return dictionary with table html and pagination html
+  html = {}
+  html["Table"] = ""
+  html["Pagination"] = ""
+  
+  # make sure page number is digit
+  if not str(pagenumber).isdigit():
+    html["Table"] = "<h4>Invalid page number: " + str(pagenumber) + "!!!</h4>"
+    return html
+  i_pagenumber = int(pagenumber) - 1
+  
+  QUERY_COUNT = """
+    SELECT COUNT(title)
+    FROM collections;
+  """
+
+  QUERY = """
+    SELECT
+      Collections.title AS 'Title',
+      Collections.opus AS 'Opus',
+      Collections.composer_code,
+      Collections.editor,
+      Composers.knownas_name AS 'Composer Name'
+    FROM Collections
+    JOIN Composers ON Collections.composer_code = Composers.code
+    ORDER BY Collections.title DESC;
+  """
+
+  count = queryDB(QUERY_COUNT).fetchone()[0]
+  n_pages = int(math.ceil(float(count / items_per_page)))
+  # make sure pagenumber is within the range
+  if i_pagenumber < 0 or i_pagenumber >= n_pages:
+    html["Table"] = f"<h4>Page {pagenumber} is out of range !!!</h4>"
+    return html
+
+  res = queryDB(QUERY)
+  collections = [{}]
+  for i in range(pagenumber):
+    collections = res.fetchmany(items_per_page)
+
+  html["Table"] = createHtmlTable(table_rows=collections, \
+                                  table_head_filter=["Title", "Opus", "Composer Name", "Editor"], \
+                                  row_head_index="")
+  html["Pagination"] = createHtmlPagination(urlparent="collections", \
                                             pagenumber=pagenumber, \
                                             n_pages=n_pages)
   return html
