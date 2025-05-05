@@ -31,7 +31,6 @@ def getComposerDataFromCode(composer_code: str):
     composer["bornyear"] = res["bornyear"]
     composer["diedyear"] = res["diedyear"]
     return composer
-    
 
 def createHtmlTable(table_rows=[{}], table_head_filter=[], row_head_index="", linktype=""):
   html = """<table class="table">
@@ -67,7 +66,6 @@ def createHtmlTable(table_rows=[{}], table_head_filter=[], row_head_index="", li
 
   html += "</tbody></table>"
   return html
-
 
 def createHtmlPagination(urlparent="", pagenumber=1, n_pages=1):
   if not str(pagenumber).isdigit():
