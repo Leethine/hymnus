@@ -21,7 +21,7 @@ if [[ -z "${firstname}"    || -z "${lastname}" ||
 else
 
 EXISTING="$(sqlite3 -readonly -csv "${DBFILE}" <<EOF
-SELECT id FROM composers
+SELECT code FROM composers
 WHERE knownas_name = '${knownas_name}'
 OR code = '${composercode}';
 EOF

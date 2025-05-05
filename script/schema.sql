@@ -15,14 +15,13 @@ CREATE TABLE composers (
 DROP TABLE IF EXISTS collections;
 CREATE TABLE collections (
   code TEXT UNIQUE NOT NULL,
+  composer_code TEXT,
   title TEXT NOT NULL,
   subtitle TEXT,
   subsubtitle TEXT,
   opus TEXT,
   description_text TEXT,
   volume INTEGER,
-  composer_id INTEGER,
-  composer_code TEXT,
   instruments TEXT,
   editor TEXT
 );
@@ -39,7 +38,7 @@ CREATE TABLE pieces (
   subsubtitle TEXT,
   dedicated_to TEXT,
   opus TEXT,
-  instrument TEXT,
+  instruments TEXT,
   folder_hash TEXT NOT NULL
     CHECK (LENGTH(folder_hash) = 40),
   comment TEXT

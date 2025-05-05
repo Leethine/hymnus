@@ -95,7 +95,7 @@ done
 set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
 
 
-# Check input arguments, only one argument should be used
+# Check input arguments
 if [[ -z "${TITLE}" || -z "${COMPOSER_CODE}" ]]; then
   echo "Must provide at least TITLE and COMPOSER_CODE"
   exit 1
@@ -160,7 +160,7 @@ SHA1HASH="$(echo "${COMPOSER}-${TITLE}-${SUBTITLE}-${SUBSUBTITLE}-${OPUS}-${ARRA
 
 # Check hash collision
 EXISTING="$(sqlite3 -readonly -csv "${DBFILE}" <<EOF
-  SELECT id FROM pieces
+  SELECT folder_hash FROM pieces
   WHERE folder_hash = '${SHA1HASH}';
 EOF
 )"
@@ -184,7 +184,7 @@ update_value_in_db ${SHA1HASH} subsubtitle "${SUBSUBTITLE}"
 update_value_in_db ${SHA1HASH} opus "${OPUS}"
 update_value_in_db ${SHA1HASH} arranger_code "${ARRANGER_CODE}"
 update_value_in_db ${SHA1HASH} collection_code "${COLLECTION_CODE}"
-update_value_in_db ${SHA1HASH} instrument "${INSTRUMENTS}"
+update_value_in_db ${SHA1HASH} instruments "${INSTRUMENTS}"
 update_value_in_db ${SHA1HASH} dedicated_to "${DEDICATED}"
 update_value_in_db ${SHA1HASH} comment "${COMMENT}"
 
