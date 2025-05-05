@@ -1,4 +1,6 @@
 import sqlite3
+from unidecode import unidecode
+import json
 
 DB_FILE = "/home/lizian/Projects/hymnus/blob/tables.db"
 
@@ -28,3 +30,18 @@ def getComposerDataFromCode(composer_code: str):
     composer["bornyear"] = res["bornyear"]
     composer["diedyear"] = res["diedyear"]
     return composer
+
+def getComposerCodeNameMap(jsonpath="tempdata.js"):
+  QUERY_COUNT = "SELECT count(*) FROM Composers;"
+  QUERY = "SELECT code, knownas_name FROM Composers ORDER BY code ASC;"
+  count = queryDB(QUERY_COUNT).fetchone()[0]
+  if count == 0:
+    return {}
+  else:
+    composers = []
+    for row in queryDB(QUERY).fetchall():
+      c = {}
+      c["code"] = row["code"]
+      c["name"] = unidecode(row["knownas_name"])
+      composers.append(c)
+    return json.dumps(composers)

@@ -1,3 +1,5 @@
+from unidecode import unidecode
+
 LIST_ITEM_PAGE_CONTENT = {
   "headline": "",
   "description": "",
@@ -34,3 +36,9 @@ def getPageContent(page_type: str):
   else:
     pass
   return content
+
+def normalizeStr(inputstr=""):
+  return unidecode(inputstr)
+
+def toAscii(inputstr=""):
+  return unidecode(inputstr)

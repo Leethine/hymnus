@@ -12,11 +12,20 @@ def index():
 
 @app.route("/about")
 def about():
-  return "About Blank"
+  return  render_template("about.html")
 
 @app.route("/contact")
 def contact():
   return "Contact"
+
+@app.route("/new-composer")
+def createNewComposer():
+  return render_template("new_composer.html")
+
+@app.route("/new-piece")
+def createNewPiece():
+  return render_template("new_piece.html", 
+                         composerlist_dict=str(database.getComposerCodeNameMap()))
 
 @app.route("/browse/<browsetype>")
 def browseByType(browsetype):
@@ -79,7 +88,7 @@ def browseByTypeAndPage(browsetype, pagenumber):
     list_items_pagination=html["Pagination"])
 
 @app.route("/works-by/<composer_code>")
-def composer_pieces(composer_code):
+def composerWorks(composer_code):
   html = browse.browseWorks(composer_code=composer_code, pagenumber=1)
 
   page = html_basic.getPageContent("NA")
@@ -95,7 +104,7 @@ def composer_pieces(composer_code):
     list_items_pagination=html["Pagination"])
 
 @app.route("/works-by/<composer_code>/<pagenumber>")
-def composer_pieces_pagination(composer_code, pagenumber):
+def composerWorksPagination(composer_code, pagenumber):
   if not str(pagenumber).isdigit():
     return f"Invalid page number: {pagenumber}"
   html = browse.browseWorks(composer_code=composer_code, pagenumber=int(pagenumber))
@@ -112,6 +121,10 @@ def composer_pieces_pagination(composer_code, pagenumber):
     list_items_table=html["Table"], \
     list_items_pagination=html["Pagination"])
 
+
+@app.route("/search")
+def searchWorks():
+  return "<h1>WIP</h1>"
 
 if __name__ == '__main__':
   app.run()
