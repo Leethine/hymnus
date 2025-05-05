@@ -65,7 +65,7 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
         <input id="new-composer-lastname" type="text" class="form-control" placeholder="Last name"/>
         <br>
         <label for="new-composer-fullname">Full Name</label>
-        <input id="new-composer-fullname" type="text" class="form-control" placeholder="Known-as"/>
+        <input id="new-composer-fullname" type="text" class="form-control" placeholder="Known-as" required/>
         <br>
         <div class="row">
           <div class="col">
@@ -85,7 +85,10 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
         <button id="new-composer-script-clear" class="btn btn-primary" onclick="clearScript()">Clear</button>
       </div>
       <br>
-      <input id="new-composer-script" class="form-control" type="text">
+      <input id="new-composer-script" class="form-control" type="text" disabled>
+      <div class="valid-feedback">
+        You may now submit the script.
+      </div>
       <button class="btn btn-secondary" onclick="copyScript()"><i class="bi bi-copy"></i></button>
       <script src="js/new-composer.js"></script>
     </div>

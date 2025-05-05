@@ -8,17 +8,13 @@ function setNotArranged() {
   is_arranged = 0;
 }
 
-function prettifyTitle(strval) {
+function prettifyText(strval) {
   // Remove extra spaces
-  var splitStr = strval.toLowerCase().split(' ');
-  var newSplitStr = [];
-  for (var elem of splitStr) {
-    if (elem && elem != "") {
-      var cleanstr = elem.replace(/ /g,'');
-      newSplitStr.push(cleanstr);
-    }
-  }
-  return newSplitStr.join(' '); 
+  var s = strval.replace(/ +/g, " ");
+  s = s.trim();
+  // Make the first letter uppercase
+  s = s.charAt(0).toUpperCase() + s.substring(1);
+  return s; 
 }
 
 function createDropDownMenu(elem_id) {
@@ -30,7 +26,6 @@ function createDropDownMenu(elem_id) {
     var composercode = composer["code"];
     var composername = composer["fullname_ascii"];
     var namelist = composername.split(' ');
-    console.log(namelist[namelist.length - 1]);
     var lastname = namelist[namelist.length - 1] + ", ";
     var firstnames = "";
     for (var i = 0; i < namelist.length - 1; i++) {
@@ -58,23 +53,43 @@ function generateScript() {
   var dedicated_to  = document.getElementById("new-piece-dedicated").value;
   var opus         = document.getElementById("new-piece-opus").value;
   var composercode = document.getElementById("select-composer").value;
+  var instruments  = document.getElementById("new-piece-instrument").value;
+  var comment      = document.getElementById("new-piece-comment").value;
+  
+  var err_msg = "";
+
+  title = prettifyText(title);
+  subtitle = prettifyText(subtitle);
+  subsubtitle = prettifyText(subsubtitle);
+  dedicated_to = prettifyText(dedicated_to);
+  opus = prettifyText(opus);
+  instruments = prettifyText(instruments);
+  comment = prettifyText(comment);
+
   var arrangercode = "";
   if (is_arranged) {
     arrangercode = document.getElementById("select-arranger").value;
   }
-  var instruments  = document.getElementById("new-piece-instrument").value;
-  var comment      = document.getElementById("new-piece-comment").value;
+  if (is_arranged && ! arrangercode) {
+    err_msg = "Please chose the arranger.";
+  }
+  if (! composercode) {
+    err_msg = "Please chose the composer.";
+  }
+  if (! title) {
+    err_msg = "Title cannot be empty!!!";
+  }
 
-  var script_command = "script/new-piece.sh --title " + " \"" + prettifyTitle(title) + "\" "
+  var script_command = "script/new-piece.sh --title " + " \"" + title + "\" "
                      + " --composer-code " + composercode;
   if (subtitle && subtitle != "") {
     script_command += "  --subtitle  \"";
-    script_command += prettifyTitle(subtitle);
+    script_command += subtitle;
     script_command += "\"  ";
   }
   if (subsubtitle && subsubtitle != "") {
     script_command += "  --subsubtitle  \"";
-    script_command += prettifyTitle(subsubtitle);
+    script_command += subsubtitle;
     script_command += "\"  ";
   }
   if (dedicated_to && dedicated_to != "") {
@@ -103,7 +118,22 @@ function generateScript() {
     script_command += "\"  ";
   }
 
-  document.getElementById("new-piece-script").value = script_command;
+  if (err_msg) {
+    document.getElementById("new-piece-script").value = err_msg;
+    document.getElementById("new-piece-script").className = "form-control is-invalid";
+  }
+  else {
+    document.getElementById("new-piece-script").value = script_command;
+    document.getElementById("new-piece-script").className = "form-control is-valid";
+  }
+
+  document.getElementById("new-piece-title").value = title;
+  document.getElementById("new-piece-subtitle").value = subtitle;
+  document.getElementById("new-piece-subsubtitle").value = subsubtitle;
+  document.getElementById("new-piece-dedicated").value = dedicated_to;
+  document.getElementById("new-piece-opus").value = opus;
+  document.getElementById("new-piece-instrument").value = instruments;
+  document.getElementById("new-piece-comment").value = comment;
 }
 
 function clearScript() {
