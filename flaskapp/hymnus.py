@@ -18,7 +18,7 @@ def about():
 def contact():
   return "Contact"
 
-@app.route("/<browsetype>")
+@app.route("/browse/<browsetype>")
 def browseByType(browsetype):
   html = {"Table": "", "Pagination": ""}
   title = ""
@@ -44,10 +44,10 @@ def browseByType(browsetype):
     list_items_table=html["Table"], \
     list_items_pagination=html["Pagination"])
 
-@app.route("/<browsetype>/<pagenumber>")
+@app.route("/browse/<browsetype>/<pagenumber>")
 def browseByTypeAndPage(browsetype, pagenumber):
-  #if not browsetype or not browsetype in ["composers","all-pieces","collections"]:
-  #  return f"<h2>Invalid URL \"/{browsetype}/{pagenumber}\"</h2>"
+  if not browsetype in ["composers","all-pieces","collections"]:
+    return f"<h2>Invalid URL \"/{browsetype}/{pagenumber}\"</h2>"
   if not str(pagenumber).isdigit():
     return f"<h2>Invalid page number: {pagenumber}</h2>"
 
@@ -58,17 +58,17 @@ def browseByTypeAndPage(browsetype, pagenumber):
     title = "Composers"
     html = browse.browseComposers(pagenumber=int(pagenumber), items_per_page=20)
     page = html_basic.getPageContent("c")
-    page["url_composers"] = "composers"
+    page["url_composers"] = "browse/composers"
   elif browsetype == "collections":
     title = "Collections"
     html = browse.browseCollections(pagenumber=int(pagenumber), items_per_page=40)
     page = html_basic.getPageContent("col")
-    page["url_collections"] = "collections"
+    page["url_collections"] = "browse/collections"
   elif browsetype == "all-pieces":
     title = "Pieces"
     html = browse.browseWorks(pagenumber=int(pagenumber), items_per_page=100)
     page = html_basic.getPageContent("p")
-    page["url_allpieces"] = "all-pieces"
+    page["url_allpieces"] = "browse/all-pieces"
   else:
     return f"<h2>Invalid URL \"/{browsetype}/{pagenumber}\"</h2>"
 

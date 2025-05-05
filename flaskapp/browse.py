@@ -51,7 +51,7 @@ def browseComposers(pagenumber=1, items_per_page=20):
       bornyear || ' - ' || diedyear AS 'Years',
       '<a href=\"/works-by/' ||
       code || '"><i class=\"bi bi-arrow-up-right-square\"></i></a>'
-      AS 'Link'
+      AS '   '
     FROM composers ORDER BY code ASC;
   """
 
@@ -59,8 +59,8 @@ def browseComposers(pagenumber=1, items_per_page=20):
                                   query_select=QUERY,
                                   page_number=pagenumber,
                                   items_per_page=items_per_page,
-                                  table_header=["Name", "FullName", "Years", 'Link'],
-                                  parent_url="composers")
+                                  table_header=["Name", "FullName", "Years", "   "],
+                                  parent_url="browse/composers")
   return html
 
 def browseCollections(pagenumber=1, items_per_page=50):
@@ -80,7 +80,7 @@ def browseCollections(pagenumber=1, items_per_page=50):
       '<a href=\"/collection-at/' ||
       Collections.code ||
       '"><i class=\"bi bi-arrow-up-right-square\"></i></a>'
-      AS 'Link'
+      AS '   '
 
     FROM Collections
     JOIN Composers ON Collections.composer_code = Composers.code
@@ -91,8 +91,8 @@ def browseCollections(pagenumber=1, items_per_page=50):
                                   query_select=QUERY,
                                   page_number=pagenumber,
                                   items_per_page=items_per_page,
-                                  table_header=["Empty", "Title", "Opus", "Editor", "Composer", 'Link'],
-                                  parent_url="collections")
+                                  table_header=["Empty", "Title", "Opus", "Editor", "Composer", "   "],
+                                  parent_url="browse/collections")
   return html
 
 
@@ -113,16 +113,16 @@ def browseWorks(pagenumber=1, items_per_page=100, composer_code=""):
       '<a href=\"/file/' || 
       Pieces.folder_hash || 
       '\"><i class=\"bi bi-arrow-up-right-square\"></i></a>'
-      AS 'Link'
+      AS '   '
       FROM Pieces
       JOIN Composers ON Pieces.composer_code = Composers.code
   """
 
-  header = ["Empty", "Title", "Opus", "Composer", 'Link']
-  parent_url="pieces"
+  header = ["Empty", "Title", "Opus", "Composer", "   "]
+  parent_url="browse/all-pieces"
   if composer_code:
     QUERY += f" WHERE Pieces.composer_code = '{composer_code}'"
-    header = ["Empty", "Title", "Opus", 'Link']
+    header = ["Empty", "Title", "Opus", "   "]
     parent_url="works-by"
 
   QUERY += " ORDER BY Pieces.title DESC;"

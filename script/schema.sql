@@ -40,7 +40,7 @@ CREATE TABLE pieces (
   dedicated_to TEXT,
   opus TEXT,
   instrument TEXT,
-  folder_hash TEXT NOT NULL 
+  folder_hash TEXT NOT NULL
     CHECK (LENGTH(folder_hash) = 40),
   comment TEXT
 );

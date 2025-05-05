@@ -2,9 +2,9 @@ LIST_ITEM_PAGE_CONTENT = {
   "headline": "",
   "description": "",
   "toggle_menu_search"      : "", "url_search"     : "search",
-  "toggle_menu_allpieces"   : "", "url_allpieces"  : "all-pieces",
-  "toggle_menu_collections" : "", "url_collections": "collections",
-  "toggle_menu_composers"   : "", "url_composers"  : "composers"
+  "toggle_menu_allpieces"   : "", "url_allpieces"  : "browse/all-pieces",
+  "toggle_menu_collections" : "", "url_collections": "browse/collections",
+  "toggle_menu_composers"   : "", "url_composers"  : "browse/composers"
 }
 
 def getPageContent(page_type: str):
