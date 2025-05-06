@@ -29,13 +29,14 @@ def getComposerDataFromCode(composer_code: str):
   else:
     res = queryDB(QUERY).fetchone()
     composer = {}
-    composer["id"] = res["id"]
     composer["code"] = res["code"]
     composer["firstname"] = res["firstname"]
     composer["lastname"] = res["lastname"]
     composer["knownas_name"] = res["knownas_name"]
     composer["bornyear"] = res["bornyear"]
     composer["diedyear"] = res["diedyear"]
+    composer["wiki"] = res["wikipedia_url"]
+    composer["imslp"] = res["imslp_url"]
     return composer
 
 def getComposerCodeNameMap(jsonpath="tempdata.js"):

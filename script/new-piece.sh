@@ -105,7 +105,7 @@ if [ ! -z "${ARRANGER_CODE}" ]; then
   ARRANGED=1
 fi
 
-if [ ! -z "${OPUS}" ]; then
+if [ -z "${OPUS}" ]; then
   OPUS=" "
 fi
 

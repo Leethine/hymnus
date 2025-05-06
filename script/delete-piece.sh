@@ -3,13 +3,14 @@
 if [ -z "${DATAPATH}" ]; then
   DATAPATH="blob"
 fi
+
 DBFILE="${DATAPATH}/tables.db"
 FOLDERHASH="${1}"
 FORCE="${2}"
 FSPATH="${DATAPATH}/files"
 
 EXISTING="$(sqlite3 -readonly -csv "${DBFILE}" <<EOF
-  SELECT id FROM pieces WHERE
+  SELECT folder_hash FROM pieces WHERE
   folder_hash = '${FOLDERHASH}';
 EOF
 )"
@@ -23,7 +24,7 @@ if [ ! -z "${EXISTING}" ]; then
   fi
 
   # Delete from DB
-  if [[ ${CONFIRM} != "y" ]]; then
+  if [[ ${CONFIRMDB} != "y" ]]; then
     echo "Abandoned."
     exit 0
 
@@ -40,8 +41,8 @@ EOF
   CONTENT_DIR="${FSPATH}/${FOLDERHASH:0:2}/${FOLDERHASH}"
   if [[ -z "${FORCE}" && -d ${CONTENT_DIR} ]]; then
     echo "Non-empty directory: ${CONTENT_DIR}" 
-    read -p "Delete? [y/N]:" CONFIRM
-    if [[ ${CONFIRM} != "y" ]]; then
+    read -p "Delete? [y/N]:" CONFIRMFD
+    if [[ ${CONFIRMFD} != "y" ]]; then
       echo "Abandoned."
       exit 0;
     else

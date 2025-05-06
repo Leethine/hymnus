@@ -112,7 +112,7 @@ def browseWorks(pagenumber=1, items_per_page=100, composer_code=""):
       Pieces.title AS 'Title',
       Pieces.opus AS 'Opus',
       IIF(Pieces.arranged,'Y','') AS 'Arranged?',
-      Pieces.instrument AS 'For',
+      Pieces.instruments AS 'For',
       Composers.knownas_name AS 'Composer',
       '<a href=\"/file/' || 
       Pieces.folder_hash || 

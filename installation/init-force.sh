@@ -5,7 +5,7 @@ if [ -z "${DATAPATH}" ]; then
 fi
 DBFILE="${DATAPATH}/tables.db"
 FSPATH="${DATAPATH}/files"
-SQL_SCRIPT="script/schema.sql"
+SQL_SCRIPT="installation/schema.sql"
 
 # Check if parent path exists
 if [ ! -d "${DATAPATH}" ]; then
