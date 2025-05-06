@@ -6,11 +6,14 @@ function setHasComposer() {
 
 function setHasNoComposer() {
   has_composer = 0;
+  document.getElementById("select-composer").value = "";
 }
 
 function prettifyText(strval) {
-  // Remove extra spaces
+  // Remove extra spaces and escape quotes
   var s = strval.replace(/ +/g, " ");
+  s = s.replace("\"","");
+  s = s.replace("'","\\'")
   s = s.trim();
   // Make the first letter uppercase
   s = s.charAt(0).toUpperCase() + s.substring(1);
@@ -47,6 +50,10 @@ function createDropDownMenu(elem_id) {
 }
 
 function generateScript() {
+  document.getElementById("new-collection-script").className = "form-control";
+  document.getElementById("new-collection-title").className = "form-control";
+  document.getElementById("select-composer").className = "form-control";
+
   var title        = document.getElementById("new-collection-title").value;
   var subtitle     = document.getElementById("new-collection-subtitle").value;
   var subsubtitle  = document.getElementById("new-collection-subsubtitle").value;
@@ -68,6 +75,7 @@ function generateScript() {
   instruments = prettifyText(instruments);
   description = prettifyText(description);
 
+  // check composer
   if (has_composer) {
     composercode = document.getElementById("select-composer").value;
   }
@@ -76,9 +84,12 @@ function generateScript() {
   }
   if (has_composer && ! composercode) {
     err_msg = "Please select composer or select \"No\".";
+    document.getElementById("select-composer").className = "form-control is-invalid";
   }
+  // check title
   if (! title) {
     err_msg = "Title cannot be empty!!!";
+    document.getElementById("new-collection-title").className = "form-control is-invalid";
   }
 
   var script_command = "script/new-collection.sh --title " + " \"" + title + " \"";
@@ -130,6 +141,8 @@ function generateScript() {
   else {
     document.getElementById("new-collection-script").value = script_command;
     document.getElementById("new-collection-script").className = "form-control is-valid";
+    document.getElementById("new-collection-title").className = "form-control";
+    document.getElementById("select-composer").className = "form-control";
   }
 
   document.getElementById("new-collection-title").value = title;
@@ -154,9 +167,14 @@ function clearScript() {
   document.getElementById("new-collection-description").value = "";
   document.getElementById("has-composer-radio1").checked = false;
   document.getElementById("has-composer-radio2").checked = true;
+  document.getElementById("select-composer").value = "";
   has_composer = 0;
 
-  document.getElementById("new-collection-scrip").className = "form-control";
+  document.getElementById("new-collection-title").className = "form-control";
+  document.getElementById("select-composer").className = "form-control";
+
+  document.getElementById("new-collection-script").className = "form-control";
+  document.getElementById("new-collection-script").value = "";
 }
 
 function copyScript() {

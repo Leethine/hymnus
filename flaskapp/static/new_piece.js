@@ -6,6 +6,7 @@ function setArranged() {
 
 function setNotArranged() {
   is_arranged = 0;
+  document.getElementById("select-arranger").value = "";
 }
 
 function prettifyText(strval) {
@@ -14,6 +15,9 @@ function prettifyText(strval) {
   s = s.trim();
   // Make the first letter uppercase
   s = s.charAt(0).toUpperCase() + s.substring(1);
+  // Escape quotes
+  s = s.replace('"','\\"');
+  s = s.replace("'","\\'");
   return s; 
 }
 
@@ -47,10 +51,15 @@ function createDropDownMenu(elem_id) {
 }
 
 function generateScript() {
+  document.getElementById("new-piece-title").className = "form-control";
+  document.getElementById("select-arranger").className = "form-control";
+  document.getElementById("select-composer").className = "form-control";
+  document.getElementById("new-piece-script").className = "form-control";
+
   var title        = document.getElementById("new-piece-title").value;
   var subtitle     = document.getElementById("new-piece-subtitle").value;
   var subsubtitle  = document.getElementById("new-piece-subsubtitle").value;
-  var dedicated_to  = document.getElementById("new-piece-dedicated").value;
+  var dedicated_to = document.getElementById("new-piece-dedicated").value;
   var opus         = document.getElementById("new-piece-opus").value;
   var composercode = document.getElementById("select-composer").value;
   var instruments  = document.getElementById("new-piece-instrument").value;
@@ -72,12 +81,15 @@ function generateScript() {
   }
   if (is_arranged && ! arrangercode) {
     err_msg = "Please chose the arranger.";
+    document.getElementById("select-arranger").className = "form-control is-invalid";
   }
   if (! composercode) {
     err_msg = "Please chose the composer.";
+    document.getElementById("select-composer").className = "form-control is-invalid";
   }
   if (! title) {
     err_msg = "Title cannot be empty!!!";
+    document.getElementById("new-piece-title").className = "form-control is-invalid";
   }
 
   var script_command = "script/new-piece.sh --title " + " \"" + title + "\" "
@@ -125,6 +137,9 @@ function generateScript() {
   else {
     document.getElementById("new-piece-script").value = script_command;
     document.getElementById("new-piece-script").className = "form-control is-valid";
+    document.getElementById("new-piece-title").className = "form-control";
+    document.getElementById("select-arranger").className = "form-control";
+    document.getElementById("select-composer").className = "form-control";
   }
 
   document.getElementById("new-piece-title").value = title;
@@ -137,6 +152,8 @@ function generateScript() {
 }
 
 function clearScript() {
+  document.getElementById("new-piece-script").value = "";
+
   document.getElementById("new-piece-title").value = "";
   document.getElementById("new-piece-subtitle").value = "";
   document.getElementById("new-piece-subsubtitle").value = "";
@@ -148,9 +165,16 @@ function clearScript() {
   document.getElementById("new-piece-comment").value = "";
   document.getElementById("check-arranged-piece-radio1").checked = false;
   document.getElementById("check-arranged-piece-radio2").checked = true;
-  is_arranged = 0;
 
-  document.getElementById("new-piece-scrip").className = "form-control";
+  is_arranged = 0;
+  document.getElementById("select-arranger").value = "";
+  document.getElementById("select-composer").value = "";
+
+  document.getElementById("new-piece-title").className = "form-control";
+  document.getElementById("select-arranger").className = "form-control";
+  document.getElementById("select-composer").className = "form-control";
+
+  document.getElementById("new-piece-script").className = "form-control";
 }
 
 function copyScript() {

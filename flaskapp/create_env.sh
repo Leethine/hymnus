@@ -13,4 +13,4 @@ cp ../start bin
 
 chmod 777 bin/start
 
-cd hymnus_env && source bin/activate && bin/start
+# cd hymnus_env && source bin/activate && bin/start

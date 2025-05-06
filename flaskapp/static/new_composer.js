@@ -15,9 +15,12 @@ ascii.char_map = {
 String.prototype.to_ascii=function(){return this.replace(/[^A-Za-z0-9\[\] ]/g,function(a){return ascii.char_map[a]||a})};
 
 function prettifyNames(strval) {
-  // Uppercase the first letter of each word
+  // Clean extra spaces and escape quotes
   var s = strval.replace(/ +/g, " ");
+  s = s.replace("\"","");
+  s = s.replace("'","\\'")
   s = s.trim();
+  // Uppercase the first letter of each word
   var splitStr = s.toLowerCase().split(' ');
   var newSplitStr = [];
   for (var elem of splitStr) {
@@ -49,25 +52,18 @@ function getComposerCode(strfullname) {
 }
 
 function generateScript() {
-  var err_msg = "";
+  document.getElementById("new-composer-fullname").className = "form-control";
+  document.getElementById("new-composer-bornyear").className = "form-control";
+  document.getElementById("new-composer-diedyear").className = "form-control";
+  document.getElementById("new-composer-script").className = "form-control";
+
   var firstname = document.getElementById("new-composer-firstname").value;
   var lastname = document.getElementById("new-composer-lastname").value;
   var fullname = document.getElementById("new-composer-fullname").value;
   var bornyear = document.getElementById("new-composer-bornyear").value;
   var diedyear = document.getElementById("new-composer-diedyear").value;
 
-  // Check and prettify name
-  if (fullname) {
-    fullname = prettifyNames(fullname);
-    firstname = prettifyNames(firstname);
-    lastname = prettifyNames(lastname);
-    firstname = autoCompleteFirstName(firstname, fullname);
-    lastname = autoCompleteLastName(lastname, fullname);
-  }
-  else {
-    err_msg = "Name cannot be empty!"
-  }
-  
+  var err_msg = "";  
   // Check year
   var MIN_YEAR = 0;
   var MAX_YEAR = 3333;
@@ -92,6 +88,8 @@ function generateScript() {
     bornyear_int = -1;
   }
   else {
+    document.getElementById("new-composer-bornyear").className = "form-control is-invalid";
+    document.getElementById("new-composer-diedyear").className = "form-control is-invalid";
     err_msg = "Invalid BornYear/DiedYear";
   }
   if (bornyear == "?") {
@@ -99,6 +97,19 @@ function generateScript() {
   }
   if (diedyear == "?") {
     diedyear = "-1";
+  }
+
+  // Check and prettify name
+  if (fullname) {
+    fullname = prettifyNames(fullname);
+    firstname = prettifyNames(firstname);
+    lastname = prettifyNames(lastname);
+    firstname = autoCompleteFirstName(firstname, fullname);
+    lastname = autoCompleteLastName(lastname, fullname);
+  }
+  else {
+    err_msg = "Name cannot be empty!"
+    document.getElementById("new-composer-fullname").className = "form-control is-invalid";
   }
 
   var script = "script/new-composer.sh "
@@ -122,6 +133,9 @@ function generateScript() {
   }
   else {
     document.getElementById("new-composer-script").className = "form-control is-valid";
+    document.getElementById("new-composer-fullname").className = "form-control";
+    document.getElementById("new-composer-bornyear").className = "form-control";
+    document.getElementById("new-composer-diedyear").className = "form-control";
     document.getElementById("new-composer-script").value = script;
   }
 }
@@ -132,7 +146,16 @@ function autoCompleteFirstName(firstname, fullname) {
   else {
     var splitStr = fullname.split(' ');
     if (splitStr.length > 1) {
-      return splitStr.slice(0, -1).join(' ');
+      var fname = splitStr.slice(0, -1).join(' ');
+      if (fname) {
+        return fname;
+      }
+      else {
+        return " ";
+      }
+    }
+    else {
+      return " ";
     }
   }
   return firstname;
@@ -144,7 +167,16 @@ function autoCompleteLastName(lastname, fullname) {
   else {
     var splitStr = fullname.split(' ');
     if (splitStr.length >= 1) {
-      return splitStr[splitStr.length-1];
+      var lname = splitStr[splitStr.length-1];
+      if (lname) {
+        return lname;
+      }
+      else {
+        return " ";
+      }
+    }
+    else {
+      return " ";
     }
   }
   return lastname;
@@ -163,6 +195,9 @@ function clearScript() {
   document.getElementById("new-composer-diedyear").value = "";
 
   document.getElementById("new-composer-script").className = "form-control";
+  document.getElementById("new-composer-fullname").className = "form-control";
+  document.getElementById("new-composer-bornyear").className = "form-control";
+  document.getElementById("new-composer-diedyear").className = "form-control";
 }
 
 function copyScript() {
