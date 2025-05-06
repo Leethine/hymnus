@@ -27,6 +27,11 @@ def createNewPiece():
   return render_template("new_piece.html", 
                          composerlist_dict=str(database.getComposerCodeNameMap()))
 
+@app.route("/new-collection")
+def createNewCollection():
+  return render_template("new_collection.html", 
+                         composerlist_dict=str(database.getComposerCodeNameMap()))
+
 @app.route("/browse/<browsetype>")
 def browseByType(browsetype):
   html = {"Table": "", "Pagination": ""}

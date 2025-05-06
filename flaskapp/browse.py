@@ -49,10 +49,11 @@ def browseComposers(pagenumber=1, items_per_page=20):
       ) ) AS 'Name',
       knownas_name AS 'FullName',
       bornyear || ' - ' || diedyear AS 'Years',
-      '<a href=\"/works-by/' ||
-      code || '"><i class=\"bi bi-arrow-up-right-square\"></i></a>'
+      '<a href=\"/works-by/' || code ||
+      '"><i class=\"bi bi-arrow-up-right-square\"></i></a>'
       AS '   '
-    FROM composers ORDER BY code ASC;
+    FROM composers WHERE code != 'zzz_unknown'
+    ORDER BY code ASC;
   """
 
   html = createTableAndPagination(query_count=QUERY_COUNT,
@@ -84,7 +85,7 @@ def browseCollections(pagenumber=1, items_per_page=50):
 
     FROM Collections
     JOIN Composers ON Collections.composer_code = Composers.code
-    ORDER BY Collections.title DESC;
+    ORDER BY Collections.title ASC;
   """
 
   html = createTableAndPagination(query_count=QUERY_COUNT,
@@ -125,7 +126,7 @@ def browseWorks(pagenumber=1, items_per_page=100, composer_code=""):
     header = ["Empty", "Title", "Opus", "   "]
     parent_url="works-by"
 
-  QUERY += " ORDER BY Pieces.title DESC;"
+  QUERY += " ORDER BY Pieces.title ASC;"
 
   html = createTableAndPagination(query_count=QUERY_COUNT,
                                   query_select=QUERY,

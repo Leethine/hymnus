@@ -33,7 +33,11 @@ def getComposerDataFromCode(composer_code: str):
 
 def getComposerCodeNameMap(jsonpath="tempdata.js"):
   QUERY_COUNT = "SELECT count(*) FROM Composers;"
-  QUERY = "SELECT code, knownas_name FROM Composers ORDER BY code ASC;"
+  QUERY = """
+    SELECT code, knownas_name FROM Composers
+    WHERE code != 'zzz_unknown' AND code != 'zzz_various'
+    ORDER BY code ASC;
+  """
   count = queryDB(QUERY_COUNT).fetchone()[0]
   if count == 0:
     return {}

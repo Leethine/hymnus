@@ -18,83 +18,43 @@ fi
 
 
 # Dump composer list
-echo "var ascii_converted = 0; var composerlistdata = " > ${OUT_DIR}/composer-data2.js
+#echo "var ascii_converted = 0; var composerlistdata = " > ${OUT_DIR}/composer-data2.js
 
 echo "$(sqlite3 ${DBFILE} -json <<EOF
-SELECT 
-  id,
-  code,
-  firstname,
-  lastname,
-  knownas_name,
-  knownas_name as fullname_ascii,
-  bornyear,
-  diedyear
-FROM composers;
+SELECT * FROM composers;
 EOF
-)" | sed -e 's/{/\n{/g' | sed -e 's/}/\n}/g' | tee -a ${OUT_DIR}/composer-data2.js &> /dev/null
+)" | sed -e 's/{/\n{/g' | sed -e 's/}/\n}/g' | tee -a ${OUT_DIR}/composerdata2.js &> /dev/null
 
-echo ";" | tee -a ${OUT_DIR}/composer-data2.js &> /dev/null
+#echo ";" | tee -a ${OUT_DIR}/composer-data2.js &> /dev/null
 #LASTCHAR=$(cat ${OUT_DIR}/composer-data2.js | tr -d '[:blank:]' | tr -d '\n' | tail -c 1)
-if [ -f ${OUT_DIR}/composer-data.js ]; then
-  rm ${OUT_DIR}/composer-data.js
+if [ -f ${OUT_DIR}/composerdata.js ]; then
+  rm ${OUT_DIR}/composerdata.json
 fi
-mv ${OUT_DIR}/composer-data2.js ${OUT_DIR}/composer-data.js
+mv ${OUT_DIR}/composerdata2.json ${OUT_DIR}/composerdata.json
 
 
 # Dump works
-echo "var ascii_converted = 0; var piecelistdata = " > ${OUT_DIR}/piece-data2.js
+#echo "var ascii_converted = 0; var piecelistdata = " > ${OUT_DIR}/piece-data2.js
 echo "$(sqlite3 ${DBFILE} -json  <<EOF
-SELECT
-  id,
-  composer_id,
-  composer_code,
-  arranged,
-  arranger_id,
-  arranger_code,
-  collection_id,
-  collection_code,
-  title,
-  title as title_ascii,
-  subtitle,
-  subsubtitle,
-  dedicated_to,
-  opus,
-  instrument,
-  folder_hash,
-  comment
-FROM pieces;
+SELECT * FROM pieces;
 EOF
-)" | sed -e 's/{/\n{/g' | sed -e 's/}/\n}/g' | tee -a ${OUT_DIR}/piece-data2.js &> /dev/null
+)" | sed -e 's/{/\n{/g' | sed -e 's/}/\n}/g' | tee -a ${OUT_DIR}/piecedata2.js &> /dev/null
 
-echo ";" | tee -a ${OUT_DIR}/piece-data2.js &> /dev/null
-if [ -f ${OUT_DIR}/piece-data.js ]; then
-  rm ${OUT_DIR}/piece-data.js
+#echo ";" | tee -a ${OUT_DIR}/piece-data2.js &> /dev/null
+if [ -f ${OUT_DIR}/piecedata.js ]; then
+  rm ${OUT_DIR}/piecedata.js
 fi
-mv ${OUT_DIR}/piece-data2.js ${OUT_DIR}/piece-data.js
+mv ${OUT_DIR}/piecedata2.js ${OUT_DIR}/piecedata.js
 
 # Dump collections
-echo "var ascii_converted = 0;  var collectionlistdata = " > ${OUT_DIR}/collection-data2.js
+#echo "var ascii_converted = 0;  var collectionlistdata = " > ${OUT_DIR}/collection-data2.js
 echo "$(sqlite3 ${DBFILE} -json  <<EOF
-SELECT
-  id,
-  code,
-  title,
-  subtitle,
-  subsubtitle,
-  opus,
-  description_text,
-  volume,
-  composer_id,
-  composer_code,
-  instruments,
-  editor
-FROM collections;
+SELECT * FROM collections;
 EOF
 )" | sed -e 's/{/\n{/g' | sed -e 's/}/\n}/g' | tee -a ${OUT_DIR}/collection-data2.js &> /dev/null
 
-echo ";" | tee -a ${OUT_DIR}/collection-data2.js &> /dev/null
-if [ -f ${OUT_DIR}/collection-data.js ]; then
-  rm ${OUT_DIR}/collection-data.js
+#echo ";" | tee -a ${OUT_DIR}/collection-data2.js &> /dev/null
+if [ -f ${OUT_DIR}/collectiondata.js ]; then
+  rm ${OUT_DIR}/collectiondata.js
 fi
-mv ${OUT_DIR}/collection-data2.js ${OUT_DIR}/collection-data.js
+mv ${OUT_DIR}/collectiondata2.js ${OUT_DIR}/collectiondata.js

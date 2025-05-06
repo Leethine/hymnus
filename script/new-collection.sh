@@ -39,11 +39,6 @@ while [[ $# -gt 0 ]]; do
       shift # past argument
       shift # past value
       ;;
-    --collection-code)
-      COLLECTION_CODE="${2}"
-      shift # past argument
-      shift # past value
-      ;;
     --composer-code)
       COMPOSER_CODE="${2}"
       shift # past argument
@@ -95,7 +90,15 @@ if [[ -z "${TITLE}" ]]; then
 fi
 
 if [[ -z "${VOLUME}" ]]; then
-  VOLUME=1
+  VOLUME="1"
+fi
+
+if [[ -z "${EDITOR}" ]]; then
+  EDITOR=" "
+fi
+
+if [[ -z "${OPUS}" ]]; then
+  OPUS=" "
 fi
 
 # Check duplicity
@@ -105,7 +108,7 @@ FOUND="$(sqlite3 -readonly -csv "${DBFILE}" <<EOF
   title = '${TITLE}' AND
   subtitle = '${SUBTITLE}' AND
   volume = ${VOLUME} AND
-  opus = '${OPUS}' 
+  opus = '${OPUS}' AND
   editor = '${EDITOR}';
 EOF
 )"
@@ -150,8 +153,8 @@ fi
 # Insert to DB
 sqlite3 "${DBFILE}" <<EOF
   INSERT INTO collections
-  (title, volume, code)
-  VALUES('${TITLE}',${ARRANGED},'${COMPOSER_CODE}');
+  (title, volume, composer_code, code)
+  VALUES('${TITLE}',${ARRANGED},'${COMPOSER_CODE}','${MD5HASH}');
 EOF
 
 # Insert other fields

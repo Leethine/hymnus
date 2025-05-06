@@ -21,7 +21,7 @@ CREATE TABLE collections (
   subsubtitle TEXT,
   opus TEXT,
   description_text TEXT,
-  volume INTEGER,
+  volume TEXT,
   instruments TEXT,
   editor TEXT
 );

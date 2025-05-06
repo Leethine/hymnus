@@ -105,6 +105,10 @@ if [ ! -z "${ARRANGER_CODE}" ]; then
   ARRANGED=1
 fi
 
+if [ ! -z "${OPUS}" ]; then
+  OPUS=" "
+fi
+
 # Check duplicity
 FOUND="$(sqlite3 -readonly -csv "${DBFILE}" <<EOF
   SELECT * FROM pieces WHERE
