@@ -39,7 +39,9 @@ def createTableAndPagination(query_count: str, query_select: str,
 def browseComposers(pagenumber=1, items_per_page=20):
   QUERY_COUNT = """
     SELECT COUNT(lastname)
-    FROM composers;
+    FROM composers
+    WHERE code != 'zzz_unknown'
+    AND code != 'zzz_various';
   """
 
   QUERY = """
@@ -53,6 +55,7 @@ def browseComposers(pagenumber=1, items_per_page=20):
       '"><i class=\"bi bi-arrow-up-right-square\"></i></a>'
       AS '   '
     FROM composers WHERE code != 'zzz_unknown'
+    AND code != 'zzz_various'
     ORDER BY code ASC;
   """
 

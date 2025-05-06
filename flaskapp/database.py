@@ -1,10 +1,17 @@
-import sqlite3
+import sqlite3, os
 from unidecode import unidecode
 import json
 
-DB_FILE = "/home/lizian/Projects/hymnus/blob/tables.db"
+HYMNUS_DB = ""
+HYMNUS_FS = ""
 
-def queryDB(query: str, dbpath=DB_FILE):
+if 'HYMNUS_DB' in os.environ.keys():
+  HYMNUS_DB = os.environ['HYMNUS_DB']
+
+if 'HYMNUS_FS' in os.environ.keys():
+  HYMNUS_FS = os.environ['HYMNUS_FS']
+
+def queryDB(query: str, dbpath=HYMNUS_DB):
   con = sqlite3.connect(dbpath)
   con.create_function("strrev", 1, lambda s: s[::-1])
   con.row_factory = sqlite3.Row
@@ -35,9 +42,10 @@ def getComposerCodeNameMap(jsonpath="tempdata.js"):
   QUERY_COUNT = "SELECT count(*) FROM Composers;"
   QUERY = """
     SELECT code, knownas_name FROM Composers
-    WHERE code != 'zzz_unknown' AND code != 'zzz_various'
+    WHERE code != 'zzz_unknown'
     ORDER BY code ASC;
   """
+
   count = queryDB(QUERY_COUNT).fetchone()[0]
   if count == 0:
     return {}

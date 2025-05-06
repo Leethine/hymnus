@@ -1,0 +1,8 @@
+#!/bin/bash
+
+pip install -r requirements.txt
+
+echo "Setting environment variables."
+source config.env
+
+bin/flask --app hymnus run --debug --host=0.0.0.0

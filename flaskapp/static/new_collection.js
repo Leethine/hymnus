@@ -148,6 +148,7 @@ function clearScript() {
   document.getElementById("new-collection-subsubtitle").value = "";
   document.getElementById("new-collection-editor").value = "";
   document.getElementById("new-collection-opus").value = "";
+  document.getElementById("new-collection-volume").value = "";
   document.getElementById("select-composer").value = "";
   document.getElementById("new-collection-instrument").value = "";
   document.getElementById("new-collection-description").value = "";
