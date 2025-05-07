@@ -71,6 +71,11 @@ while [[ $# -gt 0 ]]; do
       shift # past argument
       shift # past value
       ;;
+    --year)
+      COMPOSITION_YEAR="${2}"
+      shift # past argument
+      shift # past value
+      ;;
     --instruments)
       INSTRUMENTS="${2}"
       shift # past argument
@@ -186,6 +191,7 @@ EOF
 update_value_in_db ${SHA1HASH} subtitle "${SUBTITLE}"
 update_value_in_db ${SHA1HASH} subsubtitle "${SUBSUBTITLE}"
 update_value_in_db ${SHA1HASH} opus "${OPUS}"
+update_value_in_db ${SHA1HASH} composed_year "${COMPOSITION_YEAR}"
 update_value_in_db ${SHA1HASH} arranger_code "${ARRANGER_CODE}"
 update_value_in_db ${SHA1HASH} collection_code "${COLLECTION_CODE}"
 update_value_in_db ${SHA1HASH} instruments "${INSTRUMENTS}"
