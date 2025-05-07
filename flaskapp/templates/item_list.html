@@ -59,7 +59,7 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
   <div class="w3-row w3-padding-64">
     <div class="w3-twothird w3-container">
       <h1 class="w3-text-gray">{{ list_items_page_content["headline"] }}</h1>
-      <p>{{ list_items_page_content["description"] }}</p>
+      <p>{{ list_items_page_content["description"] | safe }}</p>
 
       <!-- Table here -->
       {{ list_items_table | safe }}
