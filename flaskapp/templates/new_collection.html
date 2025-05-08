@@ -125,7 +125,16 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
       <button class="btn btn-secondary" onclick="copyScript()"><i class="bi bi-copy"></i></button>
       <script>
         var COMPOSERLISTDATA = [] ;
-        COMPOSERLISTDATA = {{ composerlist_dict | safe }} ;
+
+{% if composerlist %}
+COMPOSERLISTDATA = [
+  {% for composer in composerlist %}
+    [ "{{ composer["code"] }}", "{{ composer["name"] }}" ],
+  {% endfor %}
+[]
+] ;
+{% endif %}
+
       </script>
       <script src="{{ url_for('static', filename='new_collection.js') }}"></script>
     </div>

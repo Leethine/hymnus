@@ -44,10 +44,10 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
     <i class="fa fa-remove"></i>
   </a>
   <h4 class="w3-bar-item"><b>Browse</b></h4>
-  <a class="w3-bar-item w3-button w3-hover-black {{ list_items_page_content["toggle_menu_search"] }}"      href="/{{ list_items_page_content["url_search"] }}">Search</a>
-  <a class="w3-bar-item w3-button w3-hover-black {{ list_items_page_content["toggle_menu_allpieces"] }}"   href="/{{ list_items_page_content["url_allpieces"] }}">All Pieces</a>
-  <a class="w3-bar-item w3-button w3-hover-black {{ list_items_page_content["toggle_menu_collections"] }}" href="/{{ list_items_page_content["url_collections"] }}">Collections</a>
-  <a class="w3-bar-item w3-button w3-hover-black {{ list_items_page_content["toggle_menu_composers"] }}"   href="/{{ list_items_page_content["url_composers"] }}">By Composer</a>
+  <a class="w3-bar-item w3-button w3-hover-black {{ page_and_menu_content["toggle_menu_search"] }}"      href="{{ page_and_menu_content["url_search"] }}">Search</a>
+  <a class="w3-bar-item w3-button w3-hover-black {{ page_and_menu_content["toggle_menu_allpieces"] }}"   href="{{ page_and_menu_content["url_allpieces"] }}">All Pieces</a>
+  <a class="w3-bar-item w3-button w3-hover-black {{ page_and_menu_content["toggle_menu_collections"] }}" href="{{ page_and_menu_content["url_collections"] }}">Collections</a>
+  <a class="w3-bar-item w3-button w3-hover-black {{ page_and_menu_content["toggle_menu_composers"] }}"   href="{{ page_and_menu_content["url_composers"] }}">By Composer</a>
 </nav>
 
 <!-- Overlay effect when opening sidebar on small screens -->
@@ -58,18 +58,59 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
 
   <div class="w3-row w3-padding-64">
     <div class="w3-twothird w3-container">
-      <h1 class="w3-text-gray">{{ list_items_page_content["headline"] }}</h1>
-      <p>{{ list_items_page_content["description"] | safe }}</p>
+      <h1 class="w3-text-gray">{{ page_and_menu_content["headline"] }}</h1>
+      <p>{{ page_and_menu_content["description"] | safe }}</p>
 
       <!-- Table here -->
-      {{ list_items_table | safe }}
+{% if text_override_table %}
+
+{{ text_override_table | safe }}
+
+{% else %}
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col"></th>
+
+{% for head in table_head_list %}
+  <th scope="col">{{ head }}</th>
+{% endfor %}
+
+    </tr>
+  </thead>
+  <tbody>
+
+{% for row in table_data_list %}
+  <tr>
+  <th scope="row">{{ row["RowHead"] }}</th>
+  {% for key in table_head_list %}
+    <td class="text-left">{{ row[key] | safe }}</td>
+  {% endfor %}
+  </tr>
+{% endfor %}
+
+    </tbody></table>
+
+{% endif %}
     </div>
   </div>
 
-  <!-- Pagination -->
+  <!-- Pagination here -->
   <div class="w3-center w3-padding-32">
     <div class="w3-bar">
-        {{ list_items_pagination | safe }}
+
+{% if total_number_of_pages %}
+  {% set ns = namespace(counter=1) %}
+  {% for p in range(total_number_of_pages) %}
+    {% if current_page_number == ns.counter %}
+      <a class="w3-button w3-black"href="#">{{ ns.counter }}</a>
+    {% else %}
+      <a class="w3-button w3-hover-black"href="{{ parent_url }}/{{ ns.counter }}">{{ ns.counter }}</a>
+    {% endif %}
+  {% set ns.counter = ns.counter + 1 %}
+  {% endfor %}
+{% endif %}
+
     </div>
   </div>
 

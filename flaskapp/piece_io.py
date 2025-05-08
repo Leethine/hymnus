@@ -78,3 +78,4 @@ def getFileInfo(folderhash: str):
       f["filetype"] = "..."
       finfo = [f]
   return finfo
+

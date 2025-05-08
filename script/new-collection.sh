@@ -90,7 +90,7 @@ if [[ -z "${TITLE}" ]]; then
 fi
 
 if [[ -z "${VOLUME}" ]]; then
-  VOLUME="1"
+  VOLUME="None"
 fi
 
 if [[ -z "${EDITOR}" ]]; then

@@ -1,47 +1,32 @@
+from flask import render_template
 from html_table import createTable, createPagination
-import database
+import config, toggle_menu, metadata, database
 import math
 
-def createTableAndPagination(query_count: str, query_select: str,
-                             page_number: int, items_per_page: int,
-                             table_header: list, parent_url: str) -> dict:
-  # Return dictionary with table html and pagination html
-  html = {}
-  html["Table"] = ""
-  html["Pagination"] = ""
+def calculateTotalPages(items_per_page: int, query_count: str):
+  item_count = database.queryDB(query_count).fetchone()[0]
+  return int(math.ceil(float(item_count) / float(items_per_page)))
 
-  # make sure page number is digit
-  if not str(page_number).isdigit():
-    html["Table"] = f"<h4>Invalid page number: {page_number}!!!</h4>"
-    return html
-  i_pagenumber = int(page_number) - 1
-  
-  count = database.queryDB(query_count).fetchone()[0]
-  n_pages = int(math.ceil(float(count / items_per_page)))
-  # make sure pagenumber is within the range
-  if i_pagenumber < 0 or i_pagenumber >= n_pages:
-    html["Table"] = f"<h4>Page {page_number} is out of range !!!</h4>"
-    return html
-
+def getTableDataList(page_number: int, items_per_page: int, query_select: str):
   res = database.queryDB(query_select)
-  rows = [{}]
-  for i in range(int(page_number)):
+  rows = []
+  for i in range(page_number):
     rows = res.fetchmany(items_per_page)
+  items = []
+  if len(rows) > 0:
+    for row in rows:
+      d = {}
+      for k in row.keys():
+        d[k] = row[k]
+      items.append(d)
+  return items
 
-  html["Table"] = createTable(table_rows=rows, 
-                              header_filter=table_header)
-  html["Pagination"] = createPagination(page_number=page_number,
-                                        total_pages=n_pages,
-                                        parent_url=parent_url)
-  return html
 
-
-def browseComposers(pagenumber=1, items_per_page=20):
+def getComposerContent(pagenumber=1, items_per_page=20):
   QUERY_COUNT = """
     SELECT COUNT(lastname)
     FROM composers
-    WHERE code != 'zzz_unknown'
-    AND code != 'zzz_various';
+    WHERE code != 'zzz_unknown';
   """
 
   QUERY = """
@@ -49,25 +34,24 @@ def browseComposers(pagenumber=1, items_per_page=20):
       STRREV ( SUBSTR ( 
         STRREV(knownas_name), 1, INSTR( STRREV (knownas_name), ' ') 
       ) ) AS 'Name',
-      knownas_name AS 'FullName',
+      knownas_name AS 'Full Name',
       bornyear || ' - ' || diedyear AS 'Years',
-      '<a href=\"/works-by/' || code ||
+      '<a href=\"/browse/works-by/' || code ||
       '"><i class=\"bi bi-arrow-up-right-square\"></i></a>'
       AS '   '
     FROM composers WHERE code != 'zzz_unknown'
-    AND code != 'zzz_various'
     ORDER BY code ASC;
   """
 
-  html = createTableAndPagination(query_count=QUERY_COUNT,
-                                  query_select=QUERY,
-                                  page_number=pagenumber,
-                                  items_per_page=items_per_page,
-                                  table_header=["Name", "FullName", "Years", "   "],
-                                  parent_url="browse/composers")
-  return html
+  content = {}
+  content["total_number_of_pages"] = calculateTotalPages(items_per_page, QUERY_COUNT)
+  content["current_page_number"] = pagenumber
+  content["table_data_list"] = getTableDataList(pagenumber, items_per_page, QUERY)
+  content["table_head_list"] = ["Name", "Full Name", "Years", "   "]
+  content["parent_url"] = "/browse/composers"
+  return content
 
-def browseCollections(pagenumber=1, items_per_page=50):
+def getCollectionContent(pagenumber=1, items_per_page=50):
   QUERY_COUNT = """
     SELECT COUNT(title)
     FROM collections;
@@ -90,20 +74,20 @@ def browseCollections(pagenumber=1, items_per_page=50):
     JOIN Composers ON Collections.composer_code = Composers.code
     ORDER BY Collections.title ASC;
   """
+  
+  content = {}
+  content["total_number_of_pages"] = calculateTotalPages(items_per_page, QUERY_COUNT)
+  content["current_page_number"] = pagenumber
+  content["table_data_list"] = getTableDataList(pagenumber, items_per_page, QUERY)
+  content["table_head_list"] = ["Title", "Opus", "Editor", "Composer", "   "]
+  content["parent_url"] = "/browse/collections"
+  return content
 
-  html = createTableAndPagination(query_count=QUERY_COUNT,
-                                  query_select=QUERY,
-                                  page_number=pagenumber,
-                                  items_per_page=items_per_page,
-                                  table_header=["Empty", "Title", "Opus", "Editor", "Composer", "   "],
-                                  parent_url="browse/collections")
-  return html
 
-
-def browseWorks(pagenumber=1, items_per_page=100, composer_code=""):
+def getPieceContent(pagenumber=1, items_per_page=100, composer_code=""):
   QUERY_COUNT = """
     SELECT COUNT(title)
-    FROM pieces;
+    FROM pieces
   """
 
   QUERY = """
@@ -122,20 +106,90 @@ def browseWorks(pagenumber=1, items_per_page=100, composer_code=""):
       JOIN Composers ON Pieces.composer_code = Composers.code
   """
 
-  header = ["Empty", "Title", "Opus", "Composer", "   "]
-  parent_url="browse/all-pieces"
+  header = ["Title", "Opus", "Composer", "   "]
+  parent_url = "/browse/all-pieces"
+
   if composer_code:
     QUERY += f" WHERE Pieces.composer_code = '{composer_code}'"
-    header = ["Empty", "Title", "Opus", "   "]
-    parent_url="works-by"
+    QUERY_COUNT += f" WHERE composer_code = '{composer_code}'"
+    header = ["Title", "Opus", "   "]
+    parent_url = f"/browse/works-by/{composer_code}"
 
   QUERY += " ORDER BY Pieces.title ASC;"
+  QUERY_COUNT += ";"
 
-  html = createTableAndPagination(query_count=QUERY_COUNT,
-                                  query_select=QUERY,
-                                  page_number=pagenumber,
-                                  items_per_page=items_per_page,
-                                  table_header=header,
-                                  parent_url=parent_url)
+  table_header = header
+  parent_url=parent_url
+  content = {}
+  content["total_number_of_pages"] = calculateTotalPages(items_per_page, QUERY_COUNT)
+  content["current_page_number"] = pagenumber
+  content["table_data_list"] = getTableDataList(pagenumber, items_per_page, QUERY)
+  content["table_head_list"] = header
+  content["parent_url"] = parent_url
+  return content
 
-  return html
+
+def browsePageAtPageNumber(pagetype: str, currentpage: str, composercode: str):
+  if currentpage.isdigit() and int(currentpage) > 0:
+    title = ""
+    pagemenu = []
+    content = []
+    if pagetype == "c":
+      title = "Composers"
+      pagemenu = toggle_menu.getPageAndMenuContent("c")
+      if int(currentpage) > 1:
+        pagemenu["url_composers"] = "/browse/composers"
+      content = getComposerContent(pagenumber=int(currentpage),
+                                  items_per_page=config.COMPOSERS_PER_PAGE)
+    elif pagetype == "col":
+      title = "Collections"
+      pagemenu = toggle_menu.getPageAndMenuContent("col")
+      if int(currentpage) > 1:
+        pagemenu["url_collections"] = "/browse/collections"
+      content = getCollectionContent(pagenumber=int(currentpage),
+                                     items_per_page=config.COLLECTIONS_PER_PAGE)
+    elif pagetype == "a":
+      title = "All Pieces"
+      pagemenu = toggle_menu.getPageAndMenuContent("p")
+      if int(currentpage) > 1:
+        pagemenu["url_pieces"] = "/browse/pieces"
+      content = getPieceContent(pagenumber=int(currentpage),
+                                items_per_page=config.PIECES_PER_PAGE_ALL)
+    elif pagetype == "w" and composercode != "":
+      composer = metadata.getComposerMetadata(composercode)
+      title = composer["AbbrName"]
+      pagemenu = toggle_menu.getComposerPageAndMenuContent(composer["AbbrName"], \
+                                                           composer["LongName"] + " (" + composer["Year"] + ")")
+      content = getPieceContent(pagenumber=int(currentpage),
+                                items_per_page=config.PIECES_PER_PAGE_COMPOSER,
+                                composer_code=composercode)
+    else:
+      return "<title>Error 2</title><h1>Page does not exist.</h1>"
+
+    if int(currentpage) <= int(content["total_number_of_pages"]):
+      return render_template("item_list.html", \
+        page_title=f"{title} • Hymnus Library", \
+        page_and_menu_content=pagemenu, \
+        total_number_of_pages=content["total_number_of_pages"], \
+        current_page_number=content["current_page_number"], \
+        table_data_list=content["table_data_list"], \
+        table_head_list=content["table_head_list"], \
+        parent_url=content["parent_url"])
+
+  return "<title>Error 1</title><h1>Page does not exist.</h1>"
+
+def browseCollectionAtCode(collection_code: str):
+  collection_info = metadata.getCollectionMetadata(collection_code)
+  piece_list = database.getCollectionPieces(collection_code)
+  for piece in piece_list:
+    if piece["composer_code"]:
+      composer = metadata.getComposerMetadata(piece["composer_code"])
+      piece["popup_title"] = "Composer"
+      piece["popup_content"] = composer["ShortName"]
+    else:
+      piece["popup_title"] = ""
+      piece["popup_content"] = ""
+  
+  return render_template("collection_pieces.html", \
+                  collection_metadata=collection_info, \
+                  piece_metadata_list=piece_list)

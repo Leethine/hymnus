@@ -20,7 +20,7 @@ def queryDB(query: str, dbpath=HYMNUS_DB):
   res = cur.execute(query)
   return res
 
-def getComposerDataFromCode(composer_code: str):
+def getComposerRowFromCode(composer_code: str):
   QUERY_COUNT = f"SELECT COUNT(*) FROM Composers WHERE code = '{composer_code}';"
   QUERY = f"SELECT * FROM Composers WHERE code = '{composer_code}'"
   count = queryDB(QUERY_COUNT).fetchone()[0]
@@ -29,16 +29,9 @@ def getComposerDataFromCode(composer_code: str):
   else:
     res = queryDB(QUERY).fetchone()
     composer = {}
-    composer["code"] = res["code"]
-    composer["firstname"] = res["firstname"]
-    composer["lastname"] = res["lastname"]
-    composer["knownas_name"] = res["knownas_name"]
-    composer["bornyear"] = str(res["bornyear"])
-    composer["diedyear"] = str(res["diedyear"])
-    composer["wiki"] = res["wikipedia_url"]
-    composer["imslp"] = res["imslp_url"]
+    for k in res.keys():
+      composer[k] = str(res[k])  
     return composer
-
 
 def composerHasWorks(composer_code: str):
   QUERY = f"SELECT COUNT(*) FROM Composers WHERE code = '{composer_code}';"
@@ -54,24 +47,26 @@ def composerHasWorks(composer_code: str):
       return False
   return False
 
-def getComposerCodeNameMap(jsonpath="tempdata.js"):
+def getComposerCodeNameMap(jsonpath=""):
   QUERY_COUNT = "SELECT COUNT(*) FROM Composers;"
   QUERY = """
     SELECT code, knownas_name FROM Composers
     WHERE code != 'zzz_unknown'
     ORDER BY code ASC;
   """
-
   count = queryDB(QUERY_COUNT).fetchone()[0]
-  if count == 0:
-    return {}
-  else:
-    composers = []
+  composers = []
+  if count > 0:
     for row in queryDB(QUERY).fetchall():
       c = {}
       c["code"] = row["code"]
       c["name"] = unidecode(row["knownas_name"])
       composers.append(c)
+  if jsonpath == "":
+    return composers
+  else:
+    with open(jsonpath) as j:
+      json.dump(composers)
     return json.dumps(composers)
 
 def pieceExists(folder_hash: str):
@@ -82,23 +77,46 @@ def pieceExists(folder_hash: str):
   else:
     return False
 
-def getPieceDataFromHash(folder_hash: str):
+def getPieceRowFromHash(folder_hash: str):
   if not pieceExists(folder_hash):
     return {}
   else:
-    QUERY = f"SELECT * FROM Pieces WHERE folder_hash = '{folder_hash}'"
+    QUERY = f"SELECT * FROM Pieces WHERE folder_hash = '{folder_hash}';"
     row = queryDB(QUERY).fetchone()
     piece = {}
-    piece["composer_code"] = row["composer_code"]
-    piece["arranged"] = str(int(row["arranged"]))
-    piece["arranger_code"] = row["arranger_code"]
-    piece["collection_code"] = row["collection_code"]
-    piece["title"] = row["title"]
-    piece["subtitle"] = row["subtitle"]
-    piece["subsubtitle"] = row["subsubtitle"]
-    piece["dedicated_to"] = row["dedicated_to"]
-    piece["opus"] = row["opus"]
-    piece["instruments"] = row["instruments"]
-    piece["hash"] = row["folder_hash"]
-    piece["comment"] = row["comment"]
+    for k in row.keys():
+      piece[k] = row[k]
     return piece
+
+def collectionExists(collection_code: str):
+  QUERY = f"SELECT COUNT(*) FROM Collections WHERE code = '{collection_code}';"
+  count = queryDB(QUERY).fetchone()[0]
+  if count == 1:
+    return True
+  else:
+    return False
+
+def getCollectionRowFromCode(collection_code: str):
+  if not collectionExists(collection_code):
+    return {}
+  else:
+    QUERY = f"SELECT * FROM Collections WHERE code = '{collection_code}';"
+    row = queryDB(QUERY).fetchone()
+    collection = {}
+    for k in row.keys():
+      collection[k] = row[k]
+    return collection
+
+def getCollectionPieces(collection_code: str):
+  if not collectionExists(collection_code):
+    return []
+  else:
+    QUERY = f"SELECT * FROM Pieces WHERE collection_code = '{collection_code}'"
+    QUERY += " ORDER by Title;"
+    collection = []
+    for row in queryDB(QUERY).fetchall():
+      piece = {}
+      for k in row.keys():
+        piece[k] = row[k]
+      collection.append(piece)
+    return collection

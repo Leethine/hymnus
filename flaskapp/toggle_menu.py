@@ -1,16 +1,14 @@
-from unidecode import unidecode
-
-LIST_ITEM_PAGE_CONTENT = {
+PAGE_AND_MENU_CONTENT = {
   "headline": "",
   "description": "",
-  "toggle_menu_search"      : "", "url_search"     : "search",
-  "toggle_menu_allpieces"   : "", "url_allpieces"  : "browse/all-pieces",
-  "toggle_menu_collections" : "", "url_collections": "browse/collections",
-  "toggle_menu_composers"   : "", "url_composers"  : "browse/composers"
+  "toggle_menu_search"      : "", "url_search"     : "/search",
+  "toggle_menu_allpieces"   : "", "url_allpieces"  : "/browse/all-pieces",
+  "toggle_menu_collections" : "", "url_collections": "/browse/collections",
+  "toggle_menu_composers"   : "", "url_composers"  : "/browse/composers"
 }
 
-def getPageContent(page_type: str):
-  content = LIST_ITEM_PAGE_CONTENT.copy()
+def getPageAndMenuContent(page_type: str):
+  content = PAGE_AND_MENU_CONTENT.copy()
   if page_type == "p" or page_type == "pieces" or \
      page_type == "w" or page_type == "works":
     content["headline"] = "Pieces"
@@ -37,8 +35,8 @@ def getPageContent(page_type: str):
     pass
   return content
 
-def normalizeStr(inputstr=""):
-  return unidecode(inputstr)
-
-def toAscii(inputstr=""):
-  return unidecode(inputstr)
+def getComposerPageAndMenuContent(composer_name: str, composer_info: str):
+  content = PAGE_AND_MENU_CONTENT.copy()
+  content["headline"] = f"List of works by {composer_name}"
+  content["description"] = f"<h4>{composer_info}</h4>"
+  return content

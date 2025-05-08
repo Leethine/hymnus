@@ -24,27 +24,14 @@ function prettifyText(strval) {
 function createDropDownMenu(elem_id) {
   document.getElementById(elem_id).innerHTML = "";
   var options = ""
-  var newlist_composer = [];
 
   for (var composer of COMPOSERLISTDATA) {
-    var composercode = composer["code"];
-    var composername = composer["name"];
-    var namelist = composername.split(' ');
-    var lastname = namelist[namelist.length - 1] + ", ";
-    var firstnames = "";
-    for (var i = 0; i < namelist.length - 1; i++) {
-      firstnames += namelist[i] + " ";
+    if (composer.length == 2) {
+      var composercode = composer[0];
+      var composername = composer[1];
+      options += "<option "  + "value=" + "\""
+              + composercode + "\">" + composername + "</option>";
     }
-    newlist_composer.push(lastname + firstnames + "|" + composercode);
-  }
-
-  newlist_composer.sort();
-  for (var composer of newlist_composer) {
-    var composersplit = composer.split('|');
-    var composercode = composersplit[1];
-    var composername = composersplit[0];
-    options += "<option "  + "value=" + "\""
-            + composercode + "\">" + composername + "</option>";
   }
 
   document.getElementById(elem_id).innerHTML = options;

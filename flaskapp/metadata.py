@@ -10,11 +10,12 @@ def getAbbrName(name: str):
     return name
 
 def getComposerMetadata(composer_code: str):
-  composer = database.getComposerDataFromCode(composer_code)
+  composer = database.getComposerRowFromCode(composer_code)
   longname = composer["firstname"] + " " + composer["lastname"]
   shortname = composer["knownas_name"]
   year = composer["bornyear"] + " - " + composer["diedyear"]
   c = {}
+  c["code"] = composer_code
   c["ShortName"] = shortname
   c["AbbrName"] = getAbbrName(shortname)
   c["LongName"] = longname
@@ -22,7 +23,11 @@ def getComposerMetadata(composer_code: str):
   return c
 
 def getComposerCodeNameList():
-  return database.getComposerCodeNameMap()
+  composerlist = database.getComposerCodeNameMap()
+  for c in composerlist:
+    names = c["name"]
+    c["name"] = names.split(" ")[-1] + ", " + ' '.join(names.split(" ")[:-1])
+  return composerlist
 
 def composerHasWorks(composer_code: str):
   return database.composerHasWorks(composer_code)
@@ -31,7 +36,7 @@ def pieceExists(folder_hash: str):
   return database.pieceExists(folder_hash)
 
 def getPieceMetadata(folder_hash: str):
-  row = database.getPieceDataFromHash(folder_hash)
+  row = database.getPieceRowFromHash(folder_hash)
   if row:
     row["composer"] = getComposerMetadata(row["composer_code"])["ShortName"]
     if row["arranged"] == "1":
@@ -45,6 +50,14 @@ def getPieceMetadata(folder_hash: str):
     for key in ["composer","composer_code","arranged","arranged_by",
                 "arranger_code","collection_code","title","subtitle",
                 "subsubtitle","dedicated_to","opus","instruments",
-                "hash","comment"]:
+                "_folder_hash","comment"]:
       row[key] = ""
     return row
+
+def getCollectionMetadata(collection_code: str):
+  row = database.getCollectionRowFromCode(collection_code)
+  if row["composer_code"] == "":
+    row["composer"] = ""
+  else:
+    row["composer"] = getComposerMetadata(row["composer_code"])["ShortName"]
+  return row

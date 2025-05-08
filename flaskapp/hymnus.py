@@ -1,7 +1,7 @@
 from flask import Flask, render_template, send_from_directory
 from flask import redirect, request
 from markupsafe import escape
-import metadata, browse, piece_io, html_basic
+import metadata, browse, piece_io, toggle_menu, config
 import time
 
 app = Flask(__name__)
@@ -26,118 +26,48 @@ def createNewComposer():
 @app.route("/new-piece")
 def createNewPiece():
   return render_template("new_piece.html",
-                         composerlist_dict=str(metadata.getComposerCodeNameList()))
+                         composerlist=metadata.getComposerCodeNameList())
 
 @app.route("/new-collection")
 def createNewCollection():
   return render_template("new_collection.html",
-                         composerlist_dict=str(metadata.getComposerCodeNameList()))
+                         composerlist=metadata.getComposerCodeNameList())
 
-@app.route("/browse/<browsetype>")
-def browseByType(browsetype):
-  html = {"Table": "", "Pagination": ""}
-  title = ""
-  page = {}
-  if browsetype == "composers":
-    title = "Composers"
-    html = browse.browseComposers(pagenumber=1, items_per_page=20)
-    page = html_basic.getPageContent("c")
-  elif browsetype == "collections":
-    title = "Collections"
-    html = browse.browseCollections(pagenumber=1, items_per_page=40)
-    page = html_basic.getPageContent("col")
-  elif browsetype == "all-pieces":
-    title = "Pieces"
-    html = browse.browseWorks(pagenumber=1, items_per_page=100)
-    page = html_basic.getPageContent("p")
-  else:
-    return f"<h2>Invalid URL \"/{browsetype}\"</h2>"
+@app.route("/browse/composers")
+def browseComposer():
+  return browse.browsePageAtPageNumber("c", "1", "")
 
-  return render_template("item_list.html", \
-    page_title=f"{title} • Hymnus Library", \
-    list_items_page_content=page, \
-    list_items_table=html["Table"], \
-    list_items_pagination=html["Pagination"])
+@app.route("/browse/composers/<currentpage>")
+def browseComposerAtPage(currentpage):
+  return browse.browsePageAtPageNumber("c", currentpage, "")
 
-@app.route("/browse/<browsetype>/<pagenumber>")
-def browseByTypeAndPage(browsetype, pagenumber):
-  if not browsetype in ["composers","all-pieces","collections"]:
-    return f"<h2>Invalid URL \"/{browsetype}/{pagenumber}\"</h2>"
-  if not str(pagenumber).isdigit():
-    return f"<h2>Invalid page number: {pagenumber}</h2>"
+@app.route("/browse/collections")
+def browseCollection():
+  return browse.browsePageAtPageNumber("col", "1", "")
 
-  html = {"Table": "", "Pagination": ""}
-  title = ""
-  page = {}
-  if browsetype == "composers":
-    title = "Composers"
-    html = browse.browseComposers(pagenumber=int(pagenumber), items_per_page=20)
-    page = html_basic.getPageContent("c")
-    page["url_composers"] = "browse/composers"
-  elif browsetype == "collections":
-    title = "Collections"
-    html = browse.browseCollections(pagenumber=int(pagenumber), items_per_page=40)
-    page = html_basic.getPageContent("col")
-    page["url_collections"] = "browse/collections"
-  elif browsetype == "all-pieces":
-    title = "Pieces"
-    html = browse.browseWorks(pagenumber=int(pagenumber), items_per_page=100)
-    page = html_basic.getPageContent("p")
-    page["url_allpieces"] = "browse/all-pieces"
-  else:
-    return f"<h2>Invalid URL \"/{browsetype}/{pagenumber}\"</h2>"
+@app.route("/browse/collections/<currentpage>")
+def browseCollectionAtPage(currentpage):
+  return browse.browsePageAtPageNumber("col", currentpage, "")
 
-  return render_template("item_list.html", \
-    page_title=f"{title} • Hymnus Library", \
-    list_items_page_content=page, \
-    list_items_table=html["Table"], \
-    list_items_pagination=html["Pagination"])
+@app.route("/browse/all-pieces")
+def browseAllPieces():
+  return browse.browsePageAtPageNumber("a", "1", "")
 
-@app.route("/works-by/<composer_code>")
-def composerWorks(composer_code):
-  page = html_basic.getPageContent("NA")
-  composer = metadata.getComposerMetadata(composer_code)
-  page["headline"] = "List of works by " + composer["AbbrName"]
-  page["description"] = "<p><b>" + composer["ShortName"] + "</b><br>" \
-                      + composer["LongName"] + " (" + composer["Year"] + ")</p>"
-  
-  if metadata.composerHasWorks(composer_code):
-    html = browse.browseWorks(composer_code=composer_code, pagenumber=1)
-    return render_template("item_list.html", \
-      page_title=composer["AbbrName"] + " • Hymnus Library", \
-      list_items_page_content=page, \
-      list_items_table=html["Table"], \
-      list_items_pagination=html["Pagination"])
-  else:
-    html = {}
-    html["Table"] = "<h4>No works found.</h4>"
-    html["Pagination"] = ""
-    return render_template("item_list.html", \
-      page_title=composer["AbbrName"] + " • Hymnus Library", \
-      list_items_page_content=page, \
-      list_items_table=html["Table"], \
-      list_items_pagination=html["Pagination"])
-    
+@app.route("/browse/all-pieces/<currentpage>")
+def browseAllPiecesAtPage(currentpage):
+  return browse.browsePageAtPageNumber("a", currentpage, "")
 
-@app.route("/works-by/<composer_code>/<pagenumber>")
-def composerWorksPagination(composer_code, pagenumber):
-  if not str(pagenumber).isdigit():
-    return f"Invalid page number: {pagenumber}"
-  html = browse.browseWorks(composer_code=composer_code, pagenumber=int(pagenumber))
+@app.route("/browse/works-by/<composercode>")
+def browseComposerPieces(composercode):
+  return browse.browsePageAtPageNumber("w", "1", composercode)
 
-  page = html_basic.getPageContent("NA")
-  composer = metadata.getComposerMetadata(composer_code)
-  page["headline"] = "List of works by " + composer["AbbrName"]
-  page["description"] = "<p></b>" + composer["ShortName"] + "</p></b><br>" \
-                      + "<p>" + composer["LongName"] + "</p><br>" \
-                      + "<p>" + composer["Year"] + "</p><br>"
+@app.route("/browse/works-by/<composercode>/<currentpage>")
+def browseComposerPiecesAtPage(composercode, currentpage):
+  return browse.browsePageAtPageNumber("w", currentpage, composercode)
 
-  return render_template("item_list.html", \
-    page_title=composer["AbbrName"] + " • Hymnus Library", \
-    list_items_page_content=page, \
-    list_items_table=html["Table"], \
-    list_items_pagination=html["Pagination"])
-
+@app.route("/collection-at/<collection_code>")
+def openCollection(collection_code):
+  return browse.browseCollectionAtCode(collection_code)
 
 @app.route("/file/<folderhash>")
 def openPiecePage(folderhash):
