@@ -47,7 +47,7 @@ while [[ $# -gt 0 ]]; do
       shift # past value
       ;;
     --dedicated)
-      DECICATED="${2}"
+      DEDICATED="${2}"
       shift # past argument
       shift # past value
       ;;

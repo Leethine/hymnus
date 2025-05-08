@@ -10,16 +10,23 @@ def getAbbrName(name: str):
     return name
 
 def getComposerMetadata(composer_code: str):
-  composer = database.getComposerRowFromCode(composer_code)
-  longname = composer["firstname"] + " " + composer["lastname"]
-  shortname = composer["knownas_name"]
-  year = composer["bornyear"] + " - " + composer["diedyear"]
   c = {}
-  c["code"] = composer_code
-  c["ShortName"] = shortname
-  c["AbbrName"] = getAbbrName(shortname)
-  c["LongName"] = longname
-  c["Year"] = year
+  if composer_code == "zzz_unknown":
+    c["code"] = "zzz_unknown"
+    c["ShortName"] = "Unknown"
+    c["AbbrName"] = "Unknown"
+    c["LongName"] = "Unknown"
+    c["Year"] = ""
+  else:
+    composer = database.getComposerRowFromCode(composer_code)
+    longname = composer["firstname"] + " " + composer["lastname"]
+    shortname = composer["knownas_name"]
+    year = composer["bornyear"] + " - " + composer["diedyear"]
+    c["code"] = composer_code
+    c["ShortName"] = shortname
+    c["AbbrName"] = getAbbrName(shortname)
+    c["LongName"] = longname
+    c["Year"] = year
   return c
 
 def getComposerCodeNameList():
@@ -38,6 +45,10 @@ def pieceExists(folder_hash: str):
 def getPieceMetadata(folder_hash: str):
   row = database.getPieceRowFromHash(folder_hash)
   if row:
+    # remove 'None' data
+    for k in row.keys():
+      if not row[k]:
+        row[k] = "N/A"
     row["composer"] = getComposerMetadata(row["composer_code"])["ShortName"]
     if row["arranged"] == "1":
       arranger = getComposerMetadata(row["arranger_code"])
@@ -56,8 +67,21 @@ def getPieceMetadata(folder_hash: str):
 
 def getCollectionMetadata(collection_code: str):
   row = database.getCollectionRowFromCode(collection_code)
-  if row["composer_code"] == "":
-    row["composer"] = ""
+  if row:
+    # remove 'None' data and white spaces
+    for k in row.keys():
+      if not row[k]:
+        row[k] = "N/A"
+    if row["composer_code"] == "" or row["composer_code"] == "zzz_unknown":
+      row["composer"] = "Various"
+    else:
+      row["composer"] = getComposerMetadata(row["composer_code"])["ShortName"]
+    return row
   else:
-    row["composer"] = getComposerMetadata(row["composer_code"])["ShortName"]
-  return row
+    row = {}
+    for k in ["code", "composer_code", "composer", "title",
+              "subtitle", "subsubtitle", "opus", "description_text",
+              "volume", "instruments", "editor"]:
+      row[k] = ""
+    return row
+    

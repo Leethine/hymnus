@@ -182,7 +182,10 @@ def browseCollectionAtCode(collection_code: str):
   collection_info = metadata.getCollectionMetadata(collection_code)
   piece_list = database.getCollectionPieces(collection_code)
   for piece in piece_list:
-    if piece["composer_code"]:
+    if collection_info["composer_code"]:
+      piece["popup_title"] = ""
+      piece["popup_content"] = ""
+    elif piece["composer_code"]:
       composer = metadata.getComposerMetadata(piece["composer_code"])
       piece["popup_title"] = "Composer"
       piece["popup_content"] = composer["ShortName"]

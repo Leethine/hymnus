@@ -124,6 +124,9 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
 
   <a href="/file/{{ dict_item["folder_hash"] }}" class="list-group-item list-group-item-action" data-toggle="popover" title="{{ dict_item["popup_title"] }}" data-content="{{ dict_item["popup_content"] }}" data-trigger="hover">
     {{ dict_item["title"] }}
+    {% if dict_item["opus"] %}
+    , {{ dict_item["opus"] }}
+    {% endif %}
   </a>
 
 
