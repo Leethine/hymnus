@@ -45,7 +45,7 @@ while [[ $# -gt 0 ]]; do
       shift # past value
       ;;
     --editor)
-      EDITOR="${2}"
+      EDITOR_NAME="${2}"
       shift # past argument
       shift # past value
       ;;
@@ -93,8 +93,8 @@ if [[ -z "${VOLUME}" ]]; then
   VOLUME=" "
 fi
 
-if [[ -z "${EDITOR}" ]]; then
-  EDITOR=" "
+if [[ -z "${EDITOR_NAME}" ]]; then
+  EDITOR_NAME=" "
 fi
 
 if [[ -z "${OPUS}" ]]; then
@@ -109,7 +109,7 @@ FOUND="$(sqlite3 -readonly -csv "${DBFILE}" <<EOF
   subtitle = '${SUBTITLE}' AND
   volume = '${VOLUME}' AND
   opus = '${OPUS}' AND
-  editor = '${EDITOR}';
+  editor = '${EDITOR_NAME}';
 EOF
 )"
 
@@ -135,7 +135,7 @@ if [[ ! -z "${COMPOSER_CODE}" && -z "${COMPOSER}" ]]; then
 fi
 
 # Calculate hash
-MD5HASH="$(echo "${COMPOSER}-${TITLE}-${SUBTITLE}-${SUBSUBTITLE}-${OPUS}-${VOLUME}-${EDITOR}" | md5sum | cut -d ' ' -f 1 )"
+MD5HASH="$(echo "${COMPOSER}-${TITLE}-${SUBTITLE}-${SUBSUBTITLE}-${OPUS}-${VOLUME}-${EDITOR_NAME}" | md5sum | cut -d ' ' -f 1 )"
 
 # Check hash collision
 EXISTING="$(sqlite3 -readonly -csv "${DBFILE}" <<EOF
@@ -162,7 +162,7 @@ update_value_in_db ${MD5HASH} subtitle "${SUBTITLE}"
 update_value_in_db ${MD5HASH} subsubtitle "${SUBSUBTITLE}"
 update_value_in_db ${MD5HASH} opus "${OPUS}"
 update_value_in_db ${MD5HASH} composer_code "${COMPOSER_CODE}"
-update_value_in_db ${MD5HASH} editor "${EDITOR}"
+update_value_in_db ${MD5HASH} editor "${EDITOR_NAME}"
 update_value_in_db ${MD5HASH} instruments "${INSTRUMENTS}"
 update_value_in_db ${MD5HASH} description_text "${DESCRIPTION}"
 
