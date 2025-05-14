@@ -90,7 +90,7 @@ if [[ -z "${TITLE}" ]]; then
 fi
 
 if [[ -z "${VOLUME}" ]]; then
-  VOLUME="None"
+  VOLUME=" "
 fi
 
 if [[ -z "${EDITOR}" ]]; then
@@ -107,7 +107,7 @@ FOUND="$(sqlite3 -readonly -csv "${DBFILE}" <<EOF
   composer_code = '${COMPOSER_CODE}' AND
   title = '${TITLE}' AND
   subtitle = '${SUBTITLE}' AND
-  volume = ${VOLUME} AND
+  volume = '${VOLUME}' AND
   opus = '${OPUS}' AND
   editor = '${EDITOR}';
 EOF
@@ -154,7 +154,7 @@ fi
 sqlite3 "${DBFILE}" <<EOF
   INSERT INTO collections
   (title, volume, composer_code, code)
-  VALUES('${TITLE}',${ARRANGED},'${COMPOSER_CODE}','${MD5HASH}');
+  VALUES('${TITLE}','${VOLUME}','${COMPOSER_CODE}','${MD5HASH}');
 EOF
 
 # Insert other fields
