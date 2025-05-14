@@ -2,7 +2,7 @@ from flask import Flask, render_template, send_from_directory
 from flask import redirect, request, flash, url_for
 from werkzeug.utils import secure_filename
 from markupsafe import escape
-import metadata, browse, piece_io, toggle_menu, config
+import metadata, browse, piece_io, toggle_menu, config, auth
 import time, os
 
 app = Flask(__name__)
@@ -99,54 +99,55 @@ def downloadFile(folderhash, fname):
 @app.route('/addfile/<folderhash>', methods=['GET', 'POST'])
 def upload_file(folderhash):
   if request.method == 'POST':
-    if 'file' not in request.files \
-      or 'title' not in request.form \
-      or 'description' not in request.form: 
-      flash('Missing input data', 'error')
-      return redirect(request.url)
-    else:
-      file = request.files['file']
-      title = request.form['title']
-      desc = request.form['description']
-      if file and piece_io.checkInputForm(file.filename, title, desc):
-        filename = secure_filename(file.filename)
-        if piece_io.checkFileExtension(filename):
-          file.save(os.path.join(piece_io.getPieceFilePath(folderhash), filename))
-          piece_io.addFileMetaData(folderhash, filename, title, desc)
-          flash('New file added.')
-          return redirect(f"/file/{folderhash}")
+    if 'user' in request.form and 'password' in request.form \
+      and request.form['user'] != '' and request.form['password'] != '' \
+      and auth.validateUserPassword(request.form['user'],
+                                    request.form['password']):
+      if 'file' not in request.files \
+        or 'title' not in request.form \
+        or 'description' not in request.form: 
+        #flash('Missing input data', 'error')
+        #return redirect(request.url)
+        return piece_io.createAlertBox('Missing input data', 'Error')
       else:
-        flash('Empty input field!', 'error')
-        return redirect(request.url)
+        file = request.files['file']
+        title = request.form['title']
+        desc = request.form['description']
+        if file and piece_io.checkInputForm(file.filename, title, desc):
+          filename = secure_filename(file.filename)
+          if piece_io.checkFileExtension(filename):
+            file.save(os.path.join(piece_io.getPieceFilePath(folderhash), filename))
+            piece_io.addFileMetaData(folderhash, filename, title, desc)
+            flash('New file added.')
+            return redirect(f"/file/{folderhash}")
+        else:
+          #flash('Empty input field!', 'error')
+          #return redirect(request.url)
+          return piece_io.createAlertBox('Empty input field!', 'Error')
+    else:
+      #flash('Wrong password', 'error')
+      #return redirect(request.url)
+      return piece_io.createAlertBox('Empty or wrong username and password!', 'Error')
+
   return piece_io.getSimpleSubmitPage()
 
 
 @app.route('/rmfile/<folderhash>', methods=['GET', 'POST'])
 def delete_file(folderhash):
   if request.method == 'POST':
-    select = request.form.get('select-file')
-    if select:
-      piece_io.deleteFileAndMetaData(folderhash, select)
-      flash(f'File "{select}" deleted.')
-      return redirect(f"/file/{folderhash}")
+    if 'user' in request.form and 'password' in request.form \
+      and request.form['user'] != '' and request.form['password'] != '' \
+      and auth.validateUserPassword(request.form['user'],
+                                    request.form['password']):
+      select = request.form.get('select-file')
+      if select:
+        piece_io.deleteFileAndMetaData(folderhash, select)
+        flash(f'File "{select}" deleted.')
+        return redirect(f"/file/{folderhash}")
+    else:
+      return piece_io.createAlertBox('Empty or wrong username and password!', 'Error')
   return piece_io.getSimpleDeletePage(folderhash)
 
-@app.route('/addfiletest2', methods=['GET', 'POST'])
-def upload_file2():
-  if request.method == 'POST':
-    if 'file' not in request.files:
-      flash('No file part', 'error')
-      return redirect(request.url)
-    file = request.files['uploaded-file']
-    if file.filename == '':
-      flash('No selected file', 'error')
-      return redirect(request.url)
-    if file:
-      filename = secure_filename(file.filename)
-      file.save(os.path.join("/home/lizian/Projects/hymnus/flaskapp/hymnus_env/upload", filename))
-      return redirect(url_for('searchWorks'))
-      #return request.form['file-title'] + "\n" + request.form['file-description']
-  return piece_io.getSubmitPage()
 
 if __name__ == '__main__':
   app.run()

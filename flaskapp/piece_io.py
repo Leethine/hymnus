@@ -1,4 +1,4 @@
-import os, json, pickle, time
+import os, json, time
 import metadata, database
 
 FILE_METADATA_FORMAT = "json" # bin or json
@@ -97,8 +97,14 @@ def getSimpleSubmitPage():
     <h1>Upload new File</h1>
     <form method="post" enctype="multipart/form-data">
       <input type="file" name="file">
-      <input type="text" name="title" />
-      <textarea type="text" name="description" rows="3">No description</textarea>
+      <br>
+      <input type="text" name="title" placeholder="File title">
+      <br>
+      <textarea type="text" name="description" rows="3">File description</textarea>
+      <br>
+      <input type="text" name="user" placeholder="User Name">
+      <input type="password" name="password" placeholder="Password">
+      <br>
       <input type="submit" value="Upload">
     </form>
   '''
@@ -115,7 +121,10 @@ def getSimpleDeletePage(folderhash: str):
   for item in data:
     if item and 'headline' in item.keys():
         HTMLFORM += "<option>" + item['headline'] + "</option>"  
-  HTMLFORM += '</select><input type="submit" value="Delete"></form>'
+  HTMLFORM += '</select><br>'
+  HTMLFORM += '<input type="text" name="user" placeholder="User Name">'
+  HTMLFORM += '<input type="password" name="password" placeholder="Password">'
+  HTMLFORM += '<br><input type="submit" value="Delete"></form>'
   return HTMLFORM
     
 
@@ -138,7 +147,7 @@ def addFileMetaData(folderhash: str, filename: str, title: str, desc: str):
   #        + "." + extention
   newname =  "File_" \
           + "{:.4f}".format(time.time() - int(time.time())).replace("0.","") \
-          + "_" + filename.replace(' ', '_')
+          + "_" + filename.replace(' ', '_').replace("'", "_").replace('"', '_')
 
   os.rename(f"{getPieceFilePath(folderhash)}/{filename}",
             f"{getPieceFilePath(folderhash)}/{newname}")
@@ -167,3 +176,11 @@ def deleteFileAndMetaData(folderhash: str, title):
   os.remove(f"{getPieceFilePath(folderhash)}/{filename}")
   writeFileMetaData(folderhash, newdata)
 
+
+def createAlertBox(message: str, level="Warning"):
+  HTML = "<!DOCTYPE html><html><body>"
+  HTML += "<h2>{level}</h2><script>\n"
+  HTML += 'alert("' + message + '");'
+  HTML += 'history.back()'
+  HTML += "</script></body></html>"
+  return HTML

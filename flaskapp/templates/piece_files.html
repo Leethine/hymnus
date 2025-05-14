@@ -129,8 +129,8 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
   <div class="w3-twothird w3-container">
     <div class="container">
   <p>
-    <a class="btn btn-primary" id="btn-add-file" href="#" role="button">Add file</a>
-    <a class="btn btn-primary" id="btn-delete-file" href="#" role="button">Delete file</a>
+    <a class="btn btn-primary" id="btn-add-file" href="/addfile/{{ piece_metadata["folder_hash"] }}" role="button">Add file</a>
+    <a class="btn btn-primary" id="btn-delete-file" href="/rmfile/{{ piece_metadata["folder_hash"] }}" role="button">Delete file</a>
   </p>
     </div>
   </div>

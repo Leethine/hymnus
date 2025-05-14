@@ -61,7 +61,7 @@ def getPieceMetadata(folder_hash: str):
     for key in ["composer","composer_code","arranged","arranged_by",
                 "arranger_code","collection_code","title","subtitle",
                 "subsubtitle","dedicated_to","opus","instruments",
-                "_folder_hash","comment"]:
+                "folder_hash","comment"]:
       row[key] = ""
     return row
 
