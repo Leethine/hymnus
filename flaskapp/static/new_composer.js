@@ -207,3 +207,10 @@ function copyScript() {
   navigator.clipboard.writeText(copyText.value);
   alert("Copied to clipboard:\n" + copyText.value);
 }
+
+function copyToClipboard() {
+  var copyText = document.getElementById("new-composer-script");
+  copyText.select();
+  copyText.setSelectionRange(0, 99999);
+  window.prompt("Copy to clipboard: Ctrl+C, Enter", copyText.value);
+}

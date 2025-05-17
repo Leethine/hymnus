@@ -12,6 +12,7 @@ create_path_with_hash() {
   INITIAL=${FOLDERHASH:0:2}
   FOLDERPATH="${FSPATH}/${INITIAL}/${FOLDERHASH}"
   mkdir -p "${FOLDERPATH}"
+  printf "[]" > "${FOLDERPATH}/desc.json"
 }
 
 update_value_in_db() {
