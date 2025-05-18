@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <title>Files • Hymnus Library</title>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+<style>
+html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
+.w3-sidebar {
+  z-index: 3;
+  width: 250px;
+  top: 43px;
+  bottom: 0;
+  height: inherit;
+}
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="w3-top">
+  <div class="w3-bar w3-theme w3-top w3-left-align w3-large">
+    <a class="w3-bar-item w3-button w3-right w3-hide-large w3-hover-white w3-large w3-theme-l1" href="javascript:void(0)" onclick="w3_open()"><i class="fa fa-bars"></i></a>
+    <a href="/" class="w3-bar-item w3-button w3-theme-l1">Hymnus</a>
+    <a href="/about" class="w3-bar-item w3-button w3-hide-small w3-hover-white">About</a>
+    <a href="/contact" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Contact</a>
+  </div>
+</div>
+
+<!-- Sidebar -->
+<nav class="w3-sidebar w3-bar-block w3-collapse w3-large w3-theme-l5 w3-animate-left" id="mySidebar">
+  <a href="javascript:void(0)" onclick="w3_close()" class="w3-right w3-xlarge w3-padding-large w3-hover-black w3-hide-large" title="Close Menu">
+    <i class="fa fa-remove"></i>
+  </a>
+  <h4 class="w3-bar-item"><b>Browse</b></h4>
+  <a class="w3-bar-item w3-button w3-hover-black "      href="/search">Search</a>
+  <a class="w3-bar-item w3-button w3-hover-black "   href="/browse/all-pieces">All Pieces</a>
+  <a class="w3-bar-item w3-button w3-hover-black " href="/browse/collections">Collections</a>
+  <a class="w3-bar-item w3-button w3-hover-black "   href="/browse/composers">By Composer</a>
+</nav>
+
+<!-- Overlay effect when opening sidebar on small screens -->
+<div class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+
+<!-- Main content: shift it to the right by 250 pixels when the sidebar is visible -->
+<div class="w3-main" style="margin-left:250px">
+  <div class="w3-row w3-padding-64">
+    <div class="w3-twothird w3-container">
+      <div class="container">
+
+        <table class="table table-sm table-borderless">
+          <thead>
+            <tr>
+              <th scope="col" class="col-md-3"></th>
+              <th scope="col"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Title</th>
+              <td><h4>{{ piece_metadata["title"] }}, {{ piece_metadata["opus"] }}</h4></td>
+            </tr>
+            <tr>
+              <th scope="row">Composed by</th>
+              <td><h5>{{ piece_metadata["composer"] }}</h5></td>
+            </tr>
+            <tr>
+              <th scope="row">Composition Year</th>
+              <td>{{ piece_metadata["composed_year"] }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Subtitle</th>
+              <td>{{ piece_metadata["subtitle"] }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Subsubtitle</th>
+              <td>{{ piece_metadata["subsubtitle"] }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Arranged by</th>
+              <td>{{ piece_metadata["arranged_by"] }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Dedicated to:</th>
+              <td>{{ piece_metadata["dedicated_to"] }}</td>
+            </tr>
+            <tr>
+              <th scope="row">For instruments:</th>
+              <td>{{ piece_metadata["instruments"] }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Comment:</th>
+              <td><p class="text-break">{{ piece_metadata["comment"] }}</p></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="container">
+      <script>
+      $(function () {
+        $('[data-toggle="popover"]').popover()
+      })
+      </script>
+
+
+<ul class="list-group">
+{% for dict_item in file_metadata_list %}
+<li class="list-group-item d-flex justify-content-between align-items-center">
+  <h5><a class="text-left font-weight-normal text-decoration-none text-dark" href="#" data-toggle="popover" title="{{ dict_item["popup_title"] }}" data-content="{{ dict_item["popup_content"] }}" data-trigger="hover">&ensp;
+    {{ dict_item["filename"] }}
+  &emsp;</a></h5>
+  <h5><span class="badge badge-dark badge-pill"><a target="_blank" href="{{ dict_item["filelink"] }}" class="badge badge-dark badge-pill">{{ dict_item["filetype"] }}</a></span></h5>
+</li>
+{% endfor %}
+</ul>
+
+    </div>
+  </div>
+</div>
+
+<div class="w3-row w3-padding-32">
+  <div class="w3-twothird w3-container">
+    <div class="container">
+  <p>
+    <a class="btn btn-primary" id="btn-add-file" href="/addfile/{{ piece_metadata["folder_hash"] }}" role="button">Add file</a>
+    <a class="btn btn-primary" id="btn-delete-file" href="/rmfile/{{ piece_metadata["folder_hash"] }}" role="button">Delete file</a>
+  </p>
+    </div>
+  </div>
+</div>
+
+{% if has_footer == "Y" %}
+  <footer id="myFooter">
+    <div class="w3-container w3-theme-l2 w3-padding-16">
+      <h5>© 2025</h5>
+    </div>
+  </footer>
+{% endif %}
+
+
+<!-- END MAIN -->
+</div>
+
+<script>
+// Get the Sidebar
+var mySidebar = document.getElementById("mySidebar");
+
+// Get the DIV with overlay effect
+var overlayBg = document.getElementById("myOverlay");
+
+// Toggle between showing and hiding the sidebar, and add overlay effect
+function w3_open() {
+  if (mySidebar.style.display === 'block') {
+    mySidebar.style.display = 'none';
+    overlayBg.style.display = "none";
+  } else {
+    mySidebar.style.display = 'block';
+    overlayBg.style.display = "block";
+  }
+}
+
+// Close the sidebar with the close button
+function w3_close() {
+  mySidebar.style.display = "none";
+  overlayBg.style.display = "none";
+}
+</script>
+
+</body>
+</html>
