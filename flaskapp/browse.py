@@ -12,7 +12,7 @@ def calculateTotalPages(items_per_page: int, query_count: str):
 
 def getComposerContent(pagenumber=1, items_per_page=20) -> dict:
   QUERY_COUNT = """
-    SELECT COUNT(lastname)
+    SELECT COUNT(*)
     FROM composers
     WHERE code != 'zzz_unknown';
   """
@@ -41,7 +41,7 @@ def getComposerContent(pagenumber=1, items_per_page=20) -> dict:
 
 def getCollectionContent(pagenumber=1, items_per_page=50) -> dict:
   QUERY_COUNT = """
-    SELECT COUNT(title)
+    SELECT COUNT(*)
     FROM collections;
   """
 
@@ -51,7 +51,11 @@ def getCollectionContent(pagenumber=1, items_per_page=50) -> dict:
       Collections.title AS 'Title',
       Collections.opus AS 'Opus',
       Collections.editor AS 'Editor',
-      Composers.knownas_name AS 'Composer',
+      CASE WHEN Collections.composer_code IS NULL
+           OR Collections.composer_code = 'zzz_unknown'
+       THEN ' '
+       ELSE Composers.knownas_name
+       END AS 'Composer',
 
       '<a href=\"/collection-at/' ||
       Collections.code ||
@@ -74,7 +78,7 @@ def getCollectionContent(pagenumber=1, items_per_page=50) -> dict:
 
 def getPieceContent(pagenumber=1, items_per_page=100, composer_code="") -> dict:
   QUERY_COUNT = """
-    SELECT COUNT(title)
+    SELECT COUNT(*)
     FROM pieces
   """
 

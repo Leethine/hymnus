@@ -166,7 +166,7 @@ elif [[ ! -z "${COLLECTION_CODE}" && -z "${COLLECTION}" ]]; then
 fi
 
 # Calculate hash
-SHA1HASH="$(echo "${COMPOSER}-${TITLE}-${SUBTITLE}-${SUBSUBTITLE}-${OPUS}-${ARRANGED}-${COLLECTION}" | sha1sum | cut -d ' ' -f 1 )"
+SHA1HASH="$(echo "${COMPOSER}-${TITLE}-${SUBTITLE}-${SUBSUBTITLE}-${OPUS}-${ARRANGED}-${COLLECTION}-${COMPOSITION_YEAR}" | sha1sum | cut -d ' ' -f 1 )"
 
 # Check hash collision
 EXISTING="$(sqlite3 -readonly -csv "${DBFILE}" <<EOF

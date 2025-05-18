@@ -89,6 +89,10 @@ if [[ -z "${TITLE}" ]]; then
   exit 1
 fi
 
+if [[ -z "${COMPOSER_CODE}" ]]; then
+  COMPOSER_CODE="zzz_unknown"
+fi
+
 if [[ -z "${VOLUME}" ]]; then
   VOLUME=" "
 fi

@@ -19,7 +19,7 @@ VALUES ('zzz_unknown', ' ', ' ', 'U', -1, -1);
 DROP TABLE IF EXISTS collections;
 CREATE TABLE collections (
   code TEXT UNIQUE NOT NULL,
-  composer_code TEXT,
+  composer_code TEXT DEFAULT 'zzz_unknown',
   title TEXT NOT NULL,
   subtitle TEXT,
   subsubtitle TEXT,
