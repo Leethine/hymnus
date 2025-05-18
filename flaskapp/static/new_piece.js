@@ -48,7 +48,7 @@ function generateScript() {
   var subsubtitle  = document.getElementById("new-piece-subsubtitle").value;
   var dedicated_to = document.getElementById("new-piece-dedicated").value;
   var opus         = document.getElementById("new-piece-opus").value;
-  var opus         = document.getElementById("new-piece-year").value;
+  var year         = document.getElementById("new-piece-year").value;
   var composercode = document.getElementById("select-composer").value;
   var instruments  = document.getElementById("new-piece-instrument").value;
   var comment      = document.getElementById("new-piece-comment").value;
