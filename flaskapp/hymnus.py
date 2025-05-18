@@ -2,8 +2,20 @@ from flask import Flask, render_template, send_from_directory
 from flask import redirect, request, flash, url_for
 from werkzeug.utils import secure_filename
 from markupsafe import escape
-import metadata, browse, piece_io, toggle_menu, config, auth
+
+from metadata import Metadata
+from piece_io import PieceIO
+from toggle_menu import ToggleHtmlMenu
+from auth import AuthWeak
+
+import browse, hymnus_config, hymnus_tools
 import time, os
+
+meta     = Metadata()
+pieceio  = PieceIO()
+weakauth = AuthWeak()
+
+### APP starts here ###
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -28,12 +40,12 @@ def createNewComposer():
 @app.route("/new-piece")
 def createNewPiece():
   return render_template("new_piece.html",
-                         composerlist=metadata.getComposerCodeNameList())
+                         composerlist=meta.getComposerCodeNameList())
 
 @app.route("/new-collection")
 def createNewCollection():
   return render_template("new_collection.html",
-                         composerlist=metadata.getComposerCodeNameList())
+                         composerlist=meta.getComposerCodeNameList())
 
 @app.route("/browse/composers")
 def browseComposer():
@@ -73,8 +85,8 @@ def openCollection(collection_code):
 
 @app.route("/file/<folderhash>")
 def openPiecePage(folderhash):
-  pieceinfo = metadata.getPieceMetadata(folderhash)
-  filesinfo = piece_io.getFilePageInfo(folderhash)
+  pieceinfo = meta.getPieceMetadata(folderhash)
+  filesinfo = pieceio.getPiecePageFileList(folderhash)
   if pieceinfo and filesinfo:
     return render_template("piece_files.html", \
                           piece_metadata=pieceinfo, \
@@ -92,44 +104,42 @@ def searchWorks():
 def downloadFile(folderhash, fname):
   wait_time = 3
   time.sleep(wait_time)
-  return send_from_directory(piece_io.getPieceFilePath(folderhash), \
+  return send_from_directory(pieceio.getPieceFileDir(folderhash), \
                              fname, as_attachment=False)
 
 
 @app.route('/addfile/<folderhash>', methods=['GET', 'POST'])
 def upload_file(folderhash):
   if request.method == 'POST':
+    # Check password
     if 'user' in request.form and 'password' in request.form \
       and request.form['user'] != '' and request.form['password'] != '' \
-      and auth.validateUserPassword(request.form['user'],
-                                    request.form['password']):
-      if 'file' not in request.files \
-        or 'title' not in request.form \
-        or 'description' not in request.form: 
-        #flash('Missing input data', 'error')
-        #return redirect(request.url)
-        return piece_io.createAlertBox('Missing input data', 'Error')
-      else:
-        file = request.files['file']
-        title = request.form['title']
-        desc = request.form['description']
-        if file and piece_io.checkInputForm(file.filename, title, desc):
-          filename = secure_filename(file.filename)
-          if piece_io.checkFileExtension(filename):
-            file.save(os.path.join(piece_io.getPieceFilePath(folderhash), filename))
-            piece_io.addFileMetaData(folderhash, filename, title, desc)
-            flash('New file added.')
-            return redirect(f"/file/{folderhash}")
-        else:
-          #flash('Empty input field!', 'error')
-          #return redirect(request.url)
-          return piece_io.createAlertBox('Empty input field!', 'Error')
+      and weakauth.validateUserPassword(request.form['user'],
+                                        request.form['password']):
+        pass
     else:
-      #flash('Wrong password', 'error')
-      #return redirect(request.url)
-      return piece_io.createAlertBox('Empty or wrong username and password!', 'Error')
+      return hymnus_tools.createAlertBox('Empty or wrong username and password!', 'Error')
+    
+    # Check file and input
+    if 'file' not in request.files \
+      or 'title' not in request.form \
+      or 'description' not in request.form: 
+      return hymnus_tools.createAlertBox('Input text or file is empty!', 'Error')
+    else:
+      file = request.files['file']
+      title = request.form['title']
+      desc = request.form['description']
+      if file and file.filename and title and desc:
+        filename = secure_filename(file.filename)
+        if pieceio.checkFileExtension(filename):
+          file.save(pieceio.getSavedFilePath(folderhash, filename))
+          pieceio.addFileMetaData(folderhash, filename, title, desc)
+          flash('New file successfully added.')
+          return redirect(f"/file/{folderhash}")
+      else:
+        return hymnus_tools.createAlertBox('Input text is empty!', 'Error')
 
-  return piece_io.getSimpleSubmitPage()
+  return pieceio.getSimpleSubmitPage()
 
 
 @app.route('/rmfile/<folderhash>', methods=['GET', 'POST'])
@@ -137,16 +147,16 @@ def delete_file(folderhash):
   if request.method == 'POST':
     if 'user' in request.form and 'password' in request.form \
       and request.form['user'] != '' and request.form['password'] != '' \
-      and auth.validateUserPassword(request.form['user'],
+      and weakauth.validateUserPassword(request.form['user'],
                                     request.form['password']):
       select = request.form.get('select-file')
       if select:
-        piece_io.deleteFileAndMetaData(folderhash, select)
+        pieceio.deleteFileAndMetaData(folderhash, select)
         flash(f'File "{select}" deleted.')
         return redirect(f"/file/{folderhash}")
     else:
-      return piece_io.createAlertBox('Empty or wrong username and password!', 'Error')
-  return piece_io.getSimpleDeletePage(folderhash)
+      return hymnus_tools.createAlertBox('Empty or wrong username and password!', 'Error')
+  return pieceio.getSimpleDeletePage(folderhash)
 
 
 if __name__ == '__main__':

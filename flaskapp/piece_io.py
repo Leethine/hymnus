@@ -1,186 +1,194 @@
-import os, json, time
-import metadata, database
+import os, json, time, sys
+from metadata import Metadata
+from database import Database
 
-FILE_METADATA_FORMAT = "json" # bin or json
-ACCEPTED_EXT = ['txt', 'pdf', 'ly', 'zip', 'xml', 'musicxml']
+class PieceIO():
+  def __init__(self):
+    self.FILE_METADATA_FORMAT = "json" # bin or json
+    self.ACCEPTED_EXT = ['txt', 'pdf', 'ly', 'zip', 'xml', 'musicxml']
+    self._piecefile_dir = ""
+    self._piece_page_filelist = []
+    
 
-def getPieceFilePath(folderhash: str):
-  if len(folderhash) > 2:
-    file_dir = f"{database.HYMNUS_FS}/{folderhash[:2]}/{folderhash}"
-    return file_dir
-  else:
+  def getPieceFileDir(self, folderhash: str) -> str:
+    if len(folderhash) > 2:
+      _piecefile_dir = f"{Database().getFSPath()}/{folderhash[:2]}/{folderhash}"
+      return _piecefile_dir
+    else:
+      return ""
+  
+
+  def getSavedFilePath(self, folderhash: str, filename: str) -> str:
+    return os.path.join(self.getPieceFileDir(folderhash), filename)
+
+
+  def getFileNamesList(self, folderhash: str) -> list:
+    filelist = []
+    if self.getPieceFileDir(folderhash):
+      for filename in os.listdir(self.getPieceFileDir(folderhash)):
+        fnamelist = filename.split('.')
+        if len(fnamelist) > 1 and fnamelist[-1] in self.ACCEPTED_EXT:
+          name = '.'.join(fnamelist[:-1])
+          filelist.append(name)
+    return filelist
+
+
+  def getFileMetaData(self, folderhash: str) -> list:
+    fpath = self.getPieceFileDir(folderhash)
+    data = []
+    if fpath != "":
+      if self.FILE_METADATA_FORMAT == "json":
+        if os.path.isfile(f"{fpath}/desc.json"):
+          with open(f"{fpath}/desc.json", 'r') as f:
+            data = json.load(f)
+    return data
+
+
+  def writeFileMetaData(self, folderhash: str, data: list) -> None:
+    fpath = self.getPieceFileDir(folderhash)
+    if fpath != "":
+      if self.FILE_METADATA_FORMAT == "json":
+        if os.path.isdir(fpath):
+          with open(f"{fpath}/desc.json", 'w') as f:
+            json.dump(data, f)
     return None
 
-def getFileNamesList(folderhash: str):
-  if getPieceFilePath(folderhash):
-    filelist = []
-    for filename in os.listdir(getPieceFilePath(folderhash)):
-      fnamelist = filename.split('.')
-      if len(fnamelist) > 1 and fnamelist[-1] in ACCEPTED_EXT:
-        name = '.'.join(fnamelist[:-1])
-        filelist.append(name)
-    return filelist
-  else:
-    return []
 
-def getFileMetaData(folderhash: str):
-  fpath = getPieceFilePath(folderhash)
-  if fpath:
-    if FILE_METADATA_FORMAT == "json":
-      if os.path.isfile(f"{fpath}/desc.json"):
-        with open(f"{fpath}/desc.json", 'r') as f:
-          d = json.load(f)
-          return d
-  return None
-
-def writeFileMetaData(folderhash: str, data: list):
-  fpath = getPieceFilePath(folderhash)
-  if fpath:
-    if FILE_METADATA_FORMAT == "json":
-      if os.path.isfile(f"{fpath}/desc.json"):
-        with open(f"{fpath}/desc.json", 'w') as f:
-          json.dump(data, f)
-
-
-def checkFileMetaData(folderhash: str):
-  data = getFileMetaData(folderhash)
-  print(data)
-  fnamelist = []
-  if not data:
-    return False
-  for d in data:
-    if "fname" in d.keys():
-      fnamelist.append(d["fname"])
-    else:
+  def checkFileMetaData(self, folderhash: str) -> bool:
+    data = self.getFileMetaData(folderhash)
+    fnamelist = []
+    if not data:
+      print("[Error] File metadata is empty!", file=sys.stderr)
       return False
-  for fname in getFileNamesList(folderhash):
-    if not fname in fnamelist:
-      return False
-  return True
+    for d in data:
+      if "fname" in d.keys():
+        fnamelist.append(d["fname"])
+      else:
+        print("[Error] Missing key 'fname' in json file!", file=sys.stderr)
+        return False
+    # Check if files in directory are all listed in desc.json
+    for fname in self.getFileNamesList(folderhash):
+      if not fname in fnamelist:
+        print(f"[Error] '{fname}' not in desc.json", file=sys.stderr)
+        return False
+    return True
 
-def getFilePageInfo(folderhash: str):
-  if metadata.pieceExists(folderhash):
-    fileinfo = getFileMetaData(folderhash)
-    finfo = []
-    if fileinfo:
-      if checkFileMetaData(folderhash):
-        for j in fileinfo:
+
+  def getPiecePageFileList(self, folderhash: str) -> list:
+    meta = Metadata()
+    if meta.pieceExists(folderhash):
+      fileinfo = self.getFileMetaData(folderhash)
+      _piece_page_filelist = []
+      if fileinfo:
+        if self.checkFileMetaData(folderhash):
+          for j in fileinfo:
+            f = {}
+            f["popup_title"] = ""
+            f["popup_content"] = j["description"]
+            f["filename"] = j["headline"]
+            f["filelink"] = "/download/" + folderhash + "/" + j["fname"] + j["ext"]
+            f["filetype"] = j["ext"]
+            _piece_page_filelist.append(f)
+        else:
           f = {}
           f["popup_title"] = ""
-          f["popup_content"] = j["description"]
-          f["filename"] = j["headline"]
-          f["filelink"] = "/download/" + folderhash + "/" + j["fname"] + j["ext"]
-          f["filetype"] = j["ext"]
-          finfo.append(f)
+          f["popup_content"] = ""
+          f["filename"] = "File metadata corrupted"
+          f["filelink"] = "#"
+          f["filetype"] = "!!!"
+          _piece_page_filelist = [f]
       else:
         f = {}
         f["popup_title"] = ""
         f["popup_content"] = ""
-        f["filename"] = "File metadata corrupted"
+        f["filename"] = "No files yet"
         f["filelink"] = "#"
-        f["filetype"] = "!!!"
-        finfo = [f]
-    else:
-      f = {}
-      f["popup_title"] = ""
-      f["popup_content"] = ""
-      f["filename"] = "No files yet"
-      f["filelink"] = "#"
-      f["filetype"] = "..."
-      finfo = [f]
-  return finfo
+        f["filetype"] = "..."
+        _piece_page_filelist = [f]
+    return _piece_page_filelist
 
-def getSimpleSubmitPage():
-  return '''
-    <!doctype html>
-    <title>Upload new File</title>
-    <h1>Upload new File</h1>
-    <form method="post" enctype="multipart/form-data">
-      <input type="file" name="file">
-      <br>
-      <input type="text" name="title" placeholder="File title">
-      <br>
-      <textarea type="text" name="description" rows="3">File description</textarea>
-      <br>
-      <input type="text" name="user" placeholder="User Name">
-      <input type="password" name="password" placeholder="Password">
-      <br>
-      <input type="submit" value="Upload">
-    </form>
-  '''
 
-def getSimpleDeletePage(folderhash: str):
-  data = getFileMetaData(folderhash)
-  HTMLFORM = '''
-    <!doctype html>
-    <title>Delete File</title>
-    <h1>Delete File</h1>
-    <form method="post" enctype="multipart/form-data">
-      <select name="select-file" id="select-file">
-  '''
-  for item in data:
-    if item and 'headline' in item.keys():
+  def getSimpleSubmitPage(self) -> str:
+    return '''
+      <!doctype html>
+      <title>Upload new File</title>
+      <h1>Upload new File</h1>
+      <form method="post" enctype="multipart/form-data">
+        <input type="file" name="file">
+        <br>
+        <input type="text" name="title" placeholder="File title">
+        <br>
+        <textarea type="text" name="description" rows="3">File description</textarea>
+        <br>
+        <input type="text" name="user" placeholder="User Name">
+        <input type="password" name="password" placeholder="Password">
+        <br>
+        <input type="submit" value="Upload">
+      </form>
+    '''
+
+
+  def getSimpleDeletePage(self, folderhash: str) -> str:
+    data = self.getFileMetaData(folderhash)
+    HTMLFORM = '''
+      <!doctype html>
+      <title>Delete File</title>
+      <h1>Delete File</h1>
+      <form method="post" enctype="multipart/form-data">
+        <select name="select-file" id="select-file">
+    '''
+    for item in data:
+      if item and 'headline' in item.keys():
         HTMLFORM += "<option>" + item['headline'] + "</option>"  
-  HTMLFORM += '</select><br>'
-  HTMLFORM += '<input type="text" name="user" placeholder="User Name">'
-  HTMLFORM += '<input type="password" name="password" placeholder="Password">'
-  HTMLFORM += '<br><input type="submit" value="Delete"></form>'
-  return HTMLFORM
+    HTMLFORM += '</select><br>'
+    HTMLFORM += '<input type="text" name="user" placeholder="User Name">'
+    HTMLFORM += '<input type="password" name="password" placeholder="Password">'
+    HTMLFORM += '<br><input type="submit" value="Delete"></form>'
+    return HTMLFORM
     
-
-def checkInputForm(filename: str, filetitle: str, description: str):  
-  if filename and filetitle and description:
-    return True
-  else:
-    return False
   
-def checkFileExtension(filname: str):
-  ext = filname.split('.')[-1]
-  if ext in ACCEPTED_EXT:
-    return True
-  return False
-
-def addFileMetaData(folderhash: str, filename: str, title: str, desc: str):
-  extention = filename.split('.')[-1]
-  #newname = metadata.getPieceMetadata(folderhash)["title"].lower().replace(' ', '_') \
-  #        + "_" + "{:.4f}".format(time.time() - int(time.time())).replace("0.","") \
-  #        + "." + extention
-  newname =  "File_" \
-          + "{:.4f}".format(time.time() - int(time.time())).replace("0.","") \
-          + "_" + filename.replace(' ', '_').replace("'", "_").replace('"', '_')
-
-  os.rename(f"{getPieceFilePath(folderhash)}/{filename}",
-            f"{getPieceFilePath(folderhash)}/{newname}")
-
-  data = getFileMetaData(folderhash)
-  newfile = {}
-  newfile["headline"] = str(title)
-  newfile["description"] = str(desc)
-  newfile["ext"] = "." + extention
-  newfile["fname"] = newname.replace(newfile["ext"], '')
-  data.append(newfile)
-  writeFileMetaData(folderhash, data)
-
-def deleteFileAndMetaData(folderhash: str, title):
-  data = getFileMetaData(folderhash)
-  newdata = []
-  data_deleted = {}
-  for item in data:
-    if item and 'headline' in item.keys():
-      if item['headline'] == title:
-        data_deleted = item
-      else:
-        newdata.append(item)
-
-  filename = data_deleted['fname'] + data_deleted['ext']
-  os.remove(f"{getPieceFilePath(folderhash)}/{filename}")
-  writeFileMetaData(folderhash, newdata)
+  def checkFileExtension(self, filname: str) -> bool:
+    ext = filname.split('.')[-1]
+    if ext in self.ACCEPTED_EXT:
+      return True
+    return False
 
 
-def createAlertBox(message: str, level="Warning"):
-  HTML = "<!DOCTYPE html><html><body>"
-  HTML += "<h2>{level}</h2><script>\n"
-  HTML += 'alert("' + message + '");'
-  HTML += 'history.back()'
-  HTML += "</script></body></html>"
-  return HTML
+  def addFileMetaData(self, folderhash: str, filename: str, title: str, desc: str) -> None:
+    extention = filename.split('.')[-1]
+    newname =  "File_" \
+            + "{:.4f}".format(time.time() - int(time.time())).replace("0.","") \
+            + "_" + filename.replace(' ', '_').replace("'", "_").replace('"', '_')
+
+    os.rename(f"{self.getPieceFileDir(folderhash)}/{filename}",
+              f"{self.getPieceFileDir(folderhash)}/{newname}")
+
+    data = self.getFileMetaData(folderhash)
+    newfile = {}
+    newfile["headline"] = str(title)
+    newfile["description"] = str(desc)
+    newfile["ext"] = "." + extention
+    newfile["fname"] = newname.replace(newfile["ext"], '')
+    data.append(newfile)
+    self.writeFileMetaData(folderhash, data)
+
+
+  def deleteFileAndMetaData(self, folderhash: str, title) -> None:
+    data = self.getFileMetaData(folderhash)
+    newdata = []
+    data_deleted = {}
+    for item in data:
+      if item and 'headline' in item.keys():
+        if item['headline'] == title:
+          data_deleted = item
+        else:
+          newdata.append(item)
+
+    filename = data_deleted['fname'] + data_deleted['ext']
+    os.remove(f"{self.getPieceFileDir(folderhash)}/{filename}")
+    self.writeFileMetaData(folderhash, newdata)
+
+
+# Test
+if __name__ == '__main__':
+  pass

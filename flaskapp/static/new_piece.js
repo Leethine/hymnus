@@ -48,6 +48,7 @@ function generateScript() {
   var subsubtitle  = document.getElementById("new-piece-subsubtitle").value;
   var dedicated_to = document.getElementById("new-piece-dedicated").value;
   var opus         = document.getElementById("new-piece-opus").value;
+  var opus         = document.getElementById("new-piece-year").value;
   var composercode = document.getElementById("select-composer").value;
   var instruments  = document.getElementById("new-piece-instrument").value;
   var comment      = document.getElementById("new-piece-comment").value;
@@ -59,6 +60,7 @@ function generateScript() {
   subsubtitle = prettifyText(subsubtitle);
   dedicated_to = prettifyText(dedicated_to);
   opus = prettifyText(opus);
+  year = prettifyText(year);
   instruments = prettifyText(instruments);
   comment = prettifyText(comment);
 
@@ -99,6 +101,11 @@ function generateScript() {
   if (opus && opus != "") {
     script_command += "  --opus  \"";
     script_command += opus;
+    script_command += "\"  ";
+  }
+  if (year && year != "") {
+    script_command += "  --year  \"";
+    script_command += year;
     script_command += "\"  ";
   }
   if (is_arranged && arrangercode && arrangercode != "") {

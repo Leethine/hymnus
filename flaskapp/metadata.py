@@ -1,87 +1,160 @@
-import database
+from database import Database
+from unidecode import unidecode
 
-def getAbbrName(name: str):
-  namelist = name.replace('-', ' ').split(' ')
-  if len(namelist) > 1:
-    first = ' '.join([x[0] for x in namelist[:-1]])
-    last = namelist[-1]
-    return f"{first} {last}"
-  else:
-    return name
+class Metadata():
+  """This class handles the metadata of composers, collections and pieces."""
+  def __init__(self):
+    pass
+  
 
-def getComposerMetadata(composer_code: str):
-  c = {}
-  if composer_code == "zzz_unknown":
-    c["code"] = "zzz_unknown"
-    c["ShortName"] = "Unknown"
-    c["AbbrName"] = "Unknown"
-    c["LongName"] = "Unknown"
-    c["Year"] = ""
-  else:
-    composer = database.getComposerRowFromCode(composer_code)
-    longname = composer["firstname"] + " " + composer["lastname"]
-    shortname = composer["knownas_name"]
-    year = composer["bornyear"] + " - " + composer["diedyear"]
-    c["code"] = composer_code
-    c["ShortName"] = shortname
-    c["AbbrName"] = getAbbrName(shortname)
-    c["LongName"] = longname
-    c["Year"] = year
-  return c
+  def __assertOneRowData(self, rows: list, keylist: list):
+    assert len(rows) == 1
+    assert type(rows[0]) is dict
+    for key in keylist:
+      assert key in rows[0].keys()
 
-def getComposerCodeNameList():
-  composerlist = database.getComposerCodeNameMap()
-  for c in composerlist:
-    names = c["name"]
-    c["name"] = names.split(" ")[-1] + ", " + ' '.join(names.split(" ")[:-1])
-  return composerlist
 
-def composerHasWorks(composer_code: str):
-  return database.composerHasWorks(composer_code)
+  def getAbbrName(self, name: str) -> str:
+    name_clean = name.replace('-', ' ').replace('von ', '').replace('van ', '') \
+    .replace('de ', '').replace('da ', '').replace('di ', '').replace('dos ', '') \
+    .replace('the ', '').replace('le ', '').replace('la ', '').replace('los ', '') \
+    .replace(' I', '').replace(' II', '').replace(' III', '').replace(' Jr.', '')
 
-def pieceExists(folder_hash: str):
-  return database.pieceExists(folder_hash)
-
-def getPieceMetadata(folder_hash: str):
-  row = database.getPieceRowFromHash(folder_hash)
-  if row:
-    # remove 'None' data
-    for k in row.keys():
-      if not row[k]:
-        row[k] = "N/A"
-    row["composer"] = getComposerMetadata(row["composer_code"])["ShortName"]
-    if row["arranged"] == "1":
-      arranger = getComposerMetadata(row["arranger_code"])
-      row["arranged_by"] = arranger["AbbrName"]
+    namelist = name_clean.split(' ')
+    if len(namelist) > 1:
+      first = ' '.join([x[0] for x in namelist[:-1]])
+      last = namelist[-1]
+      return f"{first} {last}"
     else:
-      row["arranged_by"] = "N/A"
-    return row
-  else:
-    row = {}
-    for key in ["composer","composer_code","arranged","arranged_by",
-                "arranger_code","collection_code","title","subtitle",
-                "subsubtitle","dedicated_to","opus","instruments",
-                "folder_hash","comment"]:
-      row[key] = ""
-    return row
+      return name
 
-def getCollectionMetadata(collection_code: str):
-  row = database.getCollectionRowFromCode(collection_code)
-  if row:
-    # remove 'None' data and white spaces
-    for k in row.keys():
-      if not row[k]:
-        row[k] = "N/A"
-    if row["composer_code"] == "" or row["composer_code"] == "zzz_unknown":
-      row["composer"] = "Various"
+
+  def composerExists(self, composer_code: str) -> bool:
+    count = Database().countRows(f"SELECT COUNT(*) FROM Composers WHERE code = '{composer_code}';")
+    if count > 0:
+      return True
     else:
-      row["composer"] = getComposerMetadata(row["composer_code"])["ShortName"]
-    return row
-  else:
-    row = {}
-    for k in ["code", "composer_code", "composer", "title",
-              "subtitle", "subsubtitle", "opus", "description_text",
-              "volume", "instruments", "editor"]:
-      row[k] = ""
-    return row
+      return False
+
+
+  def getComposerMetadata(self, composer_code: str) -> dict:
+    composer = {"code": "N/A", "ShortName": "N/A",
+                "AbbrName": "N/A", "LongName": "N/A", "Year": "N/A"}
+    if composer_code and self.composerExists(composer_code):
+      rows = Database().selectAllRows(f"SELECT * FROM Composers WHERE code = '{composer_code}';")
+      self.__assertOneRowData(rows, ["firstname", "lastname", "knownas_name",
+                                     "code", "bornyear", "diedyear"])
+      composer["code"] = composer_code
+      composer["ShortName"] = rows[0]["knownas_name"]
+      composer["AbbrName"] = self.getAbbrName(composer["ShortName"])
+      composer["LongName"] = rows[0]["firstname"] + " " + rows[0]["lastname"]
+      composer["Year"] = str(rows[0]["bornyear"]) + " - " + str(rows[0]["diedyear"])
+    return composer
+
+
+  def getComposerCodeNameList(self) -> list:
+    QUERY = """SELECT code, knownas_name AS name FROM Composers
+               WHERE code != 'zzz_unknown' ORDER BY code ASC;"""
+    composerlist = Database().selectAllRows(QUERY)
+    for c in composerlist:
+      c["code"] = unidecode(c["code"])
+      # Reverse full name, J S Bach ==> Bach, J S
+      name = unidecode(c["name"])
+      c["name"] = name.split(' ')[-1] + ", " + ' '.join(name.split(' ')[:-1])
+    return composerlist
+
+
+  def composerHasWorks(self, composer_code: str) -> bool:
+    count = Database().countRows(f"SELECT COUNT(*) FROM Pieces WHERE composer_code = '{composer_code}';")
+    if count > 0:
+      return True
+    return False
+
+
+  def pieceExists(self, folder_hash: str) -> bool:
+    count = Database().countRows(f"SELECT COUNT(*) FROM Pieces WHERE folder_hash = '{folder_hash}';")
+    if count > 0:
+      return True
+    else:
+      return False
+
+
+  def getPieceMetadata(self, folder_hash: str) -> dict:
+    keylist = ["composer_code", "arranged", "arranger_code",
+               "collection_code", "title", "subtitle",
+               "subsubtitle", "dedicated_to", "opus",
+               "instruments", "folder_hash", "comment"]
+    piece = {}
+    for key in keylist:
+      piece[key] = "N/A"
+    piece["arranged_by"] = "N/A"
+    piece["composer"] = "N/A"
+
+    if folder_hash and self.pieceExists(folder_hash):
+      rows = Database().selectAllRows(f"SELECT * FROM Pieces WHERE folder_hash = '{folder_hash}';")
+      self.__assertOneRowData(rows, keylist)
+      for key in rows[0].keys():
+        if rows[0][key] and str(rows[0][key]).replace(' ','') != "":
+          piece[key] = str(rows[0][key])
+      
+      if self.composerExists(piece["composer_code"]):
+        piece["composer"] = self.getComposerMetadata(piece["composer_code"])["ShortName"]
+      if piece["arranged"] == "1" and self.composerExists(piece["arranger_code"]):
+        piece["arranged_by"] = self.getComposerMetadata(piece["arranger_code"])["AbbrName"]
+
+    return piece
+
+
+  def collectionExists(self, collection_code: str) -> bool:
+    count = Database().countRows(f"SELECT COUNT(*) FROM Collections WHERE code = '{collection_code}';")
+    if count > 0:
+      return True
+    else:
+      return False
+
+
+  def getCollectionMetadata(self, collection_code: str):
+    keylist = ["composer_code", "code", "title",
+               "subtitle", "subsubtitle", "opus", "description_text",
+               "volume", "instruments", "editor"]
+    collection = {}
+    for key in keylist:
+      collection[key] = "N/A"
+    collection["composer"] = "N/A"
+
+    if collection_code and self.collectionExists(collection_code):
+      rows = Database().selectAllRows(f"SELECT * FROM Collections WHERE code = '{collection_code}';")
+      self.__assertOneRowData(rows, keylist)
+      for key in rows[0].keys():
+        if rows[0][key] and str(rows[0][key]).replace(' ','') != "":
+          collection[key] = str(rows[0][key])
+
+      if self.composerExists(collection["composer_code"]):
+        collection["composer"] = self.getComposerMetadata(collection["composer_code"])["ShortName"]
     
+    return collection
+
+
+  def getCollectionPieces(self, collection_code: str):
+    QUERY = f"SELECT * FROM Pieces WHERE collection_code = '{collection_code}' ORDER by Title;"
+    
+    pieces = []
+    if self.collectionExists(collection_code):
+      pieces = Database().selectAllRows(QUERY)
+
+    return pieces
+
+
+  def collectionHasPieces(self, collection_code: str):
+    QUERY = f"SELECT COUNT(*) FROM Pieces WHERE collection_code = '{collection_code}';"
+    if Database().countRows(QUERY) > 0:
+      return True
+    return False
+
+
+# Test
+if __name__ == '__main__':
+  m = Metadata()
+  print(m.getComposerMetadata('bach_j_s'))
+  print(m.getCollectionMetadata('974739fce84e0f22a2b0fbc37b6b54f6'))
+  print(m.getPieceMetadata('78a01866520f6c9075badce6b691bb75cfca7094'))

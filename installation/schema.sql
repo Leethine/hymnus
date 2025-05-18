@@ -44,7 +44,7 @@ CREATE TABLE pieces (
   opus TEXT,
   composed_year TEXT DEFAULT '?',
   instruments TEXT,
-  folder_hash TEXT NOT NULL
+  folder_hash TEXT UNIQUE NOT NULL
     CHECK (LENGTH(folder_hash) = 40),
   comment TEXT
 );

@@ -1,122 +1,151 @@
-import sqlite3, os
-from unidecode import unidecode
-import json
+import sqlite3, os, json
+from singleton import SingletonMeta
 
-HYMNUS_DB = ""
-HYMNUS_FS = ""
+class Database(metaclass=SingletonMeta):
+  """SQLITE database interface and file system operations."""
 
-if 'HYMNUS_DB' in os.environ.keys():
-  HYMNUS_DB = os.environ['HYMNUS_DB']
+  def __getDBPath(self, dbpath="") -> str:
+    """If no input provided, return DB path in 'HYMNUS_DB' env variable."""
+    if dbpath == "" and 'HYMNUS_DB' in os.environ.keys():
+      return os.environ['HYMNUS_DB']
+    return dbpath
 
-if 'HYMNUS_FS' in os.environ.keys():
-  HYMNUS_FS = os.environ['HYMNUS_FS']
+  def __getFSPath(self, fspath="") -> str:
+    """If no input provided, return filesystem path in 'HYMNUS_FS' env variable."""
+    if fspath == "" and 'HYMNUS_FS' in os.environ.keys():
+      return os.environ['HYMNUS_FS']
+    return fspath
+  
+  def getDBPath(self) -> str:
+    """Return database path in 'HYMNUS_DB' env variable."""
+    if 'HYMNUS_DB' in os.environ.keys():
+      return os.environ['HYMNUS_DB']
+    return ""
+  
+  def getFSPath(self) -> str:
+    """Return filesystem path in 'HYMNUS_FS' env variable."""
+    if 'HYMNUS_FS' in os.environ.keys():
+      return os.environ['HYMNUS_FS']
+    return ""
 
-def queryDB(query: str, dbpath=HYMNUS_DB):
-  con = sqlite3.connect(dbpath)
-  con.create_function("strrev", 1, lambda s: s[::-1])
-  con.row_factory = sqlite3.Row
+  def __basicQueryDB(self, query: str, dbpath=""):
+    """Execute SQLITE DB query."""
+    con = sqlite3.connect(self.__getDBPath(dbpath))
+    con.row_factory = sqlite3.Row
+    cur = con.cursor()
+    res = cur.execute(query)
+    return res
 
-  cur = con.cursor()
-  res = cur.execute(query)
-  return res
+  def __queryDB(self, query: str, dbpath=""):
+    """Execute SQLITE DB query with built-in functions."""
+    con = sqlite3.connect(self.__getDBPath(dbpath))
+    # Add built-in functions
+    con.create_function("strrev", 1, lambda s: s[::-1])
 
-def getComposerRowFromCode(composer_code: str):
-  QUERY_COUNT = f"SELECT COUNT(*) FROM Composers WHERE code = '{composer_code}';"
-  QUERY = f"SELECT * FROM Composers WHERE code = '{composer_code}'"
-  count = queryDB(QUERY_COUNT).fetchone()[0]
-  if count == 0:
-    return f"<b><i>{composer_code} does not exist!!!!</i></b>"
-  else:
-    res = queryDB(QUERY).fetchone()
-    composer = {}
-    for k in res.keys():
-      composer[k] = str(res[k])  
-    return composer
+    con.row_factory = sqlite3.Row
+    cur = con.cursor()
+    res = cur.execute(query)
+    return res
 
-def composerHasWorks(composer_code: str):
-  QUERY = f"SELECT COUNT(*) FROM Composers WHERE code = '{composer_code}';"
-  count = queryDB(QUERY).fetchone()[0]
-  if count == 0:
-    return False
-  else:
-    QUERY = f"SELECT count(*) FROM Pieces WHERE composer_code = '{composer_code}';"
-    count = queryDB(QUERY).fetchone()[0]
-    if count > 0:
-      return True
+  def countRows(self, query_count: str) -> int:
+    """Execute count query in SQLITE DB and get count result."""
+    res = self.__basicQueryDB(query_count).fetchone()
+    if len(res) > 0 and str(res[0]).isdigit():
+      return int(res[0])
     else:
-      return False
-  return False
+      return 0
 
-def getComposerCodeNameMap(jsonpath=""):
-  QUERY_COUNT = "SELECT COUNT(*) FROM Composers;"
-  QUERY = """
-    SELECT code, knownas_name FROM Composers
-    WHERE code != 'zzz_unknown'
-    ORDER BY code ASC;
-  """
-  count = queryDB(QUERY_COUNT).fetchone()[0]
-  composers = []
-  if count > 0:
-    for row in queryDB(QUERY).fetchall():
-      c = {}
-      c["code"] = row["code"]
-      c["name"] = unidecode(row["knownas_name"])
-      composers.append(c)
-  if jsonpath == "":
-    return composers
-  else:
-    with open(jsonpath) as j:
-      json.dump(composers)
-    return json.dumps(composers)
+  def selectOneRow(self, query_select: str) -> dict:
+    """Execute select query from SQLITE DB and return the result as Python list."""
+    selected_data = {}
+    for row in self.__queryDB(query_select).fetchone():
+      for key in row.keys():
+        selected_data[key] = row[key]
+    return selected_data
 
-def pieceExists(folder_hash: str):
-  QUERY = f"SELECT COUNT(*) FROM Pieces WHERE folder_hash = '{folder_hash}';"
-  count = queryDB(QUERY).fetchone()[0]
-  if count == 1:
-    return True
-  else:
-    return False
+  def selectAllRows(self, query_select: str) -> list:
+    """Execute select query from SQLITE DB and return the result as Python list."""
+    selected_rows = []
+    for row in self.__queryDB(query_select).fetchall():
+      data = {}
+      for key in row.keys():
+        data[key] = row[key]
+      selected_rows.append(data)
+    return selected_rows
 
-def getPieceRowFromHash(folder_hash: str):
-  if not pieceExists(folder_hash):
-    return {}
-  else:
-    QUERY = f"SELECT * FROM Pieces WHERE folder_hash = '{folder_hash}';"
-    row = queryDB(QUERY).fetchone()
-    piece = {}
-    for k in row.keys():
-      piece[k] = row[k]
-    return piece
+  def selectPartialRows(self, query_select: str, n_rows: int, n_select=1) -> list:
+    """Execute select query from SQLITE DB and return the result as Python list.
+      (Only select N rows from the N-th part.)"""
+    query_rows = []
+    res = self.__queryDB(query_select)
+    for i in range(n_select):
+      query_rows = res.fetchmany(n_rows)
+    
+    selected_rows = []
+    for row in query_rows:
+      data = {}
+      for key in row.keys():
+        data[key] = row[key]
+      selected_rows.append(data)
 
-def collectionExists(collection_code: str):
-  QUERY = f"SELECT COUNT(*) FROM Collections WHERE code = '{collection_code}';"
-  count = queryDB(QUERY).fetchone()[0]
-  if count == 1:
-    return True
-  else:
-    return False
+    return selected_rows
 
-def getCollectionRowFromCode(collection_code: str):
-  if not collectionExists(collection_code):
-    return {}
-  else:
-    QUERY = f"SELECT * FROM Collections WHERE code = '{collection_code}';"
-    row = queryDB(QUERY).fetchone()
-    collection = {}
-    for k in row.keys():
-      collection[k] = row[k]
-    return collection
+  def dumpTable(self, tablename: str, jsonpath="") -> None:
+    """Dump a DB table into a json file."""
+    if jsonpath:
+      tabledata = []
+      QUERY = ""
+      if tablename.lower() == "composer" or tablename.lower() == "composers":
+        QUERY = "SELECT * FROM Composers;"
+      elif tablename.lower() == "piece" or tablename.lower() == "pieces":
+        QUERY = "SELECT * FROM Pieces;"
+      elif tablename.lower() == "collection" or tablename.lower() == "collections":
+        QUERY = "SELECT * FROM Collections;"
+      else:
+        return None
+      for row in self.__queryDB(QUERY).fetchall():
+        data = {}
+        for key in row.keys():
+          data[key] = row[key]
+        tabledata.append(data)
+      with open(jsonpath) as j:
+        json.dump(tabledata, j)
 
-def getCollectionPieces(collection_code: str):
-  if not collectionExists(collection_code):
-    return []
-  else:
-    QUERY = f"SELECT * FROM Pieces WHERE collection_code = '{collection_code}'"
-    QUERY += " ORDER by Title;"
-    collection = []
-    for row in queryDB(QUERY).fetchall():
-      piece = {}
-      for k in row.keys():
-        piece[k] = row[k]
-      collection.append(piece)
-    return collection
+  def dumpDB(self, folderpath="") -> None:
+    """Dump the entire DB into a json file."""
+    if folderpath and os.path.isdir(folderpath):
+      composers   = []
+      collections = []
+      pieces      = []
+      QUERY_COMPOSER   = "SELECT * FROM Composers;"
+      QUERY_COLLECTION = "SELECT * FROM Collections;"
+      QUERY_PIECES     = "SELECT * FROM Pieces;"
+      for row in self.__queryDB(QUERY_COMPOSER).fetchall():
+        data = {}
+        for key in row.keys():
+          data[key] = row[key]
+        composers.append(data)
+      for row in self.__queryDB(QUERY_COLLECTION).fetchall():
+        data = {}
+        for key in row.keys():
+          data[key] = row[key]
+        collections.append(data)
+      for row in self.__queryDB(QUERY_PIECES).fetchall():
+        data = {}
+        for key in row.keys():
+          data[key] = row[key]
+        collections.append(data)
+        
+      with open(f'{folderpath}/composers.json') as j:
+        json.dump(composers, j)
+      with open(f'{folderpath}/collections.json') as j:
+        json.dump(collections, j)
+      with open(f'{folderpath}/pieces.json') as j:
+        json.dump(pieces, j)
+
+# Test
+if __name__ == '__main__':
+  d = Database()
+  print("CountRows test on composers: {}".format(d.countRows("SELECT COUNT(*) FROM Composers;")))
+  print("CountRows test on pieces: {}".format(d.countRows("SELECT COUNT(*) FROM Pieces;")))
+  print("SelectRows test on pieces: {}".format(d.selectRows("SELECT * FROM Pieces;")))
