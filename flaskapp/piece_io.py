@@ -114,7 +114,7 @@ class PieceIO():
       <title>Upload new File</title>
       <h1>Upload new File</h1>
       <form method="post" enctype="multipart/form-data">
-        <input type="file" name="file">
+        <input type="file" name="file" id="file-upload">
         <br>
         <input type="text" name="title" placeholder="File title">
         <br>
@@ -125,6 +125,18 @@ class PieceIO():
         <br>
         <input type="submit" value="Upload">
       </form>
+      <script>
+      const uploadFile = document.getElementById("file-upload");
+      uploadFile.onchange = function() {
+        if (this.files.length > 0) {
+          var filesize = ((this.files[0].size/1024)/1024).toFixed(4);
+          if (filesize > 5) {
+            alert("File too big! (> 5MB)");
+            this.value = "";
+          }
+        }
+      };
+      </script>
     '''
 
 
