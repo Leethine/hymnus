@@ -7,6 +7,7 @@ from metadata import Metadata
 from piece_io import PieceIO
 from toggle_menu import ToggleHtmlMenu
 from auth import AuthWeak
+from submit import ScriptSubmit
 
 import browse, hymnus_config, hymnus_tools
 import time, os
@@ -157,6 +158,32 @@ def delete_file(folderhash):
     else:
       return hymnus_tools.createAlertBox('Empty or wrong username and password!', 'Error')
   return pieceio.getSimpleDeletePage(folderhash)
+
+
+@app.route('/submit-script', methods=['GET', 'POST'])
+def submit_script():
+  smt = ScriptSubmit()
+  if request.method == 'POST':
+    # Check password
+    if 'user' in request.form and 'password' in request.form \
+      and request.form['user'] != '' and request.form['password'] != '' \
+      and weakauth.validateUserPassword(request.form['user'],
+                                        request.form['password']):
+        pass
+    else:
+      return hymnus_tools.createAlertBox('Empty or wrong username and password!', 'Error')
+    
+    # Check file and input
+    if 'submitted-script' not in request.form:
+      return hymnus_tools.createAlertBox('Script input doesn not exist!', 'Error')
+    else:
+      script = request.form['submitted-script']
+      if script and script != '':
+        return smt.runScript(script)
+      else:
+        return hymnus_tools.createAlertBox('Script is empty!', 'Error')
+
+  return smt.getSubmitPage()
 
 
 if __name__ == '__main__':
