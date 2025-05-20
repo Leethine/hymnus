@@ -136,7 +136,7 @@ class Metadata():
 
 
   def getCollectionPieces(self, collection_code: str):
-    QUERY = f"SELECT * FROM Pieces WHERE collection_code = '{collection_code}' ORDER by Title;"
+    QUERY = f"SELECT * FROM Pieces WHERE collection_code LIKE '%{collection_code}%' ORDER by Title;"
     
     pieces = []
     if self.collectionExists(collection_code):
