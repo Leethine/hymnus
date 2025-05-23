@@ -12,8 +12,9 @@ function setHasNoComposer() {
 function prettifyText(strval) {
   // Remove extra spaces and escape quotes
   var s = strval.replace(/ +/g, " ");
-  s = s.replace("\"","");
-  s = s.replace("'","\\'")
+  //s = s.replace("'","\\'");
+  s = s.replace("'","’");
+  s = s.replace('"','\\"');
   s = s.trim();
   // Make the first letter uppercase
   s = s.charAt(0).toUpperCase() + s.substring(1);
