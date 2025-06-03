@@ -135,7 +135,8 @@ def upload_file(folderhash):
         if pieceio.checkFileExtension(filename):
           file.save(pieceio.getSavedFilePath(folderhash, filename))
           pieceio.addFileMetaData(folderhash, filename, title, desc)
-          flash('New file successfully added.')
+          hymnus_tools.createAlertBox(f'Added new file "{filename}"', 'Message')
+          hymnus_tools.logUserActivity(request.form['user'], f"Created file: {folderhash}/{filename}")
           return redirect(f"/file/{folderhash}")
       else:
         return hymnus_tools.createAlertBox('Input text is empty!', 'Error')
@@ -153,7 +154,8 @@ def delete_file(folderhash):
       select = request.form.get('select-file')
       if select:
         pieceio.deleteFileAndMetaData(folderhash, select)
-        flash(f'File "{select}" deleted.')
+        hymnus_tools.createAlertBox(f'File "{select}" deleted.', 'Message')
+        hymnus_tools.logUserActivity(request.form['user'], f"Deleted file: {folderhash}/{select}")
         return redirect(f"/file/{folderhash}")
     else:
       return hymnus_tools.createAlertBox('Empty or wrong username and password!', 'Error')
@@ -179,6 +181,7 @@ def submit_script():
     else:
       script = request.form['submitted-script']
       if script and script != '':
+        hymnus_tools.logUserActivity(request.form['user'], f"Run script: \n{script}")
         return smt.runScript(script)
       else:
         return hymnus_tools.createAlertBox('Script is empty!', 'Error')

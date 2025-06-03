@@ -1,9 +1,12 @@
+import hymnus_config
+
 class ToggleHtmlMenu():
   """This class returns a dictionary controls the html page
      content and toggles the links for tabs and menu."""
 
   def __init__(self):
     self.PAGE_AND_MENU_CONTENT = {
+      "library": hymnus_config.LINRARY_NAME,
       "headline": "",
       "description": "",
       "toggle_menu_search"      : "", "url_search"     : "/search",
