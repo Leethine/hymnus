@@ -147,7 +147,7 @@ class FileSubmit():
         if self.__io.checkFileExtension(filename):
           file.save(self.__io.getSavedFilePath(self.__hash, filename))
           self.__io.addFileMetaData(self.__hash, filename, title, desc)
-          logUserActivity(req_form['user'], f"Created file: {self.__hash}/{filename}")
+          logUserActivity(req_form['user'], f"Created file: {self.__hash} --> {title}")
           return redirect(f"/file/{self.__hash}")
       else:
         return createAlertBox('Input text is empty!', 'Error')
@@ -156,5 +156,5 @@ class FileSubmit():
     select = req_form.get('select-file')
     if select:
       self.__io.deleteFileAndMetaData(self.__hash, select)
-      logUserActivity(request.form['user'], f"Deleted file: {self.__hash}/{select}")
+      logUserActivity(request.form['user'], f"Deleted file: {self.__hash} --> {select}")
     return redirect(f"/file/{self.__hash}")
