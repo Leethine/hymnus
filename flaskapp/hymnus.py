@@ -1,20 +1,17 @@
 from flask import Flask, render_template, send_from_directory
-from flask import redirect, request, flash, url_for
+from flask import redirect, request, url_for
 from werkzeug.utils import secure_filename
 from markupsafe import escape
+import time
 
 from metadata import Metadata
 from piece_io import PieceIO
-from toggle_menu import ToggleHtmlMenu
-from auth import AuthWeak
-from submit import ScriptSubmit
-
-import browse, hymnus_config, hymnus_tools
-import time, os
+from submit import ScriptSubmit, FileSubmit, checkUserAndPasswd
+from hymnus_tools import createAlertBox
+import browse
 
 meta     = Metadata()
 pieceio  = PieceIO()
-weakauth = AuthWeak()
 
 ### APP starts here ###
 
@@ -101,6 +98,7 @@ def openPiecePage(folderhash):
 def searchWorks():
   return "<h1>WIP</h1>"
 
+
 @app.route("/download/<folderhash>/<fname>")
 def downloadFile(folderhash, fname):
   wait_time = 3
@@ -108,86 +106,41 @@ def downloadFile(folderhash, fname):
   return send_from_directory(pieceio.getPieceFileDir(folderhash), \
                              fname, as_attachment=False)
 
-
 @app.route('/addfile/<folderhash>', methods=['GET', 'POST'])
 def upload_file(folderhash):
+  fs = FileSubmit(folderhash)
   if request.method == 'POST':
-    # Check password
-    if 'user' in request.form and 'password' in request.form \
-      and request.form['user'] != '' and request.form['password'] != '' \
-      and weakauth.validateUserPassword(request.form['user'],
-                                        request.form['password']):
-        pass
-    else:
-      return hymnus_tools.createAlertBox('Empty or wrong username and password!', 'Error')
-    
-    # Check file and input
-    if 'file' not in request.files \
-      or 'title' not in request.form \
-      or 'description' not in request.form: 
-      return hymnus_tools.createAlertBox('Input text or file is empty!', 'Error')
-    else:
-      file = request.files['file']
-      title = request.form['title']
-      desc = request.form['description']
-      if file and file.filename and title and desc:
-        filename = secure_filename(file.filename)
-        if pieceio.checkFileExtension(filename):
-          file.save(pieceio.getSavedFilePath(folderhash, filename))
-          pieceio.addFileMetaData(folderhash, filename, title, desc)
-          hymnus_tools.createAlertBox(f'Added new file "{filename}"', 'Message')
-          hymnus_tools.logUserActivity(request.form['user'], f"Created file: {folderhash}/{filename}")
-          return redirect(f"/file/{folderhash}")
-      else:
-        return hymnus_tools.createAlertBox('Input text is empty!', 'Error')
-
-  return pieceio.getSimpleSubmitPage()
-
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Empty or wrong username and password!', 'Error')
+    # username and password ok, upload
+    return fs.uploadFile(request.files, request.form)
+  # Default page
+  return fs.getSubmitPage()
 
 @app.route('/rmfile/<folderhash>', methods=['GET', 'POST'])
 def delete_file(folderhash):
+  fs = FileSubmit(folderhash)
   if request.method == 'POST':
-    if 'user' in request.form and 'password' in request.form \
-      and request.form['user'] != '' and request.form['password'] != '' \
-      and weakauth.validateUserPassword(request.form['user'],
-                                    request.form['password']):
-      select = request.form.get('select-file')
-      if select:
-        pieceio.deleteFileAndMetaData(folderhash, select)
-        hymnus_tools.createAlertBox(f'File "{select}" deleted.', 'Message')
-        hymnus_tools.logUserActivity(request.form['user'], f"Deleted file: {folderhash}/{select}")
-        return redirect(f"/file/{folderhash}")
-    else:
-      return hymnus_tools.createAlertBox('Empty or wrong username and password!', 'Error')
-  return pieceio.getSimpleDeletePage(folderhash)
-
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Empty or wrong username and password!', 'Error')
+    # username and password ok, delete file
+    return fs.deleteFile(request.form)
+  # Default page
+  return fs.getDeletePage()
 
 @app.route('/submit-script', methods=['GET', 'POST'])
 def submit_script():
   smt = ScriptSubmit()
   if request.method == 'POST':
-    # Check password
-    if 'user' in request.form and 'password' in request.form \
-      and request.form['user'] != '' and request.form['password'] != '' \
-      and weakauth.validateUserPassword(request.form['user'],
-                                        request.form['password']):
-        pass
-    else:
-      return hymnus_tools.createAlertBox('Empty or wrong username and password!', 'Error')
-    
-    # Check file and input
-    if 'submitted-script' not in request.form:
-      return hymnus_tools.createAlertBox('Script input doesn not exist!', 'Error')
-    else:
-      script = request.form['submitted-script']
-      if script and script != '':
-        hymnus_tools.logUserActivity(request.form['user'], f"Run script: \n{script}")
-        return smt.runScript(script)
-      else:
-        return hymnus_tools.createAlertBox('Script is empty!', 'Error')
-
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Empty or wrong username and password!', 'Error')
+    # If check username and password ok, submit script
+    return smt.submitScript(request.form)
+  # Default page
   return smt.getSubmitPage()
-
 
 if __name__ == '__main__':
   app.run()
