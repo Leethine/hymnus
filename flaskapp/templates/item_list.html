@@ -103,9 +103,9 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
   {% set ns = namespace(counter=1) %}
   {% for p in range(total_number_of_pages) %}
     {% if current_page_number == ns.counter %}
-      <a class="w3-button w3-black"href="#">{{ ns.counter }}</a>
+      <a class="w3-button w3-black" href="#">{{ ns.counter }}</a>
     {% else %}
-      <a class="w3-button w3-hover-black"href="{{ parent_url }}/{{ ns.counter }}">{{ ns.counter }}</a>
+      <a class="w3-button w3-hover-black" href="{{ parent_url }}/{{ ns.counter }}">{{ ns.counter }}</a>
     {% endif %}
   {% set ns.counter = ns.counter + 1 %}
   {% endfor %}
