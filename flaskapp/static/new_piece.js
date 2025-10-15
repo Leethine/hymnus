@@ -16,8 +16,9 @@ function prettifyText(strval) {
   // Make the first letter uppercase
   s = s.charAt(0).toUpperCase() + s.substring(1);
   // Escape quotes
+  //s = s.replace("'","\\'");
+  s = s.replace("'","’");
   s = s.replace('"','\\"');
-  s = s.replace("'","\\'");
   return s; 
 }
 
@@ -153,6 +154,7 @@ function clearScript() {
   document.getElementById("new-piece-subsubtitle").value = "";
   document.getElementById("new-piece-dedicated").value = "";
   document.getElementById("new-piece-opus").value = "";
+  document.getElementById("new-piece-year").value = "";
   document.getElementById("select-composer").value = "";
   document.getElementById("select-arranger").value = "";
   document.getElementById("new-piece-instrument").value = "";

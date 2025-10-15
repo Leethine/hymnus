@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 if [ -z "${DATAPATH}" ]; then
   DATAPATH="blob"
@@ -140,6 +140,7 @@ fi
 
 # Calculate hash
 MD5HASH="$(echo "${COMPOSER}-${TITLE}-${SUBTITLE}-${SUBSUBTITLE}-${OPUS}-${VOLUME}-${EDITOR_NAME}" | md5sum | cut -d ' ' -f 1 )"
+MD5HASH=${MD5HASH:0:10}
 
 # Check hash collision
 EXISTING="$(sqlite3 -readonly -csv "${DBFILE}" <<EOF

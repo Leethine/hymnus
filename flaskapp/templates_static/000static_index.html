@@ -4,8 +4,9 @@
 {% if page_title %}
   <title>{{ page_title }}</title>
 {% else %}
-  <title>Items &bull; Hymnus</title>
+  <title>Hymnus</title>
 {% endif %}
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
@@ -32,9 +33,9 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
 <div class="w3-top">
   <div class="w3-bar w3-theme w3-top w3-left-align w3-large">
     <a class="w3-bar-item w3-button w3-right w3-hide-large w3-hover-white w3-large w3-theme-l1" href="javascript:void(0)" onclick="w3_open()"><i class="fa fa-bars"></i></a>
-    <a href="/" class="w3-bar-item w3-button w3-theme-l1">Hymnus</a>
-    <a href="/about" class="w3-bar-item w3-button w3-hide-small w3-hover-white">About</a>
-    <a href="/contact" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Contact</a>
+    <a href="#" class="w3-bar-item w3-button w3-theme-l1">Hymnus</a>
+    <a href="about.html" class="w3-bar-item w3-button w3-hide-small w3-hover-white">About</a>
+    <a href="contact.html" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Contact</a>
   </div>
 </div>
 
@@ -44,10 +45,10 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
     <i class="fa fa-remove"></i>
   </a>
   <h4 class="w3-bar-item"><b>Browse</b></h4>
-  <a class="w3-bar-item w3-button w3-hover-black {{ page_and_menu_content["toggle_menu_search"] }}"      href="{{ page_and_menu_content["url_search"] }}">Search</a>
-  <a class="w3-bar-item w3-button w3-hover-black {{ page_and_menu_content["toggle_menu_allpieces"] }}"   href="{{ page_and_menu_content["url_allpieces"] }}">All Pieces</a>
-  <a class="w3-bar-item w3-button w3-hover-black {{ page_and_menu_content["toggle_menu_collections"] }}" href="{{ page_and_menu_content["url_collections"] }}">Collections</a>
-  <a class="w3-bar-item w3-button w3-hover-black {{ page_and_menu_content["toggle_menu_composers"] }}"   href="{{ page_and_menu_content["url_composers"] }}">By Composer</a>
+  <a class="w3-bar-item w3-button w3-hover-black" href="search.html">Search</a>
+  <a class="w3-bar-item w3-button w3-hover-black" href="pieces.html">All Pieces</a>
+  <a class="w3-bar-item w3-button w3-hover-black" href="collections.html">Collections</a>
+  <a class="w3-bar-item w3-button w3-hover-black" href="composers.html">By Composer</a>
 </nav>
 
 <!-- Overlay effect when opening sidebar on small screens -->
@@ -58,69 +59,10 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
 
   <div class="w3-row w3-padding-64">
     <div class="w3-twothird w3-container">
-      <h1 class="w3-text-gray">{{ page_and_menu_content["headline"] }}</h1>
-      <p>{{ page_and_menu_content["description"] | safe }}</p>
-
-      <!-- Table here -->
-{% if text_override_table %}
-
-{{ text_override_table | safe }}
-
-{% else %}
-<table class="table">
-  <thead>
-    <tr>
-      <th scope="col"></th>
-
-{% for head in table_head_list %}
-  <th scope="col">{{ head }}</th>
-{% endfor %}
-
-    </tr>
-  </thead>
-  <tbody>
-
-{% for row in table_data_list %}
-  <tr>
-  <th scope="row">{{ row["RowHead"] }}</th>
-  {% for key in table_head_list %}
-    <td class="text-left">{{ row[key] | safe }}</td>
-  {% endfor %}
-  </tr>
-{% endfor %}
-
-    </tbody></table>
-
-{% endif %}
+      <h1 class="w3-text-gray">Getting Started</h1>
+      <p>Click one of the side-tabs to browse the library.</p>
     </div>
   </div>
-
-  <!-- Pagination here -->
-  <div class="w3-center w3-padding-32">
-    <div class="w3-bar">
-
-{% if total_number_of_pages %}
-  {% set ns = namespace(counter=1) %}
-  {% for p in range(total_number_of_pages) %}
-    {% if current_page_number == ns.counter %}
-      <a class="w3-button w3-black" href="#">{{ ns.counter }}</a>
-    {% else %}
-      <a class="w3-button w3-hover-black" href="{{ parent_url }}/{{ ns.counter }}">{{ ns.counter }}</a>
-    {% endif %}
-  {% set ns.counter = ns.counter + 1 %}
-  {% endfor %}
-{% endif %}
-
-    </div>
-  </div>
-
-  <!--
-  <footer id="myFooter">
-    <div class="w3-container w3-theme-l2 w3-padding-32">
-      <h4></h4>
-    </div>
-  </footer>
-  -->
 
 <!-- END MAIN -->
 </div>

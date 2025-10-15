@@ -17,8 +17,9 @@ String.prototype.to_ascii=function(){return this.replace(/[^A-Za-z0-9\[\] ]/g,fu
 function prettifyNames(strval) {
   // Clean extra spaces and escape quotes
   var s = strval.replace(/ +/g, " ");
-  s = s.replace("\"","");
-  s = s.replace("'","\\'")
+  //s = s.replace("'","\\'");
+  s = s.replace("'","’");
+  s = s.replace('"','\\"');
   s = s.trim();
   // Uppercase the first letter of each word
   var splitStr = s.toLowerCase().split(' ');

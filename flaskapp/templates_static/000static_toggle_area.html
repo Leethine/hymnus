@@ -1,0 +1,58 @@
+<!-- Toggle area -->
+
+<div class="w3-row w3-padding-32">
+  <div class="w3-twothird w3-container">
+    <div class="container">
+
+<div id="file-update-folded-area">
+  <p>
+    <a class="btn btn-primary" data-toggle="collapse" href="#collapse-file-upload" role="button" aria-expanded="false" aria-controls="collapse-file-delete">Toggle first element</a>
+    <a class="btn btn-primary" data-toggle="collapse" href="#collapse-file-delete" role="button" aria-expanded="false" aria-controls="collapse-file-upload">Toggle second element</a>
+  </p>
+
+  <div class="col">
+    <div class="collapse multi-collapse" id="collapse-file-upload" data-parent="#file-update-folded-area">
+      <div class="card card-body">
+        <form>
+          <div class="form-group">
+            <label for="uploaded-file"> Upload file</label>
+            <input type="file" class="form-control-file" id="uploaded-file">
+          </div>
+          <div class="form-group">
+            <label for="file-name">File name</label>
+            <input type="email" class="form-control" id="file-name">
+          </div>
+          <div class="form-group">
+            <label for="file-description">File description</label>
+            <textarea class="form-control" id="file-description" rows="3"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" href="#" onclick="uploadfile()">Submit</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="collapse multi-collapse" id="collapse-file-delete" data-parent="#file-update-folded-area">
+      <div class="card card-body">
+        <form>
+          <div class="form-group">
+            <label for="exampleFormControlSelect1">Example select</label>
+            <select class="form-control" id="exampleFormControlSelect1">
+              <option>1</option>
+              <option>2</option>
+              <option>3</option>
+              <option>4</option>
+              <option>5</option>
+            </select>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  </div>
+</div>
+</div>

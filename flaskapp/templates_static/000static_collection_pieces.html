@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 
-  <title>Files • Hymnus Library</title>
+  <title>{{ collection_title }} • Hymnus Library</title>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -31,9 +31,9 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
 <div class="w3-top">
   <div class="w3-bar w3-theme w3-top w3-left-align w3-large">
     <a class="w3-bar-item w3-button w3-right w3-hide-large w3-hover-white w3-large w3-theme-l1" href="javascript:void(0)" onclick="w3_open()"><i class="fa fa-bars"></i></a>
-    <a href="/" class="w3-bar-item w3-button w3-theme-l1">Hymnus</a>
-    <a href="/about" class="w3-bar-item w3-button w3-hide-small w3-hover-white">About</a>
-    <a href="/contact" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Contact</a>
+    <a href="index.html" class="w3-bar-item w3-button w3-theme-l1">Hymnus</a>
+    <a href="about.html" class="w3-bar-item w3-button w3-hide-small w3-hover-white">About</a>
+    <a href="contact.html" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Contact</a>
   </div>
 </div>
 
@@ -43,10 +43,10 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
     <i class="fa fa-remove"></i>
   </a>
   <h4 class="w3-bar-item"><b>Browse</b></h4>
-  <a class="w3-bar-item w3-button w3-hover-black "      href="/search">Search</a>
-  <a class="w3-bar-item w3-button w3-hover-black "   href="/browse/all-pieces">All Pieces</a>
-  <a class="w3-bar-item w3-button w3-hover-black " href="/browse/collections">Collections</a>
-  <a class="w3-bar-item w3-button w3-hover-black "   href="/browse/composers">By Composer</a>
+  <a class="w3-bar-item w3-button w3-hover-black " href="search.html">Search</a>
+  <a class="w3-bar-item w3-button w3-hover-black " href="pieces.html">All Pieces</a>
+  <a class="w3-bar-item w3-button w3-hover-black " href="collections.html">Collections</a>
+  <a class="w3-bar-item w3-button w3-hover-black " href="composers.html">By Composer</a>
 </nav>
 
 <!-- Overlay effect when opening sidebar on small screens -->
@@ -54,8 +54,10 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
 
 <!-- Main content: shift it to the right by 250 pixels when the sidebar is visible -->
 <div class="w3-main" style="margin-left:250px">
+
   <div class="w3-row w3-padding-64">
     <div class="w3-twothird w3-container">
+      
       <div class="container">
 
         <table class="table table-sm table-borderless">
@@ -68,39 +70,40 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
           <tbody>
             <tr>
               <th scope="row">Title</th>
-              <td><h4>{{ piece_metadata["title"] }}, {{ piece_metadata["opus"] }}</h4></td>
+              <td><h4>{{ collection_metadata["title"] }}</h4></td>
             </tr>
             <tr>
-              <th scope="row">Composed by</th>
-              <td><h5>{{ piece_metadata["composer"] }}</h5></td>
+              <th scope="row">Composer</th>
+              <td><h5>{{ collection_metadata["composer"] }}</h5></td>
             </tr>
             <tr>
-              <th scope="row">Composition Year</th>
-              <td>{{ piece_metadata["composed_year"] }}</td>
+              <th scope="row">Editor</th>
+              <td>{{ collection_metadata["editor"] }}</td>
             </tr>
+            <tr>
+              <th scope="row">Volume</th>
+              <td>{{ collection_metadata["volume"] }}</td>
+            </tr>
+
             <tr>
               <th scope="row">Subtitle</th>
-              <td>{{ piece_metadata["subtitle"] }}</td>
+              <td>{{ collection_metadata["subtitle"] }}</td>
             </tr>
             <tr>
               <th scope="row">Subsubtitle</th>
-              <td>{{ piece_metadata["subsubtitle"] }}</td>
+              <td>{{ collection_metadata["subsubtitle"] }}</td>
             </tr>
             <tr>
-              <th scope="row">Arranged by</th>
-              <td>{{ piece_metadata["arranged_by"] }}</td>
-            </tr>
-            <tr>
-              <th scope="row">Dedicated to:</th>
-              <td>{{ piece_metadata["dedicated_to"] }}</td>
+              <th scope="row">Opus</th>
+              <td>{{ collection_metadata["opus"] }}</td>
             </tr>
             <tr>
               <th scope="row">For instruments:</th>
-              <td>{{ piece_metadata["instruments"] }}</td>
+              <td>{{ collection_metadata["instruments"] }}</td>
             </tr>
             <tr>
-              <th scope="row">Comment:</th>
-              <td><p class="text-break">{{ piece_metadata["comment"] }}</p></td>
+              <th scope="row">Description:</th>
+              <td><p class="text-break">{{ collection_metadata["description_text"] }}</p></td>
             </tr>
           </tbody>
         </table>
@@ -113,32 +116,33 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
       })
       </script>
 
+{% if piece_metadata_list %}
 
-<ul class="list-group">
-{% for dict_item in file_metadata_list %}
-<li class="list-group-item d-flex justify-content-between align-items-center">
-  <h5><a class="text-left font-weight-normal text-decoration-none text-dark" href="#" data-toggle="popover" title="{{ dict_item["popup_title"] }}" data-content="{{ dict_item["popup_content"] }}" data-trigger="hover">&ensp;
-    {{ dict_item["filename"] }}
-  &emsp;</a></h5>
-  <h5><span class="badge badge-dark badge-pill"><a target="_blank" href="{{ dict_item["filelink"] }}" class="badge badge-dark badge-pill">{{ dict_item["filetype"] }}</a></span></h5>
-</li>
+<div class="list-group">
+{% for dict_item in piece_metadata_list %}
+
+
+  <a href="{{ dict_item["folder_hash"] }}.html" class="list-group-item list-group-item-action" data-toggle="popover" title="{{ dict_item["popup_title"] }}" data-content="{{ dict_item["popup_content"] }}" data-trigger="hover">
+    {{ dict_item["title"] }}
+    {% if dict_item["opus"] %}
+    , {{ dict_item["opus"] }}
+    {% endif %}
+  </a>
+
+
 {% endfor %}
-</ul>
+</div>
+
+{% else %}
+
+  <h4>No pieces yet.</h4>
+
+{% endif %}
+
+    </div>
 
     </div>
   </div>
-</div>
-
-<div class="w3-row w3-padding-32">
-  <div class="w3-twothird w3-container">
-    <div class="container">
-  <p>
-    <a class="btn btn-primary" id="btn-add-file" href="/addfile/{{ piece_metadata["folder_hash"] }}" target="_blank" role="button">Add file</a>
-    <a class="btn btn-primary" id="btn-delete-file" href="/rmfile/{{ piece_metadata["folder_hash"] }}" target="_blank" role="button">Delete file</a>
-  </p>
-    </div>
-  </div>
-</div>
 
 {% if has_footer == "Y" %}
   <footer id="myFooter">
