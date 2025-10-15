@@ -7,6 +7,7 @@ CREATE TABLE composers (
   knownas_name TEXT UNIQUE NOT NULL,
   bornyear INTEGER,
   diedyear INTEGER,
+  listed INTEGER DEFAULT 0,
   wikipedia_url TEXT,
   imslp_url TEXT
 );

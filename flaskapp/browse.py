@@ -14,7 +14,8 @@ def getComposerContent(pagenumber=1, items_per_page=20) -> dict:
   QUERY_COUNT = """
     SELECT COUNT(*)
     FROM composers
-    WHERE code != 'zzz_unknown';
+    WHERE code != 'zzz_unknown' 
+    AND listed > 0;
   """
 
   QUERY = """
@@ -28,6 +29,7 @@ def getComposerContent(pagenumber=1, items_per_page=20) -> dict:
       '"><i class=\"bi bi-arrow-up-right-square\"></i></a>'
       AS '   '
     FROM composers WHERE code != 'zzz_unknown'
+    AND listed > 0 
     ORDER BY code ASC;
   """
 
