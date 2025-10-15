@@ -5,7 +5,8 @@ from database import Database
 class PieceIO():
   def __init__(self):
     self.FILE_METADATA_FORMAT = "json" # bin or json
-    self.ACCEPTED_EXT = ['txt','pdf','ly','zip','xml','musicxml','xz','gz','tar']
+    self.ACCEPTED_EXT = ['txt','pdf','ly','zip','xml','musicxml',
+                         'xz','gz','tar','eps','png']
     self._piecefile_dir = ""
     self._piece_page_filelist = []
     

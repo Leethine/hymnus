@@ -22,7 +22,8 @@ class ScriptSubmit():
     self.ALLOWED_CMD = ['script/new-composer.sh', 'script/new-collection.sh',
                         'script/new-piece.sh', 'script/delete-composer.sh',
                         'script/delete-collection.sh', 'script/delete-piece.sh',
-                        'script/add-to-collection.sh', 'script/rm-from-collection.sh']
+                        'script/add-to-collection.sh', 'script/rm-from-collection.sh',
+                        'script/enable-composer.sh']
   
   def getSubmitPage(self) -> str:
     return '''
