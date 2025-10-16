@@ -202,6 +202,36 @@ class PieceIO():
     self.writeFileMetaData(folderhash, newdata)
 
 
+  def updateFileName(self, folderhash: str, new_filename: str, title: str) -> None:
+    extention = new_filename.split('.')[-1]
+    newname =  "File_" \
+            + "{:.4f}".format(time.time() - int(time.time())).replace("0.","") \
+            + "_" + new_filename.replace(' ', '_').replace("'", "_").replace('"', '_')
+
+    olddata = self.getFileMetaData(folderhash)
+    oldfilename = ""
+    newdata = []
+    title_exists = False
+    for item in olddata:
+      if item["headline"] == title:
+        title_exists = True
+        # recover old file name
+        oldfilename = item["fname"] + item["ext"]
+        # change file to new name
+        item["ext"] = "." + extention
+        item["fname"] = newname.replace(item["ext"], '')
+      newdata.append(item)
+
+    if title_exists:
+      self.writeFileMetaData(folderhash, newdata)
+      os.rename(f"{self.getPieceFileDir(folderhash)}/{new_filename}",
+                f"{self.getPieceFileDir(folderhash)}/{newname}")
+      os.remove(f"{self.getPieceFileDir(folderhash)}/{oldfilename}")
+
+def updateMetadata(self, folderhash: str, new_title: str, new_desc: str) -> None:
+  pass
+
+
 # Test
 if __name__ == '__main__':
   pass

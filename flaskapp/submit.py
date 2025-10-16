@@ -132,7 +132,78 @@ class FileSubmit():
     HTMLFORM += '<input type="password" name="password" placeholder="Password">'
     HTMLFORM += '<br><input type="submit" value="Delete"></form>'
     return HTMLFORM
-  
+
+  def getModifyPage(self) -> str:
+    HTMLFORM1 = '''
+      <!doctype html>
+      <title>Modify File Metadata</title>
+      <h1>Modify the Metadata of an Exisiting File</h1>
+      <form method="post" enctype="multipart/form-data">
+        
+        Select which file to modify: 
+        <select name="select-file" id="select-file">
+    '''
+    HTMLFORM_OPTIONS = ""
+    data = self.__io.getFileMetaData(self.__hash)
+    for item in data:
+      if item and 'headline' in item.keys():
+        HTMLFORM_OPTIONS += "<option>" + item['headline'] + "</option>"  
+    HTMLFORM2 = '''
+        </select>
+        <br><br>
+        <input type="text" name="title" placeholder="New title">
+        <br>
+        <textarea type="text" name="description" rows="3">File description</textarea>
+        <br>
+        <input type="text" name="user" placeholder="User Name">
+        <input type="password" name="password" placeholder="Password">
+        <br>
+        <input type="submit" value="Upload">
+      </form>
+    '''
+    return HTMLFORM1 + HTMLFORM_OPTIONS + HTMLFORM2
+
+  def getReplacePage(self) -> str:
+    HTMLFORM1 = '''
+      <!doctype html>
+      <title>Replace File</title>
+      <h1>Replace an old file with a new one</h1>
+      <form method="post" enctype="multipart/form-data">
+        
+        Select which file to replace: 
+        <select name="select-file" id="select-file">
+    '''
+    HTMLFORM_OPTIONS = ""
+    data = self.__io.getFileMetaData(self.__hash)
+    for item in data:
+      if item and 'headline' in item.keys():
+        HTMLFORM_OPTIONS += "<option>" + item['headline'] + "</option>"  
+    HTMLFORM2 = '''
+        </select>
+        <br><br>
+        <input type="file" name="file" id="file-upload">
+        <br>
+        
+        <input type="text" name="user" placeholder="User Name">
+        <input type="password" name="password" placeholder="Password">
+        <br>
+        <input type="submit" value="Upload">
+      </form>
+      <script>
+      const uploadFile = document.getElementById("file-upload");
+      uploadFile.onchange = function() {
+        if (this.files.length > 0) {
+          var filesize = ((this.files[0].size/1024)/1024).toFixed(4);
+          if (filesize > 5) {
+            alert("File too big! (> 5MB)");
+            this.value = "";
+          }
+        }
+      };
+      </script>
+    '''
+    return HTMLFORM1 + HTMLFORM_OPTIONS + HTMLFORM2
+
   def uploadFile(self, req_files, req_form):
     # Check file input and form input
     if 'file' not in req_files \
@@ -159,3 +230,21 @@ class FileSubmit():
       self.__io.deleteFileAndMetaData(self.__hash, select)
       logUserActivity(request.form['user'], f"Deleted file: {self.__hash} --> {select}")
     return redirect(f"/file/{self.__hash}")
+
+  def replaceFile(self, req_files, req_form) -> None:
+    if 'file' not in req_files or 'select-file' not in req_form:
+      return createAlertBox('Selected or uploaded file is empty!', 'Error')
+    else:
+      file = req_files['file']
+      selected_title = req_form['select-file']
+      if file and file.filename and selected_title:
+        filename = secure_filename(file.filename)
+        if self.__io.checkFileExtension(filename):
+          file.save(self.__io.getSavedFilePath(self.__hash, filename))
+          self.__io.updateFileName(self.__hash, filename, selected_title)
+          logUserActivity(req_form['user'], f"Replaced file: {self.__hash} --> {selected_title}")
+          return redirect(f"/file/{self.__hash}")
+      return createAlertBox('Selected file or input is empty!', 'Error')
+
+  def modifyFileMetadata(self, req_files, req_form) -> None:
+    pass
