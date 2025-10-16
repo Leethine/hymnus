@@ -228,9 +228,25 @@ class PieceIO():
                 f"{self.getPieceFileDir(folderhash)}/{newname}")
       os.remove(f"{self.getPieceFileDir(folderhash)}/{oldfilename}")
 
-def updateMetadata(self, folderhash: str, new_title: str, new_desc: str) -> None:
-  pass
+  def updateFileMetadata(self, folderhash: str, old_title: str, new_title: str, new_desc: str) -> None:
+    olddata = self.getFileMetaData(folderhash)
+    newdata = []
+    title_exists   = False
+    something_modified = False
+    for item in olddata:
+      if item["headline"] == old_title:
+        title_exists = True
+        # change title and description if not empty
+        if new_title.replace(' ',''):
+          something_modified = True
+          item["headline"] = str(new_title)
+        if new_desc.replace(' ',''):
+          something_modified = True
+          item["description"] = str(new_desc)
+      newdata.append(item)
 
+    if title_exists and something_modified:
+      self.writeFileMetaData(folderhash, newdata)
 
 # Test
 if __name__ == '__main__':

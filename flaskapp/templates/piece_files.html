@@ -135,7 +135,8 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
   <p>
     <a class="btn btn-primary" id="btn-add-file" href="/addfile/{{ piece_metadata["folder_hash"] }}" target="_blank" role="button">Add file</a>
     <a class="btn btn-primary" id="btn-delete-file" href="/rmfile/{{ piece_metadata["folder_hash"] }}" target="_blank" role="button">Delete file</a>
-    <a class="btn btn-primary" id="btn-replace-file" href="/replacefile/{{ piece_metadata["folder_hash"] }}" target="_blank" role="button">Replace file</a>
+    <a class="btn btn-secondary" id="btn-replace-file" href="/replacefile/{{ piece_metadata["folder_hash"] }}" target="_blank" role="button">Replace file</a>
+    <a class="btn btn-secondary" id="btn-modify-metadata" href="/mdfmetadata/{{ piece_metadata["folder_hash"] }}" target="_blank" role="button">Modify data</a>
   </p>
     </div>
   </div>

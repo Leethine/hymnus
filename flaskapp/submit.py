@@ -151,9 +151,11 @@ class FileSubmit():
     HTMLFORM2 = '''
         </select>
         <br><br>
-        <input type="text" name="title" placeholder="New title">
+        <p>New title</p>
+        <input type="text" name="title" placeholder="Leave it untouched if no modification">
         <br>
-        <textarea type="text" name="description" rows="3">File description</textarea>
+        <p>New description</p>
+        <textarea type="text" name="description" rows="3" placeholder="Leave it untouched if no modification"></textarea>
         <br>
         <input type="text" name="user" placeholder="User Name">
         <input type="password" name="password" placeholder="Password">
@@ -209,7 +211,7 @@ class FileSubmit():
     if 'file' not in req_files \
       or 'title' not in req_form \
       or 'description' not in req_form:
-      return createAlertBox('Input text or file is empty!', 'Error')
+      return createAlertBox('Input text or file not exist!', 'Error')
     else:
       file = req_files['file']
       title = req_form['title']
@@ -233,7 +235,7 @@ class FileSubmit():
 
   def replaceFile(self, req_files, req_form) -> None:
     if 'file' not in req_files or 'select-file' not in req_form:
-      return createAlertBox('Selected or uploaded file is empty!', 'Error')
+      return createAlertBox('Selected or uploaded file not exist!', 'Error')
     else:
       file = req_files['file']
       selected_title = req_form['select-file']
@@ -246,5 +248,16 @@ class FileSubmit():
           return redirect(f"/file/{self.__hash}")
       return createAlertBox('Selected file or input is empty!', 'Error')
 
-  def modifyFileMetadata(self, req_files, req_form) -> None:
-    pass
+  def modifyFileMetadata(self, req_form) -> None:
+    if 'select-file' not in req_form \
+      or 'title' not in req_form \
+      or 'description' not in req_form:
+      return createAlertBox('Input field not exist!', 'Error')
+    else:
+      oldtitle = req_form['select-file']
+      newtitle = req_form['title']
+      newdesc = req_form['description']
+      # Update metadata
+      self.__io.updateFileMetadata(self.__hash, oldtitle, newtitle, newdesc)
+      logUserActivity(req_form['user'], f"Modified file: {self.__hash} --> {oldtitle}")
+      return redirect(f"/file/{self.__hash}")

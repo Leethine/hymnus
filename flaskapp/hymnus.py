@@ -130,9 +130,17 @@ def delete_file(folderhash):
   # Default page
   return fs.getDeletePage()
 
-#@app.route('/mdfmetadata/<folderhash>', methods=['GET', 'POST'])
-#def modify_file_metadata(folderhash):
-#  pass
+@app.route('/mdfmetadata/<folderhash>', methods=['GET', 'POST'])
+def modify_file_metadata(folderhash):
+  fs = FileSubmit(folderhash)
+  if request.method == 'POST':
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Empty or wrong username and password!', 'Error')
+    # username and password ok, delete file
+    return fs.modifyFileMetadata(request.form)
+  # Default page
+  return fs.getModifyPage()
 
 @app.route('/replacefile/<folderhash>', methods=['GET', 'POST'])
 def replace_file(folderhash):
