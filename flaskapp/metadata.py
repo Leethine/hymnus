@@ -35,6 +35,13 @@ class Metadata():
       return True
     else:
       return False
+    
+  def composerKnownAsNameExists(self, known_as_name: str) -> bool:
+    count = Database().countRows(f"SELECT COUNT(*) FROM Composers WHERE knownas_name = '{known_as_name}';")
+    if count > 0:
+      return True
+    else:
+      return False
 
 
   def getComposerMetadata(self, composer_code: str) -> dict:
