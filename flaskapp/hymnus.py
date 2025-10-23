@@ -6,7 +6,8 @@ import time
 
 from metadata import Metadata
 from piece_io import PieceIO
-from submit import ScriptSubmit, FileSubmit, checkUserAndPasswd
+from submit import FileSubmit, checkUserAndPasswd
+from create import NewComposerCreator
 from hymnus_tools import createAlertBox
 import browse, hymnus_config
 
@@ -31,9 +32,17 @@ def about():
 def contact():
   return "Contact"
 
-@app.route("/new-composer")
+@app.route("/new-composer", methods=['GET', 'POST'])
 def createNewComposer():
-  return render_template("new_composer.html")
+  nc = NewComposerCreator()
+  if request.method == 'POST':
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Wrong username and password!', 'Error')
+    # username and password ok, proceed
+    return nc.submitHtmlForm(request.form)
+  # Default page
+  return nc.getCreationPage()
 
 @app.route("/new-piece")
 def createNewPiece():

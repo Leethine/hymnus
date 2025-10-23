@@ -52,11 +52,13 @@ function getComposerCode(strfullname) {
   return familyname + "_" + firstnames.join('_');
 }
 
-function generateScript() {
+function autoCorrectInput() {
   document.getElementById("new-composer-fullname").className = "form-control";
   document.getElementById("new-composer-bornyear").className = "form-control";
   document.getElementById("new-composer-diedyear").className = "form-control";
-  document.getElementById("new-composer-script").className = "form-control";
+  document.getElementById("new-composer-check").className = "form-control";
+  document.getElementById("submit-button-successful").className = "btn btn-secondary";
+  document.getElementById("submit-button-successful").disabled = true;
 
   var firstname = document.getElementById("new-composer-firstname").value;
   var lastname = document.getElementById("new-composer-lastname").value;
@@ -64,7 +66,7 @@ function generateScript() {
   var bornyear = document.getElementById("new-composer-bornyear").value;
   var diedyear = document.getElementById("new-composer-diedyear").value;
 
-  var err_msg = "";  
+  var err_msg = "";
   // Check year
   var MIN_YEAR = 0;
   var MAX_YEAR = 3333;
@@ -88,11 +90,20 @@ function generateScript() {
   else if (diedyear_int > MIN_YEAR && diedyear_int < MAX_YEAR && bornyear == "?") {
     bornyear_int = -1;
   }
+  else if (bornyear == diedyear && bornyear == "?") {
+    bornyear_int = -1;
+    diedyear_int = -1;
+  }
+  else if (bornyear == diedyear && bornyear == "-1") {
+    bornyear_int = -1;
+    diedyear_int = -1;
+  }
   else {
     document.getElementById("new-composer-bornyear").className = "form-control is-invalid";
     document.getElementById("new-composer-diedyear").className = "form-control is-invalid";
-    err_msg = "Invalid BornYear/DiedYear";
+    err_msg = "Invalid born or died year, correct format is XXXX-YYYY (XXXX < YYYY) ";
   }
+
   if (bornyear == "?") {
     bornyear = "-1";
   }
@@ -109,17 +120,9 @@ function generateScript() {
     lastname = autoCompleteLastName(lastname, fullname);
   }
   else {
-    err_msg = "Name cannot be empty!"
+    err_msg = "Full Name must not be empty!"
     document.getElementById("new-composer-fullname").className = "form-control is-invalid";
   }
-
-  var script = "script/new-composer.sh "
-  + " \"" + firstname + "\" " 
-  + " \"" + lastname  + "\" "
-  + " \""  + fullname  + "\" "
-  + bornyear + "  "
-  + diedyear + "  "
-  + getComposerCode(fullname);
 
   // Persist input text
   document.getElementById("new-composer-firstname").value = firstname;
@@ -129,15 +132,18 @@ function generateScript() {
   document.getElementById("new-composer-diedyear").value = diedyear;
 
   if (err_msg) {
-    document.getElementById("new-composer-script").className = "form-control is-invalid";
-    document.getElementById("new-composer-script").value = err_msg;
+    document.getElementById("new-composer-check").className = "form-control is-invalid";
+    document.getElementById("new-composer-check").value = err_msg;
   }
   else {
-    document.getElementById("new-composer-script").className = "form-control is-valid";
+    document.getElementById("new-composer-check").className = "form-control is-valid";
     document.getElementById("new-composer-fullname").className = "form-control";
     document.getElementById("new-composer-bornyear").className = "form-control";
     document.getElementById("new-composer-diedyear").className = "form-control";
-    document.getElementById("new-composer-script").value = script;
+    document.getElementById("new-composer-check").value = "Format Check OK";
+    document.getElementById("submit-button-successful").className = "btn btn-success";
+    document.getElementById("submit-button-successful").disabled = false;
+    sleep(60*1000);
   }
 }
 
@@ -187,31 +193,23 @@ function checkInput(first, last, full, born, died) {
   return 1;
 }
 
-function clearScript() {
-  document.getElementById("new-composer-script").value = "";
+function clearWindow() {
+  document.getElementById("new-composer-check").value = "";
   document.getElementById("new-composer-firstname").value = "";
   document.getElementById("new-composer-lastname").value = "";
   document.getElementById("new-composer-fullname").value = "";
   document.getElementById("new-composer-bornyear").value = "";
   document.getElementById("new-composer-diedyear").value = "";
 
-  document.getElementById("new-composer-script").className = "form-control";
+  document.getElementById("new-composer-check").className = "form-control";
   document.getElementById("new-composer-fullname").className = "form-control";
   document.getElementById("new-composer-bornyear").className = "form-control";
   document.getElementById("new-composer-diedyear").className = "form-control";
+  document.getElementById("submit-button-successful").className = "btn btn-secondary";
+  document.getElementById("submit-button-successful").disabled  = true;
+  document.getElementById("hide-composer").checked  = true;
 }
 
-function copyScript() {
-  var copyText = document.getElementById("new-composer-script");
-  copyText.select();
-  copyText.setSelectionRange(0, 99999);
-  navigator.clipboard.writeText(copyText.value);
-  alert("Copied to clipboard:\n" + copyText.value);
-}
-
-function copyToClipboard() {
-  var copyText = document.getElementById("new-composer-script");
-  copyText.select();
-  copyText.setSelectionRange(0, 99999);
-  window.prompt("Copy to clipboard: Ctrl+C, Enter", copyText.value);
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }

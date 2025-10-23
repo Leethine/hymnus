@@ -82,9 +82,7 @@ class Database(metaclass=SingletonMeta):
       return "SQL insertion was not successful: \n" + SQL_INSERTION
   """
 
-  def executeInsertion(self, table_name: str, SQL_STATEMENT: str, dbpath=""):
-    SQL_COUNT = f"SELECT COUNT(*) {table_name};"
-    count_before = self.countRows(SQL_COUNT)
+  def executeInsertion(self, SQL_STATEMENT: str, dbpath=""):
     conn = sqlite3.connect(self.__getDBPath(dbpath))
     cursor = conn.cursor()
     try:
@@ -93,13 +91,7 @@ class Database(metaclass=SingletonMeta):
     except sqlite3.Error as e:
       return  "SQL Syntax Error: \n" + e \
             + "\nThe SQL statement was:\n" + SQL_STATEMENT
-    # Verify the insertion
-    count_after = self.countRows(SQL_COUNT)
-    if count_after - count_before == 1:
-      # No news means good news
-      return ""
-    else:
-      return "SQL insertion was not successful: \n" + SQL_STATEMENT
+    return ""
 
   def countRows(self, query_count: str) -> int:
     """Execute count query in SQLITE DB and get count result."""
