@@ -21,12 +21,17 @@ class Composer:
     self.__firstname = re.sub(' +', ' ', self.__firstname)
     self.__firstname = re.sub('\s+-', '-', self.__firstname)
     self.__firstname = re.sub('-\s+', '-', self.__firstname)
+    self.__firstname = self.__firstname.replace("'","’")
+    
     self.__lastname  = re.sub(' +', ' ', self.__lastname)
     self.__lastname  = re.sub('\s+-', '-', self.__lastname)
     self.__lastname  = re.sub('-\s+', '-', self.__lastname)
+    self.__lastname = self.__lastname.replace("'","’")
+    
     self.__knownas   = re.sub(' +', ' ', self.__knownas)
     self.__knownas = re.sub('\s+-', '-', self.__knownas)
     self.__knownas = re.sub('-\s+', '-', self.__knownas)
+    self.__knownas = self.__knownas.replace("'","’")
 
     self.__firstname = self.__firstname.title()
     self.__lastname  = self.__lastname.title()
@@ -39,8 +44,8 @@ class Composer:
         .replace('-',' ').replace('.',' ').replace('van ','') \
         .replace('de ','').replace('da ','') \
         .replace('di ','').replace('dos ','') \
-        .replace('von ','').replace("l'","") \
-        .replace(' ii','').replace("d'","") \
+        .replace('von ','').replace("l’","") \
+        .replace(' ii','').replace("d’","") \
         .replace(' iii','').replace(' jr','')
       namelist = clean_name.split(' ')
       code += namelist.pop()
@@ -79,7 +84,7 @@ class Composer:
     else:
       return err
   
-  def getSubmissionPage(self):
+  def getCreationPage(self):
     pass
 
 class Piece:
