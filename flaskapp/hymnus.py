@@ -154,6 +154,7 @@ def modify_file_metadata(folderhash):
   # Default page
   return fs.getModifyPage()
 
+"""
 @app.route('/submit-script', methods=['GET', 'POST'])
 def submit_script():
   smt = ScriptSubmit()
@@ -165,6 +166,7 @@ def submit_script():
     return smt.submitScript(request.form)
   # Default page
   return smt.getSubmitPage()
+"""
 
 if __name__ == '__main__':
   app.run()
