@@ -1,9 +1,11 @@
-import os, sys, shlex, subprocess
+import os, sys, shlex, subprocess, time
 from piece_io import PieceIO
+from metadata import Metadata
 from auth import AuthWeak
 from hymnus_tools import createAlertBox, logUserActivity
-from flask import redirect, request
+from flask import redirect, request, render_template
 from werkzeug.utils import secure_filename
+import hymnus_config
 
 def checkUserAndPasswd(req_form):
   weakauth = AuthWeak()
@@ -83,8 +85,42 @@ class FileSubmit():
   def __init__(self, folder_hash: str):
     self.__hash = folder_hash
     self.__io = PieceIO()
+    meta = Metadata()
+    pieceinfo = meta.getPieceMetadata(self.__hash)
+    if pieceinfo["opus"] == "" or pieceinfo["opus"] == "N/A":
+      self.__work_title = pieceinfo["title"]
+    else:
+      self.__work_title = pieceinfo["title"] + ", " + pieceinfo["opus"]
 
-  def getSubmitPage(self) -> str:
+  def getPrettySubmitPage(self) -> str:
+    return render_template('file_submit.html', piece_title=self.__work_title, \
+                            folder_hash=self.__hash)
+  
+  def getPrettyDeletePage(self) -> str:
+    title_list = []
+    for item in self.__io.getFileMetaData(self.__hash):
+      if item and 'headline' in item.keys():
+        title_list.append(item['headline'])
+    return render_template('file_delete.html', piece_title=self.__work_title, \
+                            file_title_list=title_list, folder_hash=self.__hash)
+  
+  def getPrettyReplacePage(self) -> str:
+    title_list = []
+    for item in self.__io.getFileMetaData(self.__hash):
+      if item and 'headline' in item.keys():
+        title_list.append(item['headline'])
+    return render_template('file_replace.html', piece_title=self.__work_title, \
+                            file_title_list=title_list, folder_hash=self.__hash)
+  
+  def getPrettyModifyPage(self) -> str:
+    title_list = []
+    for item in self.__io.getFileMetaData(self.__hash):
+      if item and 'headline' in item.keys():
+        title_list.append(item['headline'])
+    return render_template('file_modify.html', piece_title=self.__work_title, \
+                            file_title_list=title_list, folder_hash=self.__hash)
+
+  def getUglySubmitPage(self) -> str:
     return '''
       <!doctype html>
       <title>Upload new File</title>
@@ -115,7 +151,7 @@ class FileSubmit():
       </script>
     '''
 
-  def getDeletePage(self) -> str:
+  def getUglyDeletePage(self) -> str:
     data = self.__io.getFileMetaData(self.__hash)
     HTMLFORM = '''
       <!doctype html>
@@ -133,7 +169,7 @@ class FileSubmit():
     HTMLFORM += '<br><input type="submit" value="Delete"></form>'
     return HTMLFORM
 
-  def getModifyPage(self) -> str:
+  def getUglyModifyPage(self) -> str:
     HTMLFORM1 = '''
       <!doctype html>
       <title>Modify File Metadata</title>
@@ -165,7 +201,7 @@ class FileSubmit():
     '''
     return HTMLFORM1 + HTMLFORM_OPTIONS + HTMLFORM2
 
-  def getReplacePage(self) -> str:
+  def getUglyReplacePage(self) -> str:
     HTMLFORM1 = '''
       <!doctype html>
       <title>Replace File</title>
@@ -219,6 +255,7 @@ class FileSubmit():
       if file and file.filename and title and desc:
         filename = secure_filename(file.filename)
         if self.__io.checkFileExtension(filename):
+          time.sleep(hymnus_config.FILE_UPLOAD_WAIT_TIME)
           file.save(self.__io.getSavedFilePath(self.__hash, filename))
           self.__io.addFileMetaData(self.__hash, filename, title, desc)
           logUserActivity(req_form['user'], f"Created file: {self.__hash} --> {title}")
@@ -242,6 +279,7 @@ class FileSubmit():
       if file and file.filename and selected_title:
         filename = secure_filename(file.filename)
         if self.__io.checkFileExtension(filename):
+          time.sleep(hymnus_config.FILE_UPLOAD_WAIT_TIME)
           file.save(self.__io.getSavedFilePath(self.__hash, filename))
           self.__io.updateFileName(self.__hash, filename, selected_title)
           logUserActivity(req_form['user'], f"Replaced file: {self.__hash} --> {selected_title}")
@@ -258,6 +296,7 @@ class FileSubmit():
       newtitle = req_form['title']
       newdesc = req_form['description']
       # Update metadata
+      time.sleep(hymnus_config.FILE_UPLOAD_WAIT_TIME)
       self.__io.updateFileMetadata(self.__hash, oldtitle, newtitle, newdesc)
       logUserActivity(req_form['user'], f"Modified file: {self.__hash} --> {oldtitle}")
       return redirect(f"/file/{self.__hash}")

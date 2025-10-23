@@ -108,57 +108,6 @@ class PieceIO():
         _piece_page_filelist = [f]
     return _piece_page_filelist
 
-
-  def getSimpleSubmitPage(self) -> str:
-    return '''
-      <!doctype html>
-      <title>Upload new File</title>
-      <h1>Upload new File</h1>
-      <form method="post" enctype="multipart/form-data">
-        <input type="file" name="file" id="file-upload">
-        <br>
-        <input type="text" name="title" placeholder="File title">
-        <br>
-        <textarea type="text" name="description" rows="3">File description</textarea>
-        <br>
-        <input type="text" name="user" placeholder="User Name">
-        <input type="password" name="password" placeholder="Password">
-        <br>
-        <input type="submit" value="Upload">
-      </form>
-      <script>
-      const uploadFile = document.getElementById("file-upload");
-      uploadFile.onchange = function() {
-        if (this.files.length > 0) {
-          var filesize = ((this.files[0].size/1024)/1024).toFixed(4);
-          if (filesize > 5) {
-            alert("File too big! (> 5MB)");
-            this.value = "";
-          }
-        }
-      };
-      </script>
-    '''
-
-
-  def getSimpleDeletePage(self, folderhash: str) -> str:
-    data = self.getFileMetaData(folderhash)
-    HTMLFORM = '''
-      <!doctype html>
-      <title>Delete File</title>
-      <h1>Delete File</h1>
-      <form method="post" enctype="multipart/form-data">
-        <select name="select-file" id="select-file">
-    '''
-    for item in data:
-      if item and 'headline' in item.keys():
-        HTMLFORM += "<option>" + item['headline'] + "</option>"  
-    HTMLFORM += '</select><br>'
-    HTMLFORM += '<input type="text" name="user" placeholder="User Name">'
-    HTMLFORM += '<input type="password" name="password" placeholder="Password">'
-    HTMLFORM += '<br><input type="submit" value="Delete"></form>'
-    return HTMLFORM
-    
   
   def checkFileExtension(self, filname: str) -> bool:
     ext = filname.split('.')[-1]
@@ -201,8 +150,8 @@ class PieceIO():
     os.remove(f"{self.getPieceFileDir(folderhash)}/{filename}")
     self.writeFileMetaData(folderhash, newdata)
 
-
   def updateFileName(self, folderhash: str, new_filename: str, title: str) -> None:
+    """ Re-upload file requires changing file name """
     extention = new_filename.split('.')[-1]
     newname =  "File_" \
             + "{:.4f}".format(time.time() - int(time.time())).replace("0.","") \

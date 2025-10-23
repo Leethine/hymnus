@@ -8,7 +8,7 @@ from metadata import Metadata
 from piece_io import PieceIO
 from submit import ScriptSubmit, FileSubmit, checkUserAndPasswd
 from hymnus_tools import createAlertBox
-import browse
+import browse, hymnus_config
 
 meta     = Metadata()
 pieceio  = PieceIO()
@@ -101,8 +101,7 @@ def searchWorks():
 
 @app.route("/download/<folderhash>/<fname>")
 def downloadFile(folderhash, fname):
-  wait_time = 3
-  time.sleep(wait_time)
+  time.sleep(hymnus_config.FILE_DOWNLOAD_WAIT_TIME)
   return send_from_directory(pieceio.getPieceFileDir(folderhash), \
                              fname, as_attachment=False)
 
@@ -112,11 +111,12 @@ def upload_file(folderhash):
   if request.method == 'POST':
     # Check username and password
     if not checkUserAndPasswd(request.form):
-      return createAlertBox('Empty or wrong username and password!', 'Error')
+      return createAlertBox('Wrong username and password!', 'Error')
     # username and password ok, upload
     return fs.uploadFile(request.files, request.form)
   # Default page
-  return fs.getSubmitPage()
+  #return fs.getSubmitPage()
+  return fs.getPrettySubmitPage()
 
 @app.route('/rmfile/<folderhash>', methods=['GET', 'POST'])
 def delete_file(folderhash):
@@ -124,23 +124,11 @@ def delete_file(folderhash):
   if request.method == 'POST':
     # Check username and password
     if not checkUserAndPasswd(request.form):
-      return createAlertBox('Empty or wrong username and password!', 'Error')
+      return createAlertBox('Wrong username and password!', 'Error')
     # username and password ok, delete file
     return fs.deleteFile(request.form)
   # Default page
-  return fs.getDeletePage()
-
-@app.route('/mdfmetadata/<folderhash>', methods=['GET', 'POST'])
-def modify_file_metadata(folderhash):
-  fs = FileSubmit(folderhash)
-  if request.method == 'POST':
-    # Check username and password
-    if not checkUserAndPasswd(request.form):
-      return createAlertBox('Empty or wrong username and password!', 'Error')
-    # username and password ok, delete file
-    return fs.modifyFileMetadata(request.form)
-  # Default page
-  return fs.getModifyPage()
+  return fs.getPrettyDeletePage()
 
 @app.route('/replacefile/<folderhash>', methods=['GET', 'POST'])
 def replace_file(folderhash):
@@ -148,11 +136,23 @@ def replace_file(folderhash):
   if request.method == 'POST':
     # Check username and password
     if not checkUserAndPasswd(request.form):
-      return createAlertBox('Empty or wrong username and password!', 'Error')
+      return createAlertBox('Wrong username and password!', 'Error')
     # username and password ok, delete file
     return fs.replaceFile(request.files, request.form)
   # Default page
-  return fs.getReplacePage()
+  return fs.getPrettyReplacePage()
+
+@app.route('/mdfmetadata/<folderhash>', methods=['GET', 'POST'])
+def modify_file_metadata(folderhash):
+  fs = FileSubmit(folderhash)
+  if request.method == 'POST':
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Wrong username and password!', 'Error')
+    # username and password ok, delete file
+    return fs.modifyFileMetadata(request.form)
+  # Default page
+  return fs.getPrettyModifyPage()
 
 @app.route('/submit-script', methods=['GET', 'POST'])
 def submit_script():
@@ -160,7 +160,7 @@ def submit_script():
   if request.method == 'POST':
     # Check username and password
     if not checkUserAndPasswd(request.form):
-      return createAlertBox('Empty or wrong username and password!', 'Error')
+      return createAlertBox('Wrong username and password!', 'Error')
     # If check username and password ok, submit script
     return smt.submitScript(request.form)
   # Default page
