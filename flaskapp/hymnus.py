@@ -116,7 +116,7 @@ def upload_file(folderhash):
     return fs.uploadFile(request.files, request.form)
   # Default page
   #return fs.getSubmitPage()
-  return fs.getPrettySubmitPage()
+  return fs.getSubmitPage()
 
 @app.route('/rmfile/<folderhash>', methods=['GET', 'POST'])
 def delete_file(folderhash):
@@ -128,7 +128,7 @@ def delete_file(folderhash):
     # username and password ok, delete file
     return fs.deleteFile(request.form)
   # Default page
-  return fs.getPrettyDeletePage()
+  return fs.getDeletePage()
 
 @app.route('/replacefile/<folderhash>', methods=['GET', 'POST'])
 def replace_file(folderhash):
@@ -140,7 +140,7 @@ def replace_file(folderhash):
     # username and password ok, delete file
     return fs.replaceFile(request.files, request.form)
   # Default page
-  return fs.getPrettyReplacePage()
+  return fs.getReplacePage()
 
 @app.route('/mdfmetadata/<folderhash>', methods=['GET', 'POST'])
 def modify_file_metadata(folderhash):
@@ -152,7 +152,7 @@ def modify_file_metadata(folderhash):
     # username and password ok, delete file
     return fs.modifyFileMetadata(request.form)
   # Default page
-  return fs.getPrettyModifyPage()
+  return fs.getModifyPage()
 
 @app.route('/submit-script', methods=['GET', 'POST'])
 def submit_script():

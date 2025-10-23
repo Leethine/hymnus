@@ -29,11 +29,11 @@ class FileSubmit():
     else:
       self.__work_title = pieceinfo["title"] + ", " + pieceinfo["opus"]
 
-  def getPrettySubmitPage(self) -> str:
+  def getSubmitPage(self) -> str:
     return render_template('file_submit.html', piece_title=self.__work_title, \
                             folder_hash=self.__hash)
   
-  def getPrettyDeletePage(self) -> str:
+  def getDeletePage(self) -> str:
     title_list = []
     for item in self.__io.getFileMetaData(self.__hash):
       if item and 'headline' in item.keys():
@@ -41,7 +41,7 @@ class FileSubmit():
     return render_template('file_delete.html', piece_title=self.__work_title, \
                             file_title_list=title_list, folder_hash=self.__hash)
   
-  def getPrettyReplacePage(self) -> str:
+  def getReplacePage(self) -> str:
     title_list = []
     for item in self.__io.getFileMetaData(self.__hash):
       if item and 'headline' in item.keys():
@@ -49,7 +49,7 @@ class FileSubmit():
     return render_template('file_replace.html', piece_title=self.__work_title, \
                             file_title_list=title_list, folder_hash=self.__hash)
   
-  def getPrettyModifyPage(self) -> str:
+  def getModifyPage(self) -> str:
     title_list = []
     for item in self.__io.getFileMetaData(self.__hash):
       if item and 'headline' in item.keys():
