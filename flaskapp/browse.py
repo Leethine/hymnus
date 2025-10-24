@@ -100,33 +100,44 @@ def getPieceContent(pagenumber=1, items_per_page=100, composer_code="") -> dict:
       JOIN Composers ON Pieces.composer_code = Composers.code
   """
 
-  header = ["Title", "Opus", "Composer", "   "]
+  table_head = ["Title", "Opus", "Composer", "   "]
   parent_url = "/browse/all-pieces"
 
   if composer_code:
     QUERY += f" WHERE Pieces.composer_code = '{composer_code}'"
     QUERY_COUNT += f" WHERE composer_code = '{composer_code}'"
-    header = ["Title", "Opus", "   "]
+    table_head = ["Title", "Opus", "   "]
     parent_url = f"/browse/works-by/{composer_code}"
 
   QUERY += " ORDER BY Pieces.title ASC;"
   QUERY_COUNT += ";"
 
-  table_header = header
-  parent_url=parent_url
+  if Database().countRows(QUERY_COUNT) == 0:
+    return getEmptyComposerContent(composer_code)
+  else:
+    content = {}
+    content["total_number_of_pages"] = calculateTotalPages(items_per_page, QUERY_COUNT)
+    content["current_page_number"] = pagenumber
+    content["table_data_list"] = Database().selectPartialRows(QUERY, items_per_page, pagenumber)
+    content["table_head_list"] = table_head
+    content["parent_url"] = parent_url
+    return content
+
+
+def getEmptyComposerContent(composer_code) -> dict:
   content = {}
-  content["total_number_of_pages"] = calculateTotalPages(items_per_page, QUERY_COUNT)
-  content["current_page_number"] = pagenumber
-  content["table_data_list"] = Database().selectPartialRows(QUERY, items_per_page, pagenumber)
-  content["table_head_list"] = header
-  content["parent_url"] = parent_url
+  content["total_number_of_pages"] = 1
+  content["current_page_number"] = 1
+  content["table_head_list"] = ["Title", "Opus", "   "]
+  content["table_data_list"] = [" ", " ", " "]
+  content["parent_url"] = f"/browse/works-by/{composer_code}"
   return content
 
 
 def browsePageAtPageNumber(pagetype: str, currentpage: str, composercode: str) -> str:
   toggle = ToggleHtmlMenu()
   meta = Metadata()
-    
+  
   if currentpage.isdigit() and int(currentpage) > 0:    
     title = ""
     pagemenu = []
