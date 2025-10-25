@@ -35,8 +35,9 @@ CREATE TABLE collections (
 DROP TABLE IF EXISTS pieces;
 CREATE TABLE pieces (
   composer_code TEXT,
-  arranged BOOLEAN,
+  arranged BOOLEAN NOT NULL DEFAULT 0,
   arranger_code TEXT,
+  arranger_name TEXT,
   collection_code TEXT,
   title TEXT NOT NULL,
   subtitle TEXT,

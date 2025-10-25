@@ -87,9 +87,9 @@ class Metadata():
 
 
   def getPieceMetadata(self, folder_hash: str) -> dict:
-    keylist = ["composer_code", "arranged", "arranger_code",
-               "collection_code", "title", "subtitle",
-               "subsubtitle", "dedicated_to", "opus",
+    keylist = ["composer_code", "arranged", "arranger_code",      \
+               "arranger_name", "collection_code", "title",       \
+               "subtitle", "subsubtitle", "dedicated_to", "opus", \
                "instruments", "folder_hash", "comment"]
     piece = {}
     for key in keylist:
@@ -106,8 +106,14 @@ class Metadata():
       
       if self.composerExists(piece["composer_code"]):
         piece["composer"] = self.getComposerMetadata(piece["composer_code"])["ShortName"]
-      if piece["arranged"] == "1" and self.composerExists(piece["arranger_code"]):
+
+      # Get info if it's arranged work
+      if str(piece["arranged"]) != "1":
+        piece["arranged_by"] = "Original"
+      elif str(piece["arranged"]) == "1" and self.composerExists(piece["arranger_code"]):
         piece["arranged_by"] = self.getComposerMetadata(piece["arranger_code"])["AbbrName"]
+      elif str(piece["arranged"]) != "1" and not self.composerExists(piece["arranger_code"]):
+        piece["arranged_by"] = piece["arranger_name"]
 
     return piece
 
