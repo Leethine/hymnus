@@ -224,7 +224,8 @@ class NewPieceCreator:
 
   def __generateHash(self):
     keywordlist = [self.__composer_code, self.__title, self.__subsubtitle,\
-                   self.__opus,str(self.__is_arranged), self.__collection, self.__year]
+                   self.__opus, str(self.__is_arranged), self.__collection, \
+                   self.__instruments, self.__year]
     sha1hash = hashlib.sha1()
     sha1hash.update('-'.join(keywordlist).encode('utf-8'))
     self.__hash = sha1hash.hexdigest()
@@ -280,12 +281,112 @@ class NewPieceCreator:
                               head2=self.__SQL_INSERTION)
 
 
-class NewCollection:
-  def __init__(self, code="", composer="",
-               title="", subtitle="", subsubtitle="",
-               description="", opus="", volume="",
-               instruments="", editor=""):
-    pass
+class NewCollectionCreator:
+  def __init__(self):
+    self.__code          = ""
+    self.__composer_code = ""
+    self.__title         = ""
+    self.__subtitle      = ""
+    self.__subsubtitle   = ""
+    self.__opus          = ""
+    self.__description   = ""
+    self.__volume        = ""
+    self.__instruments   = ""
+    self.__editor        = ""
   
-  def checkExist(self):
-    pass
+  def __checkExist(self):
+    meta = Metadata()
+    if meta.collectionExists(self.__code):
+      return True
+    return False
+  
+  def __checkHtmlForm(self, req_form: request) -> str:
+    keylist = \
+      ['new-collection-title', 'new-collection-subtitle', 'new-collection-subsubtitle',\
+       'new-collection-editor', 'new-collection-opus', 'new-collection-volume',\
+       'new-collection-instrument', 'new-collection-description', 'select-composer']
+    err = ""
+    for key in keylist:
+      if key not in req_form:
+        err += f"Cannot find Keyword '{key}'\n"
+    return err
+  
+  def __setValueFromHtmlForm(self, req_form: request):
+    self.__title = req_form['new-collection-title']
+    self.__subtitle = req_form['new-collection-subtitle']
+    self.__subsubtitle = req_form['new-collection-subsubtitle']
+    self.__editor = req_form['new-collection-editor']
+    self.__opus = req_form['new-collection-opus']
+    self.__volume = req_form['new-collection-volume']
+    self.__instruments = req_form['new-collection-instrument']
+    self.__description = req_form['new-collection-description']
+    if 'collection-has-composer' in req_form:
+      self.__composer_code = req_form['select-composer']
+  
+  def __getErrorBeforeSubmit(self) -> str:
+    meta = Metadata()
+    if self.__title == "":
+      return "<h1>Title must not be empty</h1>"
+    if self.__composer_code != "" and not meta.composerExists(self.__composer_code):
+      return "<h1>Chosen composer not exist in DB</h1>"
+    if self.__code == "":
+      return "<h1>Collection code/hash must not be empty</h1>"
+    if meta.collectionExists(self.__code):
+      return f"<h1>Hash collision: {self.__code}</h1>"
+    return ""
+  
+  def __generateCode(self):
+    seed = f"{self.__composer_code}-{self.__title}-{self.__subtitle}-\
+             {self.__subsubtitle}-{self.__opus}-{self.__volume}-\
+             {self.__editor}-{self.__instruments}-{self.__description}"
+    md5hash = hashlib.md5()
+    md5hash.update(seed.encode('utf-8'))
+    self.__code = md5hash.hexdigest()[0:10]
+
+  def __insertCollection(self):
+    SQL_INSERT = """
+    INSERT INTO collections (code,
+     title, subtitle, subsubtitle, opus, composer_code,
+     editor, volume, instruments, description_text) 
+    """
+    SQL_INSERT += f" VALUES('{self.__code}',\
+      '{self.__title}','{self.__subtitle}','{self.__subsubtitle}',\
+      '{self.__opus}','{self.__composer_code}','{self.__editor}',\
+      '{self.__volume}','{self.__instruments}','{self.__description}');"
+    err = Database().executeInsertion(SQL_INSERT)
+    return err
+  
+  def getSubmitPage(self) -> str:
+    meta = Metadata()
+    return render_template("new_collection.html",\
+                            composerlist=meta.getComposerCodeNameList())
+  
+  def submitHtmlForm(self, req_form: request) -> str:
+    err = ""
+    # Check HTLK form integrity
+    err = self.__checkHtmlForm(req_form)
+    if err:
+      return err
+    self.__setValueFromHtmlForm(req_form)
+    self.__generateCode()
+    
+    # Check input values
+    err = self.__getErrorBeforeSubmit()
+    if err:
+      return err
+    
+    count_before = Database().countRows("SELECT COUNT(*) FROM Collections")
+    err = self.__insertCollection()
+    if err:
+      return err
+    
+    # Verify the insertion
+    count_after = Database().countRows("SELECT COUNT(*) FROM Collections")
+    if count_after - count_before == 1:
+      return render_template("creation_ended.html", status="Created",
+              head1="Created new collection:",\
+              head2=f"<a href=\"/collection-at/{self.__code}\">{self.__title}, {self.__opus}</a>")
+    else:
+      return render_template("creation_ended.html", status="Warning",
+                              head1="SQL insertion done, but verification failed.",
+                              head2=self.__SQL_INSERTION)
