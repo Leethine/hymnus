@@ -6,9 +6,10 @@ import time
 
 from metadata import Metadata
 from piece_io import PieceIO
-from submit import ScriptSubmit, FileSubmit, checkUserAndPasswd
+from submit import FileSubmit, checkUserAndPasswd
+from create import NewComposerCreator, NewPieceCreator, NewCollectionCreator
 from hymnus_tools import createAlertBox
-import browse
+import browse, hymnus_config
 
 meta     = Metadata()
 pieceio  = PieceIO()
@@ -31,19 +32,41 @@ def about():
 def contact():
   return "Contact"
 
-@app.route("/new-composer")
+@app.route("/new-composer", methods=['GET', 'POST'])
 def createNewComposer():
-  return render_template("new_composer.html")
+  nc = NewComposerCreator()
+  if request.method == 'POST':
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Wrong username and password!', 'Error')
+    # username and password ok, proceed
+    return nc.submitHtmlForm(request.form)
+  # Default page
+  return nc.getCreationPage()
 
-@app.route("/new-piece")
+@app.route("/new-piece", methods=['GET', 'POST'])
 def createNewPiece():
-  return render_template("new_piece.html",
-                         composerlist=meta.getComposerCodeNameList())
+  np = NewPieceCreator()
+  if request.method == 'POST':
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Wrong username and password!', 'Error')
+    # username and password ok, proceed
+    return np.submitHtmlForm(request.form)
+  # Default page
+  return np.getCreationPage()
 
-@app.route("/new-collection")
+@app.route("/new-collection", methods=['GET', 'POST'])
 def createNewCollection():
-  return render_template("new_collection.html",
-                         composerlist=meta.getComposerCodeNameList())
+  nc = NewCollectionCreator()
+  if request.method == 'POST':
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Wrong username and password!', 'Error')
+    # username and password ok, proceed
+    return nc.submitHtmlForm(request.form)
+  # Default page
+  return nc.getSubmitPage()
 
 @app.route("/browse/composers")
 def browseComposer():
@@ -101,8 +124,7 @@ def searchWorks():
 
 @app.route("/download/<folderhash>/<fname>")
 def downloadFile(folderhash, fname):
-  wait_time = 3
-  time.sleep(wait_time)
+  time.sleep(hymnus_config.FILE_DOWNLOAD_WAIT_TIME)
   return send_from_directory(pieceio.getPieceFileDir(folderhash), \
                              fname, as_attachment=False)
 
@@ -112,10 +134,11 @@ def upload_file(folderhash):
   if request.method == 'POST':
     # Check username and password
     if not checkUserAndPasswd(request.form):
-      return createAlertBox('Empty or wrong username and password!', 'Error')
+      return createAlertBox('Wrong username and password!', 'Error')
     # username and password ok, upload
     return fs.uploadFile(request.files, request.form)
   # Default page
+  #return fs.getSubmitPage()
   return fs.getSubmitPage()
 
 @app.route('/rmfile/<folderhash>', methods=['GET', 'POST'])
@@ -124,23 +147,49 @@ def delete_file(folderhash):
   if request.method == 'POST':
     # Check username and password
     if not checkUserAndPasswd(request.form):
-      return createAlertBox('Empty or wrong username and password!', 'Error')
+      return createAlertBox('Wrong username and password!', 'Error')
     # username and password ok, delete file
     return fs.deleteFile(request.form)
   # Default page
   return fs.getDeletePage()
 
+@app.route('/replacefile/<folderhash>', methods=['GET', 'POST'])
+def replace_file(folderhash):
+  fs = FileSubmit(folderhash)
+  if request.method == 'POST':
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Wrong username and password!', 'Error')
+    # username and password ok, delete file
+    return fs.replaceFile(request.files, request.form)
+  # Default page
+  return fs.getReplacePage()
+
+@app.route('/mdfmetadata/<folderhash>', methods=['GET', 'POST'])
+def modify_file_metadata(folderhash):
+  fs = FileSubmit(folderhash)
+  if request.method == 'POST':
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Wrong username and password!', 'Error')
+    # username and password ok, delete file
+    return fs.modifyFileMetadata(request.form)
+  # Default page
+  return fs.getModifyPage()
+
+"""
 @app.route('/submit-script', methods=['GET', 'POST'])
 def submit_script():
   smt = ScriptSubmit()
   if request.method == 'POST':
     # Check username and password
     if not checkUserAndPasswd(request.form):
-      return createAlertBox('Empty or wrong username and password!', 'Error')
+      return createAlertBox('Wrong username and password!', 'Error')
     # If check username and password ok, submit script
     return smt.submitScript(request.form)
   # Default page
   return smt.getSubmitPage()
+"""
 
 if __name__ == '__main__':
   app.run()

@@ -5,7 +5,8 @@ from database import Database
 class PieceIO():
   def __init__(self):
     self.FILE_METADATA_FORMAT = "json" # bin or json
-    self.ACCEPTED_EXT = ['txt','pdf','ly','zip','xml','musicxml','xz','gz','tar']
+    self.ACCEPTED_EXT = ['txt','pdf','ly','zip','xml','musicxml',
+                         'xz','gz','tar','eps','png']
     self._piecefile_dir = ""
     self._piece_page_filelist = []
     
@@ -107,57 +108,6 @@ class PieceIO():
         _piece_page_filelist = [f]
     return _piece_page_filelist
 
-
-  def getSimpleSubmitPage(self) -> str:
-    return '''
-      <!doctype html>
-      <title>Upload new File</title>
-      <h1>Upload new File</h1>
-      <form method="post" enctype="multipart/form-data">
-        <input type="file" name="file" id="file-upload">
-        <br>
-        <input type="text" name="title" placeholder="File title">
-        <br>
-        <textarea type="text" name="description" rows="3">File description</textarea>
-        <br>
-        <input type="text" name="user" placeholder="User Name">
-        <input type="password" name="password" placeholder="Password">
-        <br>
-        <input type="submit" value="Upload">
-      </form>
-      <script>
-      const uploadFile = document.getElementById("file-upload");
-      uploadFile.onchange = function() {
-        if (this.files.length > 0) {
-          var filesize = ((this.files[0].size/1024)/1024).toFixed(4);
-          if (filesize > 5) {
-            alert("File too big! (> 5MB)");
-            this.value = "";
-          }
-        }
-      };
-      </script>
-    '''
-
-
-  def getSimpleDeletePage(self, folderhash: str) -> str:
-    data = self.getFileMetaData(folderhash)
-    HTMLFORM = '''
-      <!doctype html>
-      <title>Delete File</title>
-      <h1>Delete File</h1>
-      <form method="post" enctype="multipart/form-data">
-        <select name="select-file" id="select-file">
-    '''
-    for item in data:
-      if item and 'headline' in item.keys():
-        HTMLFORM += "<option>" + item['headline'] + "</option>"  
-    HTMLFORM += '</select><br>'
-    HTMLFORM += '<input type="text" name="user" placeholder="User Name">'
-    HTMLFORM += '<input type="password" name="password" placeholder="Password">'
-    HTMLFORM += '<br><input type="submit" value="Delete"></form>'
-    return HTMLFORM
-    
   
   def checkFileExtension(self, filname: str) -> bool:
     ext = filname.split('.')[-1]
@@ -200,6 +150,52 @@ class PieceIO():
     os.remove(f"{self.getPieceFileDir(folderhash)}/{filename}")
     self.writeFileMetaData(folderhash, newdata)
 
+  def updateFileName(self, folderhash: str, new_filename: str, title: str) -> None:
+    """ Re-upload file requires changing file name """
+    extention = new_filename.split('.')[-1]
+    newname =  "File_" \
+            + "{:.4f}".format(time.time() - int(time.time())).replace("0.","") \
+            + "_" + new_filename.replace(' ', '_').replace("'", "_").replace('"', '_')
+
+    olddata = self.getFileMetaData(folderhash)
+    oldfilename = ""
+    newdata = []
+    title_exists = False
+    for item in olddata:
+      if item["headline"] == title:
+        title_exists = True
+        # recover old file name
+        oldfilename = item["fname"] + item["ext"]
+        # change file to new name
+        item["ext"] = "." + extention
+        item["fname"] = newname.replace(item["ext"], '')
+      newdata.append(item)
+
+    if title_exists:
+      self.writeFileMetaData(folderhash, newdata)
+      os.rename(f"{self.getPieceFileDir(folderhash)}/{new_filename}",
+                f"{self.getPieceFileDir(folderhash)}/{newname}")
+      os.remove(f"{self.getPieceFileDir(folderhash)}/{oldfilename}")
+
+  def updateFileMetadata(self, folderhash: str, old_title: str, new_title: str, new_desc: str) -> None:
+    olddata = self.getFileMetaData(folderhash)
+    newdata = []
+    title_exists   = False
+    something_modified = False
+    for item in olddata:
+      if item["headline"] == old_title:
+        title_exists = True
+        # change title and description if not empty
+        if new_title.replace(' ',''):
+          something_modified = True
+          item["headline"] = str(new_title)
+        if new_desc.replace(' ',''):
+          something_modified = True
+          item["description"] = str(new_desc)
+      newdata.append(item)
+
+    if title_exists and something_modified:
+      self.writeFileMetaData(folderhash, newdata)
 
 # Test
 if __name__ == '__main__':

@@ -7,6 +7,7 @@ CREATE TABLE composers (
   knownas_name TEXT UNIQUE NOT NULL,
   bornyear INTEGER,
   diedyear INTEGER,
+  listed INTEGER DEFAULT 0,
   wikipedia_url TEXT,
   imslp_url TEXT
 );
@@ -34,8 +35,9 @@ CREATE TABLE collections (
 DROP TABLE IF EXISTS pieces;
 CREATE TABLE pieces (
   composer_code TEXT,
-  arranged BOOLEAN,
+  arranged BOOLEAN NOT NULL DEFAULT 0,
   arranger_code TEXT,
+  arranger_name TEXT,
   collection_code TEXT,
   title TEXT NOT NULL,
   subtitle TEXT,

@@ -147,7 +147,8 @@ class ItemListExport:
     QUERY_COUNT = """
       SELECT COUNT(*)
       FROM composers
-      WHERE code != 'zzz_unknown';
+      WHERE code != 'zzz_unknown'
+      AND listed > 0;
     """
 
     QUERY = """
@@ -161,6 +162,7 @@ class ItemListExport:
         '.html"><i class=\"bi bi-arrow-up-right-square\"></i></a>'
         AS '   '
       FROM composers WHERE code != 'zzz_unknown'
+      AND listed > 0
       ORDER BY code ASC;
     """
 
@@ -365,16 +367,25 @@ if __name__ == '__main__':
   for i in range(n_pages_comp):
     with open("exported/composers_" + str(i+1) + ".html", 'w+') as f:
       f.write(items_export.browsePageAtPageNumber('c', str(i+1), ''))
+    if i == 0:
+      with open("exported/composers.html", 'w+') as f:
+        f.write(items_export.browsePageAtPageNumber('c', str(i+1), ''))
 
   # Piece Pages
   for i in range(n_pages_piece_all):
     with open("exported/pieces_" + str(i+1) + ".html", 'w+') as f:
       f.write(items_export.browsePageAtPageNumber('a', str(i+1), ''))
+    if i == 0:
+      with open("exported/pieces.html", 'w+') as f:
+        f.write(items_export.browsePageAtPageNumber('a', str(i+1), ''))
   
   # Collection Pages
   for i in range(n_pages_coll):
     with open("exported/collections_" + str(i+1) + ".html", 'w+') as f:
       f.write(items_export.browsePageAtPageNumber('col', str(i+1), ''))
+    if i == 0:
+      with open("exported/collections.html", 'w+') as f:
+        f.write(items_export.browsePageAtPageNumber('col', str(i+1), ''))
     
   # Export piece pages
   for piece in items_export.getListOfPieces():
@@ -395,3 +406,17 @@ if __name__ == '__main__':
         if i == 0:
           with open("exported/" + composer + ".html", 'w+') as f:
             f.write(items_export.browsePageAtPageNumber('a', str(i+1), composer))
+
+  # Export index, about, contact pages
+  env = Environment(loader = FileSystemLoader('templates_static'))
+  template = env.get_template('000static_index.html')
+  with open("exported/index.html", 'w+') as f:
+    f.write(template.render())
+  template = env.get_template('000static_about.html')
+  with open("exported/about.html", 'w+') as f:
+    f.write(template.render())
+  template = env.get_template('000static_contact.html')
+  with open("exported/contact.html", 'w+') as f:
+    f.write(template.render())
+  
+  # TODO export search.html

@@ -46,6 +46,52 @@ class Database(metaclass=SingletonMeta):
     cur = con.cursor()
     res = cur.execute(query)
     return res
+    
+  def __checkSQLsyntax(self, sql_statement: str, dbpath=""):
+    # TODO roll back after check (or simply delete this method)
+    try:
+      conn = sqlite3.connect(self.__getDBPath(dbpath))
+      cursor = conn.cursor()
+      cursor.execute(sql_statement)
+      conn.close()
+      return True
+    except sqlite3.Error as e:
+      print(f"SQL Syntax Error: {e}")
+      return False
+
+  """
+  def insertOneRow(self, table_name: str, value_name: list, value_data: list, dbpath=""):
+    SQL_COUNT = f"SELECT COUNT(*) {table_name};"
+    SQL_INSERTION = f"INSERT INTO {table_name} ({','.join(value_name)}) \
+                      VALUES ({"','".join(value_data)});"
+    count_before = self.countRows(SQL_COUNT)
+    conn = sqlite3.connect(self.__getDBPath(dbpath))
+    cursor = conn.cursor()
+    try:
+      cursor.execute(SQL_INSERTION)
+      conn.commit()
+    except sqlite3.Error as e:
+      return  "SQL Syntax Error: \n" + e \
+            + "\nThe SQL statement was:\n" + SQL_INSERTION
+    # Verify the insertion
+    count_after = self.countRows(SQL_COUNT)
+    if count_after - count_before == 1:
+      # No news means good news
+      return ""
+    else:
+      return "SQL insertion was not successful: \n" + SQL_INSERTION
+  """
+
+  def executeInsertion(self, SQL_STATEMENT: str, dbpath=""):
+    conn = sqlite3.connect(self.__getDBPath(dbpath))
+    cursor = conn.cursor()
+    try:
+      cursor.execute(SQL_STATEMENT)
+      conn.commit()
+    except sqlite3.Error as e:
+      return  "SQL Syntax Error: \n" + e \
+            + "\nThe SQL statement was:\n" + SQL_STATEMENT
+    return ""
 
   def countRows(self, query_count: str) -> int:
     """Execute count query in SQLITE DB and get count result."""
