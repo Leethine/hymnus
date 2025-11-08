@@ -10,28 +10,28 @@ class ComposerMod:
     self.__meta = Metadata()
     self.__composer_code = ""
   
-  def getDeletePage(self):
+  def getModifyPage(self):
     return render_template("delete_composer.html", \
       composerlist=self.__meta.getComposerCodeNameList())
 
-  def getDeletePage(self, code):
+  def getModifyPage(self, code):
     if code and code != "zzz_unknown" and self.__meta.composerExists(code):
       composer = self.__meta.getComposerMetadata(code)
       return render_template("delete_composer2.html", \
         composer_name=composer["ShortName"])
     else:
-      return self.getDeletePage()
-  
+      return self.getModifyPage()
+
   def __setComposer(self, req_form: request):
     if 'select-composer' in req_form:
       if req_form['select-composer'] != "":
         self.__composer_code = req_form['select-composer']
-    
+
   def __isAlsoDeletePieces(self, req_form: request):
     if 'also-delete-pieces' in req_form:
       return True
     return False
-  
+
   def __isAlsoDeleteCollections(self, req_form: request):
     if 'also-delete-collections' in req_form:
       return True
@@ -53,6 +53,38 @@ class ComposerMod:
     
     return err
   
+  def getOption(self, req_form: request):
+    if 'select-action' in req_form:
+      return req_form['select-action']
+  
+  def hideComposer(self, req_form: request):
+    page = ""
+    self.__setComposer(req_form)
+    if self.__composer_code and \
+       self.__composer_code != "zzz_unknown" and \
+       self.__meta.composerExists(self.__composer_code):
+      composer = self.__meta.getComposerMetadata(self.__composer_code)
+      err = Database().executeInsertion(f"UPDATE Composers SET listed = 0 WHERE code = '{self.__composer_code}'")
+      if err:
+        page += "<h2>Error encountered:</h2>" + err + "<br>"
+    else:
+      page += "<h2>No action.</h2>"
+    page += '<h2><a href="/browse/composers">Go back to composers page</a></h2>'
+
+  def unhideComposer(self, req_form: request):
+    page = ""
+    self.__setComposer(req_form)
+    if self.__composer_code and \
+       self.__composer_code != "zzz_unknown" and \
+       self.__meta.composerExists(self.__composer_code):
+      composer = self.__meta.getComposerMetadata(self.__composer_code)
+      err = Database().executeInsertion(f"UPDATE Composers SET listed = 1 WHERE code = '{self.__composer_code}'")
+      if err:
+        page += "<h2>Error encountered:</h2>" + err + "<br>"
+    else:
+      page += "<h2>No action.</h2>"
+    page += '<h2><a href="/browse/composers">Go back to composers page</a></h2>'
+  
   def deleteComposer(self, req_form: request):
     page = ""
     self.__setComposer(req_form)
@@ -61,7 +93,7 @@ class ComposerMod:
        self.__composer_code != "zzz_unknown" and \
        self.__meta.composerExists(self.__composer_code):
       composer = self.__meta.getComposerMetadata(self.__composer_code)
-      err = Database().executeInsertion(f"DELETE FROM Composers where code = '{self.__composer_code}'")
+      err = Database().executeInsertion(f"DELETE FROM Composers WHERE code = '{self.__composer_code}'")
       if err:
         page += "<h2>Error encountered:</h2>" + err + "<br>"
       # validate the deletion
@@ -69,7 +101,7 @@ class ComposerMod:
         page += f"<h2>Composer deleted: {composer["ShortName"]}</h2>"
       # delete also pieces and collections
       if self.__isAlsoDeleteCollections(req_form):
-        err = Database().executeInsertion(f"DELETE FROM Collections where composer_code = '{self.__composer_code}'")
+        err = Database().executeInsertion(f"DELETE FROM Collections WHERE composer_code = '{self.__composer_code}'")
         if err:
           page += "<h2>Error encountered:</h2>" + err + "<br>"
       if self.__isAlsoDeletePieces(req_form):
@@ -81,6 +113,14 @@ class ComposerMod:
     page += '<h2><a href="/browse/composers">Go back to composers page</a></h2>'
     
     return page
+  
+  def applyChange(self, req_form: request):
+    if self.getOption(req_form) == "delete":
+      return self.deleteComposer(req_form)
+    elif self.getOption(req_form) == "hide":
+      return self.hideComposer(req_form)
+    else:
+      return self.unhideComposer(req_form)
 
 
 class PieceMod:

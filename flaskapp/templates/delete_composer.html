@@ -60,6 +60,12 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
 
 
 <form method="post" enctype="multipart/form-data">
+  <select class="custom-select" id="select-action" name="select-action">
+    <option value="delete">Delete composer</option>
+    <option value="hide">Hide composer</option>
+    <option value="unhide">Unhide composer</option>
+  </select>
+
   <label for="select-composer">Select composer from drop-down menu.</label>
     <div class="form-row">
       <div class="col-auto">
@@ -114,7 +120,7 @@ COMPOSERLISTDATA = [
   <input type="password" name="password" id="form-password" placeholder="Password" class="form-control">
 </div>
 
-<input type="submit" class="btn btn-primary" id="submit-button" value="Delete Composer">
+<input type="submit" class="btn btn-primary" id="submit-button" value="Submit change">
 
 </form>
 

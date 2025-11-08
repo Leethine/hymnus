@@ -69,20 +69,20 @@ def createNewCollection():
   # Default page
   return nc.getSubmitPage()
 
-@app.route("/delete-composer", methods=['GET', 'POST'])
-def deleteComposer():
+@app.route("/modify-composer", methods=['GET', 'POST'])
+def modifyComposer():
   mod = modify.ComposerMod()
   if request.method == 'POST':
     # Check username and password
     if not checkUserAndPasswd(request.form):
       return createAlertBox('Wrong username and password!', 'Error')
     # username and password ok, proceed
-    return mod.deleteComposer(request.form)
+    return mod.applyChange(request.form)
   # Default page
-  return mod.getDeletePage()
+  return mod.getModifyPage()
 
 @app.route("/delete-composer/<composer_code>", methods=['GET', 'POST'])
-def deleteComposer2(composer_code):
+def deleteComposer(composer_code):
   mod = modify.ComposerMod()
   if request.method == 'POST':
     # Check username and password
@@ -91,7 +91,7 @@ def deleteComposer2(composer_code):
     # username and password ok, proceed
     return mod.deleteComposer(request.form)
   # Default page
-  return mod.getDeletePage(composer_code)
+  return mod.getModifyPage(composer_code)
 
 @app.route("/modify-piece/<folderhash>", methods=['GET', 'POST'])
 def modifyPiece(folderhash):
@@ -104,6 +104,8 @@ def modifyPiece(folderhash):
     return mod.submitChanges(request.form, folderhash)
   # Default page
   return mod.getModifyPage(folderhash)
+
+
 
 @app.route("/browse/composers")
 def browseComposer():
