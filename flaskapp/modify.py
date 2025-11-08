@@ -10,7 +10,7 @@ class ComposerMod:
     self.__meta = Metadata()
     self.__composer_code = ""
   
-  def getModifyPage(self):
+  def getModifyPageAllComposers(self):
     return render_template("delete_composer.html", \
       composerlist=self.__meta.getComposerCodeNameList())
 
@@ -20,7 +20,7 @@ class ComposerMod:
       return render_template("delete_composer2.html", \
         composer_name=composer["ShortName"])
     else:
-      return self.getModifyPage()
+      return self.getModifyPageAllComposers()
 
   def __setComposer(self, req_form: request):
     if 'select-composer' in req_form:
@@ -70,6 +70,7 @@ class ComposerMod:
     else:
       page += "<h2>No action.</h2>"
     page += '<h2><a href="/browse/composers">Go back to composers page</a></h2>'
+    return page
 
   def unhideComposer(self, req_form: request):
     page = ""
@@ -84,6 +85,7 @@ class ComposerMod:
     else:
       page += "<h2>No action.</h2>"
     page += '<h2><a href="/browse/composers">Go back to composers page</a></h2>'
+    return page
   
   def deleteComposer(self, req_form: request):
     page = ""
@@ -124,13 +126,13 @@ class ComposerMod:
 
 
 class PieceMod:
-  def __init__(self):
-    self.__hash = ""
+  def __init__(self, folder_hash=""):
+    self.__hash = folder_hash
     self.__meta = Metadata()
 
-  def getModifyPage(self, folderhash):
-    if self.__meta.pieceExists(folderhash):
-      data = self.__meta.getPieceMetadata(folderhash)
+  def getModifyPage(self):
+    if self.__meta.pieceExists(self.__hash):
+      data = self.__meta.getPieceMetadata(self.__hash)
       # Set arranger name
       if data["arranged"] != "1":
         data["arranger"] = " "
@@ -151,7 +153,6 @@ class PieceMod:
         if data[k] == "N/A":
           data[k] = ""
       
-      self.__hash = folderhash
       return render_template("modify_piece.html", metadata=data)
   
   def __isDeletion(self, req_form: request):
@@ -159,8 +160,7 @@ class PieceMod:
       return True
     return False
   
-  def __deletePiece(self, folder_hash):
-    self.__hash = folder_hash
+  def __deletePiece(self):
     pio = PieceIO()
     if self.__meta.pieceExists(self.__hash):
       if os.path.exists(pio.getPieceFileDir(self.__hash)):
@@ -172,8 +172,7 @@ class PieceMod:
         return err
     return "<h3>No action</h3>"
   
-  def __modifyPiece(self, req_form, folder_hash):
-    self.__hash = folder_hash
+  def __modifyPiece(self, req_form):
     keylist = ['new-piece-title', 'new-piece-subtitle', 'new-piece-subsubtitle',
                'new-piece-dedicated', 'new-piece-year', 'new-piece-opus',
                'new-piece-instrument', 'new-piece-comment']
@@ -198,24 +197,85 @@ class PieceMod:
       err = Database().executeInsertion(SQL)
     return err
   
-  def submitChanges(self, req_form, folder_hash):
+  def submitChanges(self, req_form):
     page = '<h2><a href="/browse/all-pieces">Go back to list of pieces.</a></h2>'
     err = ""
     if self.__isDeletion(req_form):
-      err = self.__deletePiece(folder_hash)
+      err = self.__deletePiece()
     else:
-      err = self.__modifyPiece(req_form, folder_hash)
+      err = self.__modifyPiece(req_form)
       if err == "":
         err = "<h3>Piece modified.</h3>"
     
     return err + "<br>" + page
 
 class CollectionMod:
-  def __init__(self, collection_code):
+  def __init__(self, collection_code=""):
     self.__code = collection_code
+    self.__meta = Metadata()
 
-  def getModifyPage():
-    pass
+  def getModifyPage(self):
+    if self.__meta.collectionExists(self.__code):
+      data = self.__meta.getCollectionMetadata(self.__code)
+      # Set composer name
+      if data["composer_code"] and self.__meta.composerExists(data["composer_code"]):
+        data["composer"] = self.__meta.getComposerMetadata(data["composer_code"])["ShortName"]
+      else:
+        data["composer"] = " "
+      # Clean "N/A"
+      for k in data.keys():
+        if data[k] == "N/A":
+          data[k] = ""
+    
+    return render_template("modify_collection.html", metadata=data)
+
+  def __isDeletion(self, req_form: request):
+    if "select-action" in req_form and req_form["select-action"] == "delete":
+      return True
+    return False
   
-  def getDeletePage():
-    pass
+  def __deleteCollection(self):
+    if self.__meta.collectionExists(self.__code):
+      err = Database().executeInsertion(f"DELETE FROM Collections WHERE code = '{self.__code}'")
+      if not err:
+        return f"<h4>Deleted collection {self.__code}</h4>"
+      else:
+        return err
+    return "<h3>No action.</h3>"
+
+  def __modifyCollection(self, req_form):
+    keylist = ['new-collection-title', 'new-collection-subtitle',
+               'new-collection-subsubtitle', 'new-collection-editor',
+               'new-collection-opus', 'new-collection-volume',
+               'new-collection-instrument', 'new-collection-description']
+    err = ""
+    for k in keylist:
+      if k not in req_form:
+        err += f"Input '{k}' not exist!\n"
+    if err == "":
+      new_title       = req_form["new-collection-title"]
+      new_subtitle    = req_form["new-collection-subtitle"]
+      new_subsubtitle = req_form["new-collection-subsubtitle"]
+      new_editor      = req_form["new-collection-editor"]
+      new_opus        = req_form["new-collection-opus"]
+      new_volume      = req_form["new-collection-volume"]
+      new_instrument  = req_form["new-collection-instrument"]
+      new_description = req_form["new-collection-description"]
+      SQL = f"UPDATE Collections SET title = '{new_title}', subtitle = '{new_subtitle}', \
+              subsubtitle = '{new_subsubtitle}', editor = '{new_editor}', opus = '{new_opus}', \
+              volume = '{new_volume}', instruments = '{new_instrument}', \
+              description_text = '{new_description}' WHERE code = '{self.__code}';"
+      err = Database().executeInsertion(SQL)
+    return err
+
+  def submitChanges(self, req_form: request):
+    page = '<h2><a href="/browse/collections">Go back to list of collections.</a></h2>'
+    err = ""
+    if self.__isDeletion(req_form):
+      err = self.__deleteCollection()
+    else:
+      err = self.__modifyCollection(req_form)
+      if err == "":
+        err = "<h3>Collection modified.</h3>"
+    
+    return err + "<br>" + page

@@ -79,7 +79,7 @@ def modifyComposer():
     # username and password ok, proceed
     return mod.applyChange(request.form)
   # Default page
-  return mod.getModifyPage()
+  return mod.getModifyPageAllComposers()
 
 @app.route("/delete-composer/<composer_code>", methods=['GET', 'POST'])
 def deleteComposer(composer_code):
@@ -95,17 +95,27 @@ def deleteComposer(composer_code):
 
 @app.route("/modify-piece/<folderhash>", methods=['GET', 'POST'])
 def modifyPiece(folderhash):
-  mod = modify.PieceMod()
+  mod = modify.PieceMod(folder_hash=folderhash)
   if request.method == 'POST':
     # Check username and password
     if not checkUserAndPasswd(request.form):
       return createAlertBox('Wrong username and password!', 'Error')
     # username and password ok, proceed
-    return mod.submitChanges(request.form, folderhash)
+    return mod.submitChanges(request.form)
   # Default page
-  return mod.getModifyPage(folderhash)
+  return mod.getModifyPage()
 
-
+@app.route("/modify-collection/<collectioncode>", methods=['GET', 'POST'])
+def modifyCollection(collectioncode):
+  mod = modify.CollectionMod(collection_code=collectioncode)
+  if request.method == 'POST':
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Wrong username and password!', 'Error')
+    # username and password ok, proceed
+    return mod.submitChanges(request.form)
+  # Default page
+  return mod.getModifyPage()
 
 @app.route("/browse/composers")
 def browseComposer():
