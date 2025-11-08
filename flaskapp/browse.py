@@ -167,7 +167,9 @@ def browsePageAtPageNumber(pagetype: str, currentpage: str, composercode: str) -
       composer = meta.getComposerMetadata(composercode)
       title = composer["AbbrName"]
       pagemenu = toggle.getComposerPageAndMenuContent(composer["AbbrName"], \
-                                                      composer["LongName"] + " (" + composer["Year"] + ")")
+                                                      composer["LongName"] + " (" + composer["Year"] + ")" \
+                                                      + f' <a href="/delete-composer/{composercode}"> \
+                                                        <i class="bi bi-pencil" style="font-size:70%"></i></a>')
       content = getPieceContent(pagenumber=int(currentpage),
                                 items_per_page=hymnus_config.PIECES_PER_PAGE_COMPOSER,
                                 composer_code=composercode)

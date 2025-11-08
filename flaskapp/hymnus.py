@@ -9,6 +9,7 @@ from piece_io import PieceIO
 from submit import FileSubmit, checkUserAndPasswd
 from create import NewComposerCreator, NewPieceCreator, NewCollectionCreator
 from hymnus_tools import createAlertBox
+import modify
 import browse, hymnus_config
 
 meta     = Metadata()
@@ -67,6 +68,42 @@ def createNewCollection():
     return nc.submitHtmlForm(request.form)
   # Default page
   return nc.getSubmitPage()
+
+@app.route("/delete-composer", methods=['GET', 'POST'])
+def deleteComposer():
+  mod = modify.ComposerMod()
+  if request.method == 'POST':
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Wrong username and password!', 'Error')
+    # username and password ok, proceed
+    return mod.deleteComposer(request.form)
+  # Default page
+  return mod.getDeletePage()
+
+@app.route("/delete-composer/<composer_code>", methods=['GET', 'POST'])
+def deleteComposer2(composer_code):
+  mod = modify.ComposerMod()
+  if request.method == 'POST':
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Wrong username and password!', 'Error')
+    # username and password ok, proceed
+    return mod.deleteComposer(request.form)
+  # Default page
+  return mod.getDeletePage(composer_code)
+
+@app.route("/modify-piece/<folderhash>", methods=['GET', 'POST'])
+def modifyPiece(folderhash):
+  mod = modify.PieceMod()
+  if request.method == 'POST':
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Wrong username and password!', 'Error')
+    # username and password ok, proceed
+    return mod.submitChanges(request.form, folderhash)
+  # Default page
+  return mod.getModifyPage(folderhash)
 
 @app.route("/browse/composers")
 def browseComposer():

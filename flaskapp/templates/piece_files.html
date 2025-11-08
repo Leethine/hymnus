@@ -68,7 +68,7 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
           <tbody>
             <tr>
               <th scope="row">Title</th>
-              <td><h4>{{ piece_metadata["title"] }}, {{ piece_metadata["opus"] }}</h4></td>
+              <td><h4>{{ piece_metadata["title"] }}, {{ piece_metadata["opus"] }} <a href="/modify-piece/{{ piece_metadata["folder_hash"] }}"><i class="bi bi-pencil" style="font-size:70%"></i></a></h4></td>
             </tr>
             <tr>
               <th scope="row">Composed by</th>
