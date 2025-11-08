@@ -14,7 +14,10 @@ CREATE TABLE composers (
 
 INSERT INTO composers
 (code,firstname,lastname,knownas_name,bornyear,diedyear)
-VALUES ('zzz_unknown', ' ', ' ', 'U', -1, -1);
+VALUES ('zzz_unknown', ' ', ' ', '?', -1, -1);
+INSERT INTO composers
+(code,firstname,lastname,knownas_name,bornyear,diedyear)
+VALUES ('', ' ', ' ', ' ', -1, -1);
 
 -- Table to store collections --
 DROP TABLE IF EXISTS collections;

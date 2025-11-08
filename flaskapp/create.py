@@ -304,7 +304,7 @@ class NewCollectionCreator:
     keylist = \
       ['new-collection-title', 'new-collection-subtitle', 'new-collection-subsubtitle',\
        'new-collection-editor', 'new-collection-opus', 'new-collection-volume',\
-       'new-collection-instrument', 'new-collection-description', 'select-composer']
+       'new-collection-instrument', 'new-collection-description']
     err = ""
     for key in keylist:
       if key not in req_form:
@@ -320,7 +320,7 @@ class NewCollectionCreator:
     self.__volume = req_form['new-collection-volume']
     self.__instruments = req_form['new-collection-instrument']
     self.__description = req_form['new-collection-description']
-    if 'collection-has-composer' in req_form:
+    if 'collection-has-composer' in req_form and 'select-composer' in req_form:
       self.__composer_code = req_form['select-composer']
   
   def __getErrorBeforeSubmit(self) -> str:

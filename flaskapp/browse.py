@@ -53,11 +53,7 @@ def getCollectionContent(pagenumber=1, items_per_page=50) -> dict:
       Collections.title AS 'Title',
       Collections.opus AS 'Opus',
       Collections.editor AS 'Editor',
-      CASE WHEN Collections.composer_code IS NULL
-           OR Collections.composer_code = 'zzz_unknown'
-       THEN ' '
-       ELSE Composers.knownas_name
-       END AS 'Composer',
+      Composers.knownas_name AS 'Composer',
 
       '<a href=\"/collection-at/' ||
       Collections.code ||

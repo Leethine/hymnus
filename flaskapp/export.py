@@ -180,26 +180,23 @@ class ItemListExport:
       FROM collections;
     """
 
-    QUERY = """
-      SELECT
-        ' ' AS 'Empty',
-        Collections.title AS 'Title',
-        Collections.opus AS 'Opus',
-        Collections.editor AS 'Editor',
-        CASE WHEN Collections.composer_code IS NULL
-            OR Collections.composer_code = 'zzz_unknown'
-        THEN ' '
-        ELSE Composers.knownas_name
-        END AS 'Composer',
+  QUERY = """
+    SELECT
+      ' ' AS 'Empty',
+      Collections.title AS 'Title',
+      Collections.opus AS 'Opus',
+      Collections.editor AS 'Editor',
+      Composers.knownas_name AS 'Composer',
 
-        '<a href=\"' || Collections.code ||
-        '.html"><i class=\"bi bi-arrow-up-right-square\"></i></a>'
-        AS '   '
+      '<a href=\"/collection-at/' ||
+      Collections.code ||
+      '"><i class=\"bi bi-arrow-up-right-square\"></i></a>'
+      AS '   '
 
-      FROM Collections
-      JOIN Composers ON Collections.composer_code = Composers.code
-      ORDER BY Collections.title ASC;
-    """
+    FROM Collections
+    JOIN Composers ON Collections.composer_code = Composers.code
+    ORDER BY Collections.title ASC;
+  """
     
     content = {}
     content["total_number_of_pages"] = self.calculateTotalPages(items_per_page, QUERY_COUNT)
