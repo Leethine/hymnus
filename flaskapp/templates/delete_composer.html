@@ -60,11 +60,18 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
 
 
 <form method="post" enctype="multipart/form-data">
-  <select class="custom-select" id="select-action" name="select-action">
-    <option value="delete">Delete composer</option>
-    <option value="hide">Hide composer</option>
-    <option value="unhide">Unhide composer</option>
-  </select>
+  <br>
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <label class="input-group-text" for="select-action">Action</label>
+    </div>
+    <select class="custom-select" id="select-action" name="select-action">
+      <option value="delete">Delete composer</option>
+      <option value="hide">Hide composer</option>
+      <option value="unhide">Unhide composer</option>
+    </select>
+  </div>
+  <br>
 
   <label for="select-composer">Select composer from drop-down menu.</label>
     <div class="form-row">

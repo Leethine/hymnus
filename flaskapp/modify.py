@@ -2,6 +2,7 @@ from flask import render_template, request
 from database import Database
 from metadata import Metadata
 from piece_io import PieceIO
+from hymnus_tools import createAlertBox
 
 import shutil, os
 
@@ -117,6 +118,9 @@ class ComposerMod:
     return page
   
   def applyChange(self, req_form: request):
+    if 'select-composer' not in req_form:
+      createAlertBox("Please select the composer!")
+      
     if self.getOption(req_form) == "delete":
       return self.deleteComposer(req_form)
     elif self.getOption(req_form) == "hide":
