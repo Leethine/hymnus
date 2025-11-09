@@ -117,6 +117,18 @@ def modifyCollection(collectioncode):
   # Default page
   return mod.getModifyPage()
 
+@app.route("/add-to-collection/<collectioncode>", methods=['GET', 'POST'])
+def addPieceToCollection(collectioncode):
+  mod = modify.CollectionMod(collection_code=collectioncode)
+  if request.method == 'POST':
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Wrong username and password!', 'Error')
+    # username and password ok, proceed
+    return mod.addToCollection(request.form)
+  # Default page
+  return mod.getAddToCollectionPage()
+
 @app.route("/browse/composers")
 def browseComposer():
   return browse.browsePageAtPageNumber("c", "1", "")

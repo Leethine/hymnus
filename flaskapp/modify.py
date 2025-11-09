@@ -238,9 +238,26 @@ class CollectionMod:
       return True
     return False
   
+  def __dissociatePieces(self):
+    err = ""
+    SQL = f"SELECT folder_hash FROM Pieces WHERE collection_code LIKE '%{self.__code}%';"
+    for piece_hash in Database().selectAllRows(SQL):
+      SQL2 = f"SELECT collection_code FROM Pieces WHERE folder_hash = '{piece_hash["folder_hash"]}';"
+      old_collection = Database().selectAllRows(SQL2)[0]['collection_code']
+      # Remove the old collection code from the new collection
+      new_collection = old_collection \
+                                      .replace(f"{self.__code},","") \
+                                      .replace(f",{self.__code}","") \
+                                      .replace(f"{self.__code}","")
+      SQL3 = f"UPDATE Pieces SET collection_code = '{new_collection}' \
+               WHERE folder_hash = '{piece_hash["folder_hash"]}';"
+      err += Database().executeInsertion(SQL3)
+    return err
+  
   def __deleteCollection(self):
     if self.__meta.collectionExists(self.__code):
-      err = Database().executeInsertion(f"DELETE FROM Collections WHERE code = '{self.__code}'")
+      err = self.__dissociatePieces()
+      err += Database().executeInsertion(f"DELETE FROM Collections WHERE code = '{self.__code}'")
       if not err:
         return f"<h4>Deleted collection {self.__code}</h4>"
       else:
@@ -283,3 +300,37 @@ class CollectionMod:
         err = "<h3>Collection modified.</h3>"
     
     return err + "<br>" + page
+  
+  def getAddToCollectionPage(self):
+    if self.__meta.collectionExists(self.__code):
+      data = self.__meta.getCollectionMetadata(self.__code)
+      title = data["title"] + ", " + data["opus"]
+      return render_template("add_to_collection.html", collection_title=title)
+    else:
+      return render_template("add_to_collection.html", collection_title="?")
+  
+  def addToCollection(self, req_form: request):
+    page = ""
+    if 'list-of-pieces' in req_form and req_form['list-of-pieces']:
+      err = ""
+      list_of_pieces = req_form['list-of-pieces'].split(',')
+      for p in list_of_pieces:
+        if self.__meta.pieceExists(p):
+          # Append "," to the piece's existing collections
+          old_collection_code = self.__meta.getPieceMetadata(p)['collection_code'].replace("N/A","")
+          if old_collection_code:
+            old_collection_code += ","
+          # Prevent adding repetitive collection code in the same piece
+          if not self.__code in old_collection_code:
+            SQL = f"UPDATE Pieces SET collection_code = '{old_collection_code}{self.__code}' WHERE folder_hash = '{p}';"
+            err += Database().executeInsertion(SQL)
+      if err == "":
+        page += "<h3>Piece(s) added to collection.</h3>"
+      else:
+        page += "<h3>Error: </h3>"
+        page += err
+    else:
+      page += "<h3>No action.</h3>"
+    page += '<h2><a href="/browse/collections">Go back to list of collections.</a></h2>'
+    
+    return page
