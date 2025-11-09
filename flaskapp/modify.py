@@ -119,7 +119,7 @@ class ComposerMod:
   
   def applyChange(self, req_form: request):
     if 'select-composer' not in req_form:
-      createAlertBox("Please select the composer!")
+      return createAlertBox("Please select the composer!")
       
     if self.getOption(req_form) == "delete":
       return self.deleteComposer(req_form)
