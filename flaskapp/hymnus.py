@@ -8,7 +8,7 @@ from metadata import Metadata
 from piece_io import PieceIO
 from submit import FileSubmit, checkUserAndPasswd
 from create import NewComposerCreator, NewPieceCreator, NewCollectionCreator
-from hymnus_tools import createAlertBox
+from hymnus_tools import createAlertBox, saveMessage
 import modify
 import browse, hymnus_config
 
@@ -27,11 +27,13 @@ def index():
 
 @app.route("/about")
 def about():
-  return  render_template("about.html")
+  return render_template("about.html")
 
-@app.route("/contact")
+@app.route("/contact", methods=['GET', 'POST'])
 def contact():
-  return "Contact"
+  if request.method == 'POST':
+    return saveMessage(request.form)
+  return render_template("contact.html")
 
 @app.route("/new-composer", methods=['GET', 'POST'])
 def createNewComposer():
