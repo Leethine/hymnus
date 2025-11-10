@@ -1,7 +1,7 @@
 from unidecode import unidecode
 from datetime import datetime
 from flask import request
-import os
+import os, time
 
 def normalizeStr(inputstr=""):
   return unidecode(inputstr)
@@ -48,5 +48,7 @@ def saveMessage(req_form):
     f.write("\n")
     f.write(msg['body'])
     f.write("\n")
+    time.sleep(5)
+  
   return '<h3>Message saved, thank you for messaging!</h3> \
           <h3>Return to <a href="/index">home page</a></h3>'
