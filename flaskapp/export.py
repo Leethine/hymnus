@@ -180,23 +180,23 @@ class ItemListExport:
       FROM collections;
     """
 
-  QUERY = """
-    SELECT
-      ' ' AS 'Empty',
-      Collections.title AS 'Title',
-      Collections.opus AS 'Opus',
-      Collections.editor AS 'Editor',
-      Composers.knownas_name AS 'Composer',
+    QUERY = """
+      SELECT
+        ' ' AS 'Empty',
+        Collections.title AS 'Title',
+        Collections.opus AS 'Opus',
+        Collections.editor AS 'Editor',
+        Composers.knownas_name AS 'Composer',
 
-      '<a href=\"/collection-at/' ||
-      Collections.code ||
-      '"><i class=\"bi bi-arrow-up-right-square\"></i></a>'
-      AS '   '
+        '<a href=\"/collection-at/' ||
+        Collections.code ||
+        '"><i class=\"bi bi-arrow-up-right-square\"></i></a>'
+        AS '   '
 
-    FROM Collections
-    JOIN Composers ON Collections.composer_code = Composers.code
-    ORDER BY Collections.title ASC;
-  """
+      FROM Collections
+      JOIN Composers ON Collections.composer_code = Composers.code
+      ORDER BY Collections.title ASC;
+    """
     
     content = {}
     content["total_number_of_pages"] = self.calculateTotalPages(items_per_page, QUERY_COUNT)
@@ -331,8 +331,10 @@ class FilePageExport:
     pieceinfo = self.__metadata.getPieceMetadata(folderhash)
     filesinfo = self.__pieceio.getPiecePageFileList(folderhash)
     for i in filesinfo:
-      i["filelink"] = IP_ADDRESS + i["filelink"] 
-    
+      #i["filelink"] = IP_ADDRESS + i["filelink"]
+      absfilepath = self.__pieceio.getSavedFilePath(folderhash, i["filelink"].replace(f"/download/{folderhash}/",""))
+      i["filelink"] = IP_ADDRESS + absfilepath.replace(os.environ['HYMNUS_FS'], 'files')
+      
     if pieceinfo and filesinfo:
       env = Environment(loader = FileSystemLoader('templates_static'))
       template = env.get_template('000static_piece_files.html')
