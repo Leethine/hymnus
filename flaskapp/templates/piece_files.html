@@ -120,7 +120,14 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
   <h5><a class="text-left font-weight-normal text-decoration-none text-dark" href="#" data-toggle="popover" title="{{ dict_item["popup_title"] }}" data-content="{{ dict_item["popup_content"] }}" data-trigger="hover">&ensp;
     {{ dict_item["filename"] }}
   &emsp;</a></h5>
-  <h5><span class="badge badge-dark badge-pill"><a target="_blank" href="{{ dict_item["filelink"] }}" class="badge badge-dark badge-pill">{{ dict_item["filetype"] }}</a></span></h5>
+
+  <h5><span class="badge badge-dark badge-pill"><a target="_blank" href="{{ dict_item["filelink"] }}" class="badge badge-dark badge-pill">{{ dict_item["filetype"] }}</a>
+  {% if PDF_JS_URL %}
+    {% if dict_item["filetype"] == ".pdf" %}
+      <a target="_blank" href="{{ PDF_JS_URL }}{{ dict_item["pdfpath"] }}" class="badge badge-dark badge-pill"><i class="bi bi-book"></i></a>
+    {% endif %}
+  {% endif %}
+  </span></h5>
 </li>
 {% endfor %}
 </ul>

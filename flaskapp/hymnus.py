@@ -2,7 +2,7 @@ from flask import Flask, render_template, send_from_directory
 from flask import redirect, request, url_for
 from werkzeug.utils import secure_filename
 from markupsafe import escape
-import time
+import time, os
 
 from metadata import Metadata
 from piece_io import PieceIO
@@ -171,11 +171,17 @@ def openCollection(collection_code):
 def openPiecePage(folderhash):
   pieceinfo = meta.getPieceMetadata(folderhash)
   filesinfo = pieceio.getPiecePageFileList(folderhash)
+  pdf_js_url = ""
+  if 'PDF_JS_URL' in os.environ.keys():
+    pdf_js_url = os.environ['PDF_JS_URL']
+    # To de-activate in-browser PDF reader, uncomment the line below
+    # pdf_js_url = ""
   if pieceinfo and filesinfo:
     return render_template("piece_files.html", \
                           piece_metadata=pieceinfo, \
                           file_metadata_list=filesinfo, \
-                          has_footer="N")
+                          has_footer="N",
+                          PDF_JS_URL=pdf_js_url)
   else:
     return "<h1>Page does not exist!!!</h1>"
 
