@@ -172,10 +172,9 @@ def openPiecePage(folderhash):
   pieceinfo = meta.getPieceMetadata(folderhash)
   filesinfo = pieceio.getPiecePageFileList(folderhash)
   pdf_js_url = ""
-  if 'PDF_JS_URL' in os.environ.keys():
-    pdf_js_url = os.environ['PDF_JS_URL']
-    # To de-activate in-browser PDF reader, uncomment the line below
-    # pdf_js_url = ""
+  #if 'PDF_JS_URL' in os.environ.keys():
+  #  pdf_js_url = os.environ['PDF_JS_URL']
+
   if pieceinfo and filesinfo:
     return render_template("piece_files.html", \
                           piece_metadata=pieceinfo, \
