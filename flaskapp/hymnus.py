@@ -2,13 +2,14 @@ from flask import Flask, render_template, send_from_directory
 from flask import redirect, request, url_for
 from werkzeug.utils import secure_filename
 from markupsafe import escape
-import time
+import time, os
 
 from metadata import Metadata
 from piece_io import PieceIO
 from submit import FileSubmit, checkUserAndPasswd
 from create import NewComposerCreator, NewPieceCreator, NewCollectionCreator
-from hymnus_tools import createAlertBox
+from hymnus_tools import createAlertBox, saveMessage
+import modify
 import browse, hymnus_config
 
 meta     = Metadata()
@@ -26,11 +27,13 @@ def index():
 
 @app.route("/about")
 def about():
-  return  render_template("about.html")
+  return render_template("about.html")
 
-@app.route("/contact")
+@app.route("/contact", methods=['GET', 'POST'])
 def contact():
-  return "Contact"
+  if request.method == 'POST':
+    return saveMessage(request.form)
+  return render_template("contact.html")
 
 @app.route("/new-composer", methods=['GET', 'POST'])
 def createNewComposer():
@@ -67,6 +70,66 @@ def createNewCollection():
     return nc.submitHtmlForm(request.form)
   # Default page
   return nc.getSubmitPage()
+
+@app.route("/modify-composer", methods=['GET', 'POST'])
+def modifyComposer():
+  mod = modify.ComposerMod()
+  if request.method == 'POST':
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Wrong username and password!', 'Error')
+    # username and password ok, proceed
+    return mod.applyChange(request.form)
+  # Default page
+  return mod.getModifyPageAllComposers()
+
+@app.route("/delete-composer/<composer_code>", methods=['GET', 'POST'])
+def deleteComposer(composer_code):
+  mod = modify.ComposerMod()
+  if request.method == 'POST':
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Wrong username and password!', 'Error')
+    # username and password ok, proceed
+    return mod.deleteComposer(request.form)
+  # Default page
+  return mod.getModifyPage(composer_code)
+
+@app.route("/modify-piece/<folderhash>", methods=['GET', 'POST'])
+def modifyPiece(folderhash):
+  mod = modify.PieceMod(folder_hash=folderhash)
+  if request.method == 'POST':
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Wrong username and password!', 'Error')
+    # username and password ok, proceed
+    return mod.submitChanges(request.form)
+  # Default page
+  return mod.getModifyPage()
+
+@app.route("/modify-collection/<collectioncode>", methods=['GET', 'POST'])
+def modifyCollection(collectioncode):
+  mod = modify.CollectionMod(collection_code=collectioncode)
+  if request.method == 'POST':
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Wrong username and password!', 'Error')
+    # username and password ok, proceed
+    return mod.submitChanges(request.form)
+  # Default page
+  return mod.getModifyPage()
+
+@app.route("/add-to-collection/<collectioncode>", methods=['GET', 'POST'])
+def addPieceToCollection(collectioncode):
+  mod = modify.CollectionMod(collection_code=collectioncode)
+  if request.method == 'POST':
+    # Check username and password
+    if not checkUserAndPasswd(request.form):
+      return createAlertBox('Wrong username and password!', 'Error')
+    # username and password ok, proceed
+    return mod.addToCollection(request.form)
+  # Default page
+  return mod.getAddToCollectionPage()
 
 @app.route("/browse/composers")
 def browseComposer():
@@ -108,6 +171,10 @@ def openCollection(collection_code):
 def openPiecePage(folderhash):
   pieceinfo = meta.getPieceMetadata(folderhash)
   filesinfo = pieceio.getPiecePageFileList(folderhash)
+  pdf_js_url = ""
+  #if 'PDF_JS_URL' in os.environ.keys():
+  #  pdf_js_url = os.environ['PDF_JS_URL']
+
   if pieceinfo and filesinfo:
     return render_template("piece_files.html", \
                           piece_metadata=pieceinfo, \

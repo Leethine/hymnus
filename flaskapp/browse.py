@@ -53,11 +53,7 @@ def getCollectionContent(pagenumber=1, items_per_page=50) -> dict:
       Collections.title AS 'Title',
       Collections.opus AS 'Opus',
       Collections.editor AS 'Editor',
-      CASE WHEN Collections.composer_code IS NULL
-           OR Collections.composer_code = 'zzz_unknown'
-       THEN ' '
-       ELSE Composers.knownas_name
-       END AS 'Composer',
+      Composers.knownas_name AS 'Composer',
 
       '<a href=\"/collection-at/' ||
       Collections.code ||
@@ -167,7 +163,9 @@ def browsePageAtPageNumber(pagetype: str, currentpage: str, composercode: str) -
       composer = meta.getComposerMetadata(composercode)
       title = composer["AbbrName"]
       pagemenu = toggle.getComposerPageAndMenuContent(composer["AbbrName"], \
-                                                      composer["LongName"] + " (" + composer["Year"] + ")")
+                                                      composer["LongName"] + " (" + composer["Year"] + ")" \
+                                                      + f' <a href="/delete-composer/{composercode}"> \
+                                                        <i class="bi bi-pencil" style="font-size:70%"></i></a>')
       content = getPieceContent(pagenumber=int(currentpage),
                                 items_per_page=hymnus_config.PIECES_PER_PAGE_COMPOSER,
                                 composer_code=composercode)

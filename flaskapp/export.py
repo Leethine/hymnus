@@ -186,14 +186,11 @@ class ItemListExport:
         Collections.title AS 'Title',
         Collections.opus AS 'Opus',
         Collections.editor AS 'Editor',
-        CASE WHEN Collections.composer_code IS NULL
-            OR Collections.composer_code = 'zzz_unknown'
-        THEN ' '
-        ELSE Composers.knownas_name
-        END AS 'Composer',
+        Composers.knownas_name AS 'Composer',
 
-        '<a href=\"' || Collections.code ||
-        '.html"><i class=\"bi bi-arrow-up-right-square\"></i></a>'
+        '<a href=\"/collection-at/' ||
+        Collections.code ||
+        '"><i class=\"bi bi-arrow-up-right-square\"></i></a>'
         AS '   '
 
       FROM Collections
@@ -334,8 +331,10 @@ class FilePageExport:
     pieceinfo = self.__metadata.getPieceMetadata(folderhash)
     filesinfo = self.__pieceio.getPiecePageFileList(folderhash)
     for i in filesinfo:
-      i["filelink"] = IP_ADDRESS + i["filelink"] 
-    
+      #i["filelink"] = IP_ADDRESS + i["filelink"]
+      absfilepath = self.__pieceio.getSavedFilePath(folderhash, i["filelink"].replace(f"/download/{folderhash}/",""))
+      i["filelink"] = IP_ADDRESS + absfilepath.replace(os.environ['HYMNUS_FS'], 'files')
+      
     if pieceinfo and filesinfo:
       env = Environment(loader = FileSystemLoader('templates_static'))
       template = env.get_template('000static_piece_files.html')

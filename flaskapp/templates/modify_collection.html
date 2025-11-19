@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Hymnus</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+
+<style>
+html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
+.w3-sidebar {
+  z-index: 3;
+  width: 250px;
+  top: 43px;
+  bottom: 0;
+  height: inherit;
+}
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="w3-top">
+  <div class="w3-bar w3-theme w3-top w3-left-align w3-large">
+    <a class="w3-bar-item w3-button w3-right w3-hide-large w3-hover-white w3-large w3-theme-l1" href="javascript:void(0)" onclick="w3_open()"><i class="fa fa-bars"></i></a>
+    <a href="/index" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Hymnus</a>
+    <a href="/about" class="w3-bar-item w3-button w3-hide-small w3-hover-white">About</a>
+    <a href="/contact" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Contact</a>
+  </div>
+</div>
+
+<!-- Sidebar -->
+<nav class="w3-sidebar w3-bar-block w3-collapse w3-large w3-theme-l5 w3-animate-left" id="mySidebar">
+  <a href="javascript:void(0)" onclick="w3_close()" class="w3-right w3-xlarge w3-padding-large w3-hover-black w3-hide-large" title="Close Menu">
+    <i class="fa fa-remove"></i>
+  </a>
+  <h4 class="w3-bar-item"><b>Browse</b></h4>
+  <a class="w3-bar-item w3-button w3-hover-black "   href="/search">Search</a>
+  <a class="w3-bar-item w3-button w3-hover-black "   href="/browse/all-pieces">All Pieces</a>
+  <a class="w3-bar-item w3-button w3-hover-black "   href="/browse/collections">Collections</a>
+  <a class="w3-bar-item w3-button w3-hover-black "   href="/browse/composers">By Composer</a>
+</nav>
+
+<!-- Overlay effect when opening sidebar on small screens -->
+<div class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+
+<!-- Main content: shift it to the right by 250 pixels when the sidebar is visible -->
+<div class="w3-main" style="margin-left:250px">
+
+  <div class="w3-row w3-padding-64">
+    <div class="w3-twothird w3-container">
+      <h1 class="w3-text-gray">Modify or delete collection</h1>
+
+
+<form method="post" enctype="multipart/form-data">
+
+  <br>
+  <div class="input-group mb-3">
+    <div class="input-group-prepend">
+      <label class="input-group-text" for="select-action">Action</label>
+    </div>
+    <select class="custom-select" id="select-action" name="select-action">
+      <option value="modify">Modify metadata</option>
+      <option value="delete">Delete collection</option>
+    </select>
+  </div>
+
+      <div id="new-collection-form-1">
+        <label for="new-collection-title">Title</label>
+        <input id="new-collection-title" name="new-collection-title" type="text" class="form-control" value="{{ metadata["title"] }}">
+        <br>
+        <label for="new-collection-subtitle">Subtitle</label>
+        <input id="new-collection-subtitle" name="new-collection-subtitle" type="text" class="form-control" value="{{ metadata["subtitle"] }}">
+        <br>
+        <label for="new-collection-subsubtitle">Subsubtitle</label>
+        <input id="new-collection-subsubtitle" name="new-collection-subsubtitle" type="text" class="form-control" value="{{ metadata["subsubtitle"] }}">
+        <br>
+        <label for="new-collection-editor">Editor</label>
+        <input id="new-collection-editor" name="new-collection-editor" type="text" class="form-control" value="{{ metadata["editor"] }}">
+        <br>
+        <label for="new-collection-opus">Opus</label>
+        <input id="new-collection-opus" name="new-collection-opus" type="text" class="form-control" value="{{ metadata["opus"] }}">
+        <br>
+        <label for="new-collection-volume">Volume</label>
+        <input id="new-collection-volume" name="new-collection-volume" type="text" class="form-control" value="{{ metadata["volume"] }}">
+        <br>
+      </div>
+
+      <label for="select-composer">Composer of this collection:</label>
+
+      <div class="form-row">
+        <div class="col-auto">
+          <select class="custom-select mr-sm-1" id="select-composer" name="select-composer" disabled>
+            <option selected> {{ metadata["composer"] }} </option>
+          </select>
+        </div>
+      </div>
+
+      <div id="new-collection-form-2">
+        <br>
+        <label for="new-collection-instrument">Instruments</label>
+        <input id="new-collection-instrument" name="new-collection-instrument" type="text" class="form-control" value="{{ metadata["instruments"] }}"/>
+        <br>
+        <label for="new-collection-description">Description</label>
+        <textarea class="form-control" id="new-collection-description" name="new-collection-description" aria-label="new-collection-description-label">{{ metadata["description_text"] }}</textarea>
+      </div>
+      <br>
+      <button type="submit" class="btn btn-primary" id="button-submit-form">Submit changes</button>
+
+      <div class="input-group mt-4">
+        <label class="form-label">Please provide your username and password:</label>
+      </div>
+      <div class="input-group mb-5" id="user-login-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text">User</span>
+        </div>
+        <input type="text" name="user" id="form-user" placeholder="User Name" class="form-control">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Password</span>
+        </div>
+        <input type="password" name="password" id="form-password" placeholder="Password" class="form-control">
+      </div>
+
+</form>
+
+
+    </div>
+  </div>
+
+<!-- END MAIN -->
+</div>
+
+<script>
+// Get the Sidebar
+var mySidebar = document.getElementById("mySidebar");
+
+// Get the DIV with overlay effect
+var overlayBg = document.getElementById("myOverlay");
+
+// Toggle between showing and hiding the sidebar, and add overlay effect
+function w3_open() {
+  if (mySidebar.style.display === 'block') {
+    mySidebar.style.display = 'none';
+    overlayBg.style.display = "none";
+  } else {
+    mySidebar.style.display = 'block';
+    overlayBg.style.display = "block";
+  }
+}
+
+// Close the sidebar with the close button
+function w3_close() {
+  mySidebar.style.display = "none";
+  overlayBg.style.display = "none";
+}
+</script>
+
+</body>
+</html>

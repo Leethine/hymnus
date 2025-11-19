@@ -71,6 +71,8 @@ class FileSubmit():
         filename = secure_filename(file.filename)
         if self.__io.checkFileExtension(filename):
           time.sleep(hymnus_config.FILE_UPLOAD_WAIT_TIME)
+          if not os.path.isdir(self.__io.getPieceFileDir(self.__hash)):
+            os.makedirs(self.__io.getPieceFileDir(self.__hash), exist_ok=True)
           file.save(self.__io.getSavedFilePath(self.__hash, filename))
           self.__io.addFileMetaData(self.__hash, filename, title, desc)
           logUserActivity(req_form['user'], f"Created file: {self.__hash} --> {title}")

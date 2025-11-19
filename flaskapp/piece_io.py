@@ -88,7 +88,7 @@ class PieceIO():
             f["popup_content"] = j["description"]
             f["filename"] = j["headline"]
             f["filelink"] = "/download/" + folderhash + "/" + j["fname"] + j["ext"]
-            f["filetype"] = j["ext"]
+            f["filetype"] = j["ext"]            
             _piece_page_filelist.append(f)
         else:
           f = {}

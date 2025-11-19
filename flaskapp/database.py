@@ -89,8 +89,8 @@ class Database(metaclass=SingletonMeta):
       cursor.execute(SQL_STATEMENT)
       conn.commit()
     except sqlite3.Error as e:
-      return  "SQL Syntax Error: \n" + e \
-            + "\nThe SQL statement was:\n" + SQL_STATEMENT
+      return  "SQL Syntax Error: \n" + str(e) + \
+              "\nThe SQL statement was:\n" + SQL_STATEMENT
     return ""
 
   def countRows(self, query_count: str) -> int:
