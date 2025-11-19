@@ -88,11 +88,7 @@ class PieceIO():
             f["popup_content"] = j["description"]
             f["filename"] = j["headline"]
             f["filelink"] = "/download/" + folderhash + "/" + j["fname"] + j["ext"]
-            f["filetype"] = j["ext"]
-            f["pdfpath"] = "#"
-            if j["ext"] == ".pdf":
-              f["pdfpath"] = "%2F" + "hymnus-files" + "%2F" + folderhash[:2] + \
-                             "%2F" + folderhash + "%2F" + j["fname"] + j["ext"]              
+            f["filetype"] = j["ext"]            
             _piece_page_filelist.append(f)
         else:
           f = {}
@@ -100,7 +96,6 @@ class PieceIO():
           f["popup_content"] = ""
           f["filename"] = "File metadata corrupted"
           f["filelink"] = "#"
-          f["pdfpath"] = "#"
           f["filetype"] = "!!!"
           _piece_page_filelist = [f]
       else:

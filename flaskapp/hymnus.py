@@ -179,8 +179,7 @@ def openPiecePage(folderhash):
     return render_template("piece_files.html", \
                           piece_metadata=pieceinfo, \
                           file_metadata_list=filesinfo, \
-                          has_footer="N",
-                          PDF_JS_URL=pdf_js_url)
+                          has_footer="N")
   else:
     return "<h1>Page does not exist!!!</h1>"
 
