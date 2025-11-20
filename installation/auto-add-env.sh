@@ -1,5 +1,7 @@
 #!/bin/bash
 
+HYMNUS_DATAPATH=$HOME/.hymnus_data
+
 echo "" >> $HOME/.bashrc
 echo "" >> $HOME/.bashrc
 echo "export HYMNUS_DATAPATH=$HOME/.hymnus_data"   >> $HOME/.bashrc

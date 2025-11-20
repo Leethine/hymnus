@@ -5,7 +5,7 @@ if [[ -z "${HYMNUS_ROOT}" ]]; then
 fi
 
 rm -fr ${HYMNUS_ROOT}
-cp -r hymnus_web ${HYMNUS_ROOT}
+cp -r ../hymnus_web ${HYMNUS_ROOT}
 
 cd ${HYMNUS_ROOT}
 python3 -m venv ./
