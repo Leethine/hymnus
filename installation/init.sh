@@ -3,13 +3,14 @@
 if [ -z "${HYMNUS_DATAPATH}" ]; then
   HYMNUS_DATAPATH="$HOME/.hymnus_data"
 fi
-DBFILE="${DATAPATH}/tables.db"
-FSPATH="${DATAPATH}/files"
+DBFILE="${HYMNUS_DATAPATH}/tables.db"
+FSPATH="${HYMNUS_DATAPATH}/files"
+USRPATH="${HYMNUS_DATAPATH}/users"
 SQL_SCRIPT="schema.sql"
 
 # Check if parent path exists
-if [ ! -d "${DATAPATH}" ]; then
-  printf "Error: \n Parent directory does not exist: ${DATAPATH}\n"
+if [[ -z "${HYMNUS_DATAPATH}" ]] || [[ -f "${HYMNUS_DATAPATH}" ]]; then
+  printf "Error: \n Env variable HYMNUS_DATAPATH not set, or invalid path."
   exit 1;
 fi
 
@@ -26,6 +27,21 @@ if [[ -f "${FSPATH}" || -d "${FSPATH}" ]]; then
   fi
 else
   mkdir -p "${FSPATH}"
+fi
+
+# Check if file or directory already exists
+if [[ -f "${USRPATH}" || -d "${USRPATH}" ]]; then
+  printf "User path already exists:\n ${USRPATH}\n"
+  read -p "Override? [y/N]: " CONFIRM
+  if [[ ${CONFIRM} != "y" ]]; then
+    echo "Abandoned."
+    exit 0;
+  else
+    rm -fr "${USRPATH}"
+    mkdir -p "${USRPATH}"
+  fi
+else
+  mkdir -p "${USRPATH}"
 fi
 
 if [[ -f "${DBFILE}" || -d "${DBFILE}" ]]; then
