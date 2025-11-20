@@ -61,7 +61,7 @@ class Metadata():
 
   def getComposerCodeNameList(self) -> list:
     QUERY = """SELECT code, knownas_name AS name FROM Composers
-               WHERE code != 'zzz_unknown' ORDER BY code ASC;"""
+               WHERE code != 'zzz_unknown' AND code != '' ORDER BY code ASC;"""
     composerlist = Database().selectAllRows(QUERY)
     for c in composerlist:
       c["code"] = unidecode(c["code"])
