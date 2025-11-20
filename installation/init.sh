@@ -1,11 +1,11 @@
 #!/bin/bash
 
-if [ -z "${DATAPATH}" ]; then
-  DATAPATH="blob"
+if [ -z "${HYMNUS_DATAPATH}" ]; then
+  HYMNUS_DATAPATH="$HOME/.hymnus_data"
 fi
 DBFILE="${DATAPATH}/tables.db"
 FSPATH="${DATAPATH}/files"
-SQL_SCRIPT="installation/schema.sql"
+SQL_SCRIPT="schema.sql"
 
 # Check if parent path exists
 if [ ! -d "${DATAPATH}" ]; then
