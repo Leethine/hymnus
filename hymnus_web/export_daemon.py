@@ -1,6 +1,9 @@
+#!/usr/bin/env python3
+
 from jinja2 import Environment, FileSystemLoader
 
-import os, sys, shutil
+import os, sys, shutil, time
+from datetime import datetime
 from metadata import Metadata
 from database import Database
 from piece_io import PieceIO
@@ -327,13 +330,13 @@ class FilePageExport:
     self.__metadata = Metadata()
     self.__pieceio  = PieceIO()
   
-  def openPiecePage(self, folderhash):
+  def openPiecePage(self, folderhash, ip_addr):
     pieceinfo = self.__metadata.getPieceMetadata(folderhash)
     filesinfo = self.__pieceio.getPiecePageFileList(folderhash)
     for i in filesinfo:
-      #i["filelink"] = IP_ADDRESS + i["filelink"]
+      #i["filelink"] = ip_addr + i["filelink"]
       absfilepath = self.__pieceio.getSavedFilePath(folderhash, i["filelink"].replace(f"/download/{folderhash}/",""))
-      i["filelink"] = IP_ADDRESS + absfilepath.replace(os.environ['HYMNUS_FS'], 'files')
+      i["filelink"] = ip_addr + absfilepath.replace(os.environ['HYMNUS_FS'], 'files')
       
     if pieceinfo and filesinfo:
       env = Environment(loader = FileSystemLoader('templates_static'))
@@ -345,22 +348,7 @@ class FilePageExport:
     else:
       return "<h1>Page does not exist!!!</h1>"
 
-
-if __name__ == '__main__':
-  IP_ADDRESS = ""
-  if 'HYMNUS_STATIC_ADDR' in os.environ.keys():
-    IP_ADDRESS = os.environ['HYMNUS_STATIC_ADDR']
-
-  if len(sys.argv) == 3 and sys.argv[1] == "--ip":
-    IP_ADDRESS = str(sys.argv[2])
-  
-  if not IP_ADDRESS:
-    print("You must set the IP address for file downloading.")
-    print("For example:\n $ export HYMNUS_STATIC_ADDR='http://192.168.1.1/'")
-    print("Or add explicit argument:\n  --ip 'http://192.168.1.1/'")
-    print("(the address should end with the foreslash)")
-    exit()
-  
+def main_proc(ip_addr):
   items_export = ItemListExport()
   files_export = FilePageExport()
 
@@ -402,7 +390,7 @@ if __name__ == '__main__':
   # Export piece pages
   for piece in items_export.getListOfPieces():
     with open("exported/" + piece + ".html", 'w+') as f:
-      f.write(files_export.openPiecePage(piece))
+      f.write(files_export.openPiecePage(piece, ip_addr))
   
   # Export collection pages
   for coll in items_export.getListOfCollections():
@@ -432,3 +420,21 @@ if __name__ == '__main__':
     f.write(template.render())
   
   # TODO export search.html
+
+if __name__ == '__main__':
+  IP_ADDRESS = ""
+  if 'HYMNUS_STATIC_ADDR' in os.environ.keys():
+    IP_ADDRESS = os.environ['HYMNUS_STATIC_ADDR']
+
+  if len(sys.argv) == 3 and sys.argv[1] == "--ip":
+    IP_ADDRESS = str(sys.argv[2])
+  
+  if not IP_ADDRESS:
+    print("You must set the IP address for file downloading.")
+    exit()
+  
+  while(True):
+    main_proc(ip_addr=IP_ADDRESS)
+    current_time = datetime.now()
+    print(current_time.isoformat())
+    time.sleep(86400)
