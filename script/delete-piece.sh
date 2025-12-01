@@ -1,13 +1,14 @@
 #!/bin/bash
 
-if [ -z "${DATAPATH}" ]; then
-  DATAPATH="blob"
+if [[ -z "${HYMNUS_DATAPATH}" ]] || [[ -f "${HYMNUS_DATAPATH}" ]]; then
+  printf "Error: \n Env variable HYMNUS_DATAPATH not correctly set."
+  exit 1;
 fi
+DBFILE="${HYMNUS_DATAPATH}/tables.db"
+FSPATH="${HYMNUS_DATAPATH}/files"
 
-DBFILE="${DATAPATH}/tables.db"
 FOLDERHASH="${1}"
 FORCE="${2}"
-FSPATH="${DATAPATH}/files"
 
 EXISTING="$(sqlite3 -readonly -csv "${DBFILE}" <<EOF
   SELECT folder_hash FROM pieces WHERE

@@ -1,9 +1,11 @@
 #!/bin/bash
 
-#if [ -z "${DATAPATH}" ]; then
-#  DATAPATH="blob"
-#fi
-#DBFILE="${DATAPATH}/tables.db"
+if [[ -z "${HYMNUS_DATAPATH}" ]] || [[ -f "${HYMNUS_DATAPATH}" ]]; then
+  printf "Error: \n Env variable HYMNUS_DATAPATH not correctly set."
+  exit 1;
+fi
+DBFILE="${HYMNUS_DATAPATH}/tables.db"
+FSPATH="${HYMNUS_DATAPATH}/files"
 
 CSVFILE=${1}
 
@@ -11,8 +13,6 @@ if [[ -z ${CSVFILE} && ! -f ${CSVFILE} ]]; then
   echo "Invalid filename: ${CSVFILE}"
   exit 1
 fi
-
-echo "#!/bin/bash" > temp_batch_add_composers.sh
 
 while read -r line; do
   ENABLED="$(echo ${line}      | cut -d ',' -f1)"
@@ -26,21 +26,17 @@ while read -r line; do
   if [[ ! -z "${FIRSTNAME}" && ! -z "${LASTNAME}" &&
         ! -z "${KNOWNASNAME}" && ! -z "${BORNYEAR}" &&
         ! -z "${DIEDYEAR}" && ! -z "${COMPOSERCODE}" ]]; then
-#sqlite3 "${DBFILE}" <<EOF
-#INSERT INTO composers (code,firstname, lastname, knownas_name, bornyear, diedyear)
-#VALUES('${COMPOSERCODE}','${FIRSTNAME}','${LASTNAME}','${KNOWNASNAME}','${BORNYEAR}','${DIEDYEAR}');
-#EOF
 
-printf "script/new-composer.sh \"${FIRSTNAME}\" \"${LASTNAME}\" \"${KNOWNASNAME}\" ${BORNYEAR} ${DIEDYEAR} ${COMPOSERCODE}" >> temp_batch_add_composers.sh
-echo " " >> temp_batch_add_composers.sh
-echo " " >> temp_batch_add_composers.sh
-if [[ "${ENABLED}" == "Y" ]]; then
-  printf "script/enable-composer.sh --code ${COMPOSERCODE}" >> temp_batch_add_composers.sh
-else
-  printf "# script/enable-composer.sh --code ${COMPOSERCODE}" >> temp_batch_add_composers.sh
-fi
-echo " " >> temp_batch_add_composers.sh
-echo " " >> temp_batch_add_composers.sh
+    BOOL_ENABLED="0"
+    if [[ "${ENABLED}" == "Y" ]]; then
+      BOOL_ENABLED="1"
+    fi
+
+# RUN insertion
+sqlite3 "${DBFILE}" <<EOF
+INSERT INTO composers (code,firstname, lastname, knownas_name, bornyear, diedyear, listed)
+VALUES('${COMPOSERCODE}','${FIRSTNAME}','${LASTNAME}','${KNOWNASNAME}','${BORNYEAR}','${DIEDYEAR}', ${BOOL_ENABLED});
+EOF
 
   else
     echo "Ignore line:"

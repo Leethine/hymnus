@@ -1,15 +1,15 @@
 #!/bin/bash
 
-if [ -z "${DATAPATH}" ]; then
-  DATAPATH="blob"
+if [ -z "${HYMNUS_DATAPATH}" ]; then
+  HYMNUS_DATAPATH="$HOME/.hymnus_data"
 fi
-DBFILE="${DATAPATH}/tables.db"
-FSPATH="${DATAPATH}/files"
-SQL_SCRIPT="installation/schema.sql"
+DBFILE="${HYMNUS_DATAPATH}/tables.db"
+FSPATH="${HYMNUS_DATAPATH}/files"
+SQL_SCRIPT="schema.sql"
 
 # Check if parent path exists
-if [ ! -d "${DATAPATH}" ]; then
-  printf "Error: \n Parent directory does not exist: ${DATAPATH}\n"
+if [[ -z "${HYMNUS_DATAPATH}" ]] || [[ -f "${HYMNUS_DATAPATH}" ]]; then
+  printf "Error: \n Env variable HYMNUS_DATAPATH not set, or invalid path."
   exit 1;
 fi
 

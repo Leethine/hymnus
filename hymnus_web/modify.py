@@ -101,7 +101,7 @@ class ComposerMod:
         page += "<h2>Error encountered:</h2>" + err + "<br>"
       # validate the deletion
       if not self.__meta.composerExists(self.__composer_code):
-        page += f"<h2>Composer deleted: {composer["ShortName"]}</h2>"
+        page += "<h2>Composer deleted: {composer['ShortName']}</h2>"
       # delete also pieces and collections
       if self.__isAlsoDeleteCollections(req_form):
         err = Database().executeInsertion(f"DELETE FROM Collections WHERE composer_code = '{self.__composer_code}'")
@@ -242,7 +242,7 @@ class CollectionMod:
     err = ""
     SQL = f"SELECT folder_hash FROM Pieces WHERE collection_code LIKE '%{self.__code}%';"
     for piece_hash in Database().selectAllRows(SQL):
-      SQL2 = f"SELECT collection_code FROM Pieces WHERE folder_hash = '{piece_hash["folder_hash"]}';"
+      SQL2 = f"SELECT collection_code FROM Pieces WHERE folder_hash = '{piece_hash['folder_hash']}';"
       old_collection = Database().selectAllRows(SQL2)[0]['collection_code']
       # Remove the old collection code from the new collection
       new_collection = old_collection \
@@ -250,7 +250,7 @@ class CollectionMod:
                                       .replace(f",{self.__code}","") \
                                       .replace(f"{self.__code}","")
       SQL3 = f"UPDATE Pieces SET collection_code = '{new_collection}' \
-               WHERE folder_hash = '{piece_hash["folder_hash"]}';"
+               WHERE folder_hash = '{piece_hash['folder_hash']}';"
       err += Database().executeInsertion(SQL3)
     return err
   

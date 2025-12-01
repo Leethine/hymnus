@@ -1,6 +1,6 @@
 from jinja2 import Environment, FileSystemLoader
 
-import os, sys
+import os, sys, shutil
 from metadata import Metadata
 from database import Database
 from piece_io import PieceIO
@@ -347,10 +347,19 @@ class FilePageExport:
 
 
 if __name__ == '__main__':
-  IP_ADDRESS="http://192.168.50.222:5000"
+  IP_ADDRESS = ""
+  if 'HYMNUS_STATIC_ADDR' in os.environ.keys():
+    IP_ADDRESS = os.environ['HYMNUS_STATIC_ADDR']
 
   if len(sys.argv) == 3 and sys.argv[1] == "--ip":
     IP_ADDRESS = str(sys.argv[2])
+  
+  if not IP_ADDRESS:
+    print("You must set the IP address for file downloading.")
+    print("For example:\n $ export HYMNUS_STATIC_ADDR='http://192.168.1.1/'")
+    print("Or add explicit argument:\n  --ip 'http://192.168.1.1/'")
+    print("(the address should end with the foreslash)")
+    exit()
   
   items_export = ItemListExport()
   files_export = FilePageExport()
@@ -361,7 +370,11 @@ if __name__ == '__main__':
   n_pages_coll       = items_export.calculateTotalCollectionPages(hymnus_config.COLLECTIONS_PER_PAGE)
   n_pages_comp       = items_export.calculateTotalComposerPages(hymnus_config.COMPOSERS_PER_PAGE)
 
+  # Clean-up the export dir
+  if os.path.exists("exported"):
+    shutil.rmtree("exported")
   os.mkdir("exported")
+  
   # Composer Pages
   for i in range(n_pages_comp):
     with open("exported/composers_" + str(i+1) + ".html", 'w+') as f:

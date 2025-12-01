@@ -55,31 +55,16 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
 <div class="w3-main" style="margin-left:250px">
   <div class="w3-row w3-padding-64">
     <div class="w3-twothird w3-container">
-      <h1 class="w3-text-gray">Delete composer</h1>
+      <h1 class="w3-text-gray">Update composer</h1>
 
 
 
 <form method="post" enctype="multipart/form-data">
-  <br>
-  <div class="input-group mb-3">
-    <div class="input-group-prepend">
-      <label class="input-group-text" for="select-action">Action</label>
-    </div>
-    <select class="custom-select" id="select-action" name="select-action">
-      <option value="delete">Delete composer</option>
-      <option value="hide">Hide composer</option>
-      <option value="unhide">Unhide composer</option>
-    </select>
-  </div>
-  <br>
-
   <label for="select-composer">Select composer from drop-down menu.</label>
     <div class="form-row">
       <div class="col-auto">
-        <button type="button" id="button-composer" class="btn btn-secondary" onclick="createDropDownMenu('select-composer')">Show Composers</button>
-      </div>
-      <div class="col-auto">
-        <select class="custom-select mr-sm-1" id="select-composer" name="select-composer">
+        <select class="custom-select mr-sm-1" id="select-composer" name="select-composer" disabled>
+          <option selected>{{ composer_name }}</option>
         </select>
       </div>
     </div>
@@ -97,21 +82,6 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
         <label class="form-check-label" for="also-delete-collections">Yes</label>
       </div>
       <br>
-  
-      <script>
-        var COMPOSERLISTDATA = [] ;
-
-{% if composerlist %}
-COMPOSERLISTDATA = [
-  {% for composer in composerlist %}
-    [ "{{ composer["code"] }}", "{{ composer["name"] }}" ],
-  {% endfor %}
-[]
-] ;
-{% endif %}
-
-      </script>
-      <script src="{{ url_for('static', filename='new_piece.js') }}"></script>
 
 <div class="input-group mt-4">
   <label class="form-label">Please provide your username and password:</label>
@@ -127,8 +97,8 @@ COMPOSERLISTDATA = [
   <input type="password" name="password" id="form-password" placeholder="Password" class="form-control">
 </div>
 
-<input type="submit" class="btn btn-primary" id="submit-button" value="Submit change">
-
+<input type="submit" class="btn btn-primary" id="submit-button" value="Delete Composer">
+<a class="btn btn-outline-primary" href="/modify-composer" role="button">More options</a>
 </form>
 
 

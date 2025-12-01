@@ -1,10 +1,11 @@
 #!/bin/bash
 
-if [ -z "${DATAPATH}" ]; then
-  DATAPATH="blob"
+if [[ -z "${HYMNUS_DATAPATH}" ]] || [[ -f "${HYMNUS_DATAPATH}" ]]; then
+  printf "Error: \n Env variable HYMNUS_DATAPATH not correctly set."
+  exit 1;
 fi
-DBFILE="${DATAPATH}/tables.db"
-FSPATH="${DATAPATH}/files"
+DBFILE="${HYMNUS_DATAPATH}/tables.db"
+FSPATH="${HYMNUS_DATAPATH}/files"
 
 # Define functions
 create_path_with_hash() {

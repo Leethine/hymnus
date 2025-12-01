@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Hymnus</title>
+{% if page_title %}
+  <title>{{ page_title }}</title>
+{% else %}
+  <title>About • Hymnus</title>
+{% endif %}
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/5/w3.css">
@@ -28,7 +33,7 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
     <a class="w3-bar-item w3-button w3-right w3-hide-large w3-hover-white w3-large w3-theme-l1" href="javascript:void(0)" onclick="w3_open()"><i class="fa fa-bars"></i></a>
     <a href="index.html" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Hymnus</a>
     <a href="#" class="w3-bar-item w3-button w3-theme-l1">About</a>
-    <a href="#" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Contact</a>
+    <a href="contact.html" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Contact</a>
   </div>
 </div>
 
@@ -37,27 +42,30 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
 
   <div class="w3-row w3-padding-64">
     <div class="w3-twothird w3-container">
-      <h1 class="w3-text-teal">About</h1>
+      <h1 class="w3-text-gray">About</h1>
       <p>
         Hymnus (Hypertext-based Manager for Musical Notations)
-        is a html-based tool for musical notation library
-        management.
+        is a web-based tool for musical notation library
+        management. It is build with python, flask and sqlite.
+        <br>
+        The <a href="https://github.com/Leethine/hymnus">source code</a>
+        is released under MIT license, which allows everyone to modify
+        and use for their own purposes. This is a deployed example that 
+        I use to store my own score library.
       </p>
     </div>
     <div class="w3-third w3-container">
       <p class="w3-border w3-padding-large w3-padding-32 w3-center"><img width="65%" src="hymnus.svg"></p>
+      <!--
       <p class="w3-border w3-padding-large w3-padding-64 w3-center"><img width="55%" src="hautbois.svg"></p>
+      -->
     </div>
   </div>
 
 
   <footer id="myFooter">
     <div class="w3-container w3-theme-l2 w3-padding-32">
-      <h4>Footer</h4>
-    </div>
-
-    <div class="w3-container w3-theme-l1">
-      <p>Powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a></p>
+      <h4>© 2025 &bull; Hymnus Project </h4>
     </div>
   </footer>
 

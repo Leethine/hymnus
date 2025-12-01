@@ -1,10 +1,13 @@
 #!/bin/bash
 
-if [ -z "${DATAPATH}" ]; then
-  DATAPATH="blob"
+if [[ -z "${HYMNUS_DATAPATH}" ]] || [[ -f "${HYMNUS_DATAPATH}" ]]; then
+  printf "Error: \n Env variable HYMNUS_DATAPATH not correctly set."
+  exit 1;
 fi
-DBFILE="${DATAPATH}/tables.db"
-OUT_DIR="${DATAPATH}/datadump"
+DBFILE="${HYMNUS_DATAPATH}/tables.db"
+FSPATH="${HYMNUS_DATAPATH}/files"
+
+OUT_DIR="${HYMNUS_DATAPATH}/datadump"
 
 if [[ ! -z "${1}" && -d "${1}" ]]; then
   OUT_DIR="${1}"
