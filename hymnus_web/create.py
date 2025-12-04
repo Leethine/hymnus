@@ -41,18 +41,18 @@ class NewComposerCreator:
   
   def __formatInput(self):
     self.__firstname = re.sub(' +', ' ', self.__firstname)
-    self.__firstname = re.sub('\s+-', '-', self.__firstname)
-    self.__firstname = re.sub('-\s+', '-', self.__firstname)
+    self.__firstname = re.sub(r'\s+-', '-', self.__firstname)
+    self.__firstname = re.sub(r'-\s+', '-', self.__firstname)
     self.__firstname = self.__firstname.replace("'","’")
     
     self.__lastname  = re.sub(' +', ' ', self.__lastname)
-    self.__lastname  = re.sub('\s+-', '-', self.__lastname)
-    self.__lastname  = re.sub('-\s+', '-', self.__lastname)
+    self.__lastname  = re.sub(r'\s+-', '-', self.__lastname)
+    self.__lastname  = re.sub(r'-\s+', '-', self.__lastname)
     self.__lastname = self.__lastname.replace("'","’")
     
     self.__knownas   = re.sub(' +', ' ', self.__knownas)
-    self.__knownas = re.sub('\s+-', '-', self.__knownas)
-    self.__knownas = re.sub('-\s+', '-', self.__knownas)
+    self.__knownas = re.sub(r'\s+-', '-', self.__knownas)
+    self.__knownas = re.sub(r'-\s+', '-', self.__knownas)
     self.__knownas = self.__knownas.replace("'","’")
 
     self.__firstname = self.__firstname.title()
