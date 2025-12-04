@@ -1,4 +1,4 @@
-<img src="./hymnus.svg" alt="Hymnus Logo" width="80%" height="80%">
+<img src="./hymnus.svg" alt="Hymnus Logo" width="50%" height="50%">
 
 # hymnus
 HYMNUS (HYpertext Manager for MUsicical Notation Scripts) is a web-based tool for music score library management. 
