@@ -53,3 +53,14 @@ CREATE TABLE pieces (
     CHECK (LENGTH(folder_hash) = 40),
   comment TEXT
 );
+
+DROP TABLE IF EXISTS piece_search;
+CREATE TABLE piece_search (
+  context       TEXT,
+  author        TEXT,
+  opus          TEXT,
+  composed_year TEXT DEFAULT '?',
+  instruments   TEXT,
+  folder_hash   TEXT UNIQUE NOT NULL
+    CHECK (LENGTH(folder_hash) = 40)
+);

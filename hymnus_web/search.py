@@ -1,6 +1,7 @@
 from database import Database
 from metadata import Metadata
 from flask import request, render_template
+from rapidfuzz.process import extract
 
 class Search():
   def __init__(self):
@@ -32,31 +33,28 @@ class Search():
 
   def render_substring_search_result(self, keyword : str) -> str:
     kwd = keyword.lower()
-    QUERY_COUNT = """
-      SELECT COUNT(*)
-      FROM Pieces WHERE 
-    """
-    
     QUERY = """
       SELECT ' ' AS 'Empty', Pieces.title AS 'Title', 
       Pieces.opus AS 'Opus', Composers.knownas_name AS 'Composer', 
       '<a href=\"/file/' || Pieces.folder_hash || 
       '\"><i class=\"bi bi-arrow-up-right-square\"></i></a>' 
-      AS '   ' FROM Pieces JOIN Composers ON 
-      Pieces.composer_code = Composers.code WHERE 
+      AS '   ' FROM Pieces
+      
+      JOIN Composers ON Pieces.composer_code = Composers.code 
+      JOIN Piece_search ON Piece_search.folder_hash = Pieces.folder_hash
+      WHERE 
     """
-    QUERY += f" Pieces.title LIKE '%{keyword}%' OR "
-    QUERY += f"Pieces.subtitle LIKE '%{keyword}%' OR "
-    QUERY += f"Pieces.subsubtitle LIKE '%{keyword}%' OR "
-    QUERY += f"Pieces.dedicated_to LIKE '%{keyword}%' OR "
-    QUERY += f"Pieces.opus LIKE '%{keyword}%' OR "
-    QUERY += f"Pieces.composer_code LIKE '%{keyword}%';"
-    QUERY_COUNT += f" title LIKE '%{keyword}%' OR "
-    QUERY_COUNT += f"subtitle LIKE '%{keyword}%' OR "
-    QUERY_COUNT += f"subsubtitle LIKE '%{keyword}%' OR "
-    QUERY_COUNT += f"dedicated_to LIKE '%{keyword}%' OR "
-    QUERY_COUNT += f"opus LIKE '%{keyword}%' OR "
-    QUERY_COUNT += f"composer_code LIKE '%{keyword}%';"
+    QUERY += f"Piece_search.context LIKE '%{keyword}%' OR "
+    QUERY += f"Piece_search.author LIKE '%{keyword}%' OR "
+    QUERY += f"Piece_search.opus LIKE '%{keyword}%';"
+    
+    QUERY_COUNT = """
+      SELECT COUNT(*)
+      FROM Piece_search WHERE 
+    """
+    QUERY_COUNT += f"Piece_search.context LIKE '%{keyword}%' OR "
+    QUERY_COUNT += f"Piece_search.author LIKE '%{keyword}%' OR "
+    QUERY_COUNT += f"Piece_search.opus LIKE '%{keyword}%';"
     
     table_head = ["Title", "Opus", "Composer", "   "]
     table_data = [" ", " ", " ", " "]
@@ -71,20 +69,23 @@ class Search():
 
   def render_instrument_search_result(self, keyword):
     kwd = keyword.lower()
-    QUERY_COUNT = """
-      SELECT COUNT(*)
-      FROM Pieces WHERE 
-    """
     
     QUERY = """
       SELECT ' ' AS 'Empty', Pieces.title AS 'Title', 
       Pieces.opus AS 'Opus', Composers.knownas_name AS 'Composer', 
       '<a href=\"/file/' || Pieces.folder_hash || 
       '\"><i class=\"bi bi-arrow-up-right-square\"></i></a>' 
-      AS '   ' FROM Pieces JOIN Composers ON 
-      Pieces.composer_code = Composers.code WHERE 
+      AS '   ' FROM Pieces
+      JOIN Composers ON Pieces.composer_code = Composers.code 
+      JOIN Piece_search ON Piece_search.folder_hash = Pieces.folder_hash
+      WHERE 
     """
-    QUERY += f"Pieces.instruments LIKE '%{keyword}%';"
+    QUERY += f"Piece_search.instruments LIKE '%{keyword}%';"
+    
+    QUERY_COUNT = """
+      SELECT COUNT(*)
+      FROM Piece_search WHERE 
+    """
     QUERY_COUNT += f"instruments LIKE '%{keyword}%';"
     
     table_head = ["Title", "Opus", "Composer", "   "]
@@ -113,3 +114,7 @@ class Search():
   def getDefaultPage(self):
     return render_template("search.html", \
                            search_selection=self.__selection)
+    
+  def render_fuzzy_search_result(self, keyword: str) -> str:
+    return ""
+  
