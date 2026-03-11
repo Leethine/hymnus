@@ -22,7 +22,7 @@ for p in $(echo ${ALL_PIECES} | sed 's/ /\n/g'); do
 EOF
 )
 
-if [[ -z ${FOLDER} ]]; then
+if [[ ! -z ${FOLDER} ]]; then
   CONTEXT="$(sqlite3 -csv "${DBFILE}" <<EOF
   SELECT title,subtitle,subsubtitle,dedicated_to FROM pieces WHERE folder_hash = '$p';
 EOF
@@ -50,17 +50,19 @@ EOF
 )"
 
 # Insert
+
 sqlite3 "${DBFILE}" <<EOF
-  INSERT INTO piece_search (folder_hash) VALUES ('$p');
+  DELETE FROM piece_search WHERE folder_hash = '${p}';
+  INSERT INTO piece_search (folder_hash) VALUES ('${p}');
 EOF
 sqlite3 "${DBFILE}" <<EOF
   UPDATE piece_search
-    SET context = '$(convert_to_ascii "${CONTEXT} ${COMPOSER}")',
-        author  = '$(convert_to_ascii "${COMPOSER} ${ARRANGERINFO}")',
+    SET context = '${CONTEXT} ${COMPOSER} $(convert_to_ascii "${CONTEXT} ${COMPOSER}")',
+        author  = '${COMPOSER} ${ARRANGERINFO} $(convert_to_ascii "${COMPOSER} ${ARRANGERINFO}")',
         opus    = '${OPUS}',
         composed_year = '${YEAR}',
-        instruments   = '$(convert_to_ascii "${INSTRUMENTS}")'
-        folder_hash = '${p}';
+        instruments   = '${INSTRUMENTS} $(convert_to_ascii "${INSTRUMENTS}")'
+    WHERE folder_hash = '${p}';
 EOF
 
 fi
