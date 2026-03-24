@@ -2,6 +2,7 @@ from flask import render_template, request
 from database import Database
 from metadata import Metadata
 from piece_io import PieceIO
+import subprocess
 from hymnus_tools import createAlertBox
 
 import shutil, os
@@ -169,12 +170,21 @@ class PieceMod:
     if self.__meta.pieceExists(self.__hash):
       if os.path.exists(pio.getPieceFileDir(self.__hash)):
         shutil.rmtree(pio.getPieceFileDir(self.__hash))
-      err = Database().executeInsertion(f"DELETE FROM Pieces WHERE folder_hash = '{self.__hash}'")
-      if not err:
+      err1 = Database().executeInsertion(f"DELETE FROM Pieces WHERE folder_hash = '{self.__hash}'")
+      err2 = Database().executeInsertion(f"DELETE FROM Piece_Search WHERE folder_hash = '{self.__hash}'")
+      if not err1 and not err2:
         return f"<h4>Deleted piece {self.__hash}</h4>"
       else:
-        return err
+        return err1 + err2
     return "<h3>No action</h3>"
+
+  def __convert_to_ascii(self, text):
+    in_b = text.encode('utf-8')
+    process = subprocess.Popen(['iconv', '-f', 'utf-8', '-t', 'ascii//TRANSLIT'],
+              stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out_b, err_b = process.communicate(input=in_b)
+    text_ascii = out_b.decode('ascii')
+    return text_ascii
   
   def __modifyPiece(self, req_form):
     keylist = ['new-piece-title', 'new-piece-subtitle', 'new-piece-subsubtitle',
@@ -199,6 +209,23 @@ class PieceMod:
               instruments = '{new_instrument}', comment = '{new_comment}' \
               WHERE folder_hash = '{self.__hash}';"
       err = Database().executeInsertion(SQL)
+    
+      # update piece search
+      rows = Database().selectAllRows(f"SELECT author FROM piece_search WHERE folder_hash = '{self.__hash}'")
+      author = ""
+      if len(rows) == 1 and "author" in rows[0]:
+        author = rows[0]["author"]
+      else:
+        err += "Row 'piece_search' has no field 'author'!\n"
+      context = f"{new_title} {new_subtitle} {new_subsubtitle} {new_dedicated} {author}"
+      context += self.__convert_to_ascii(context)
+      SQL_UPDATE1 = f"UPDATE Piece_Search SET context = '{context}' WHERE folder_hash = '{self.__hash}';"
+      SQL_UPDATE2 = f"UPDATE Piece_Search SET opus = '{new_opus}' WHERE folder_hash = '{self.__hash}';"
+      SQL_UPDATE3 = f"UPDATE Piece_Search SET instruments = '{new_instrument}' WHERE folder_hash = '{self.__hash}';"
+      err += Database().executeInsertion(SQL_UPDATE1)
+      err += Database().executeInsertion(SQL_UPDATE2)
+      err += Database().executeInsertion(SQL_UPDATE3)
+
     return err
   
   def submitChanges(self, req_form):

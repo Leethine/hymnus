@@ -1,7 +1,7 @@
 from flask import render_template, request
 from database import Database
 from metadata import Metadata
-import re, hashlib
+import re, hashlib, subprocess
 
 class NewComposerCreator:
   def __init__(self,
@@ -245,6 +245,35 @@ class NewPieceCreator:
     err = Database().executeInsertion(SQL_STATEMENT=self.__SQL_INSERTION)
     return err
   
+  def __convert_to_ascii(self, text):
+    in_b = text.encode('utf-8')
+    process = subprocess.Popen(['iconv', '-f', 'utf-8', '-t', 'ascii//TRANSLIT'],
+              stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out_b, err_b = process.communicate(input=in_b)
+    text_ascii = out_b.decode('ascii')
+    return text_ascii
+  
+  def __insertPieceSearch(self):
+    self.__SQL_INSERTION = """
+      INSERT INTO piece_search
+         (context, author, opus, composed_year, instruments, folder_hash) 
+      """
+    meta = Metadata()
+    composer = meta.getComposerMetadata(self.__composer_code)
+    composerfullname = composer["ShortName"] + " " + composer["AbbrName"] + " " + composer["LongName"] + " "
+    arranger = f"{self.__arranger_code} {self.__arranger_name} "
+    author = composerfullname + arranger
+    context = f"{self.__title} {self.__subtitle} {self.__subsubtitle} \
+                {self.__dedicated_to} {composerfullname} {self.__arranger_name} {self.__arranger_code} "
+    
+    author += self.__convert_to_ascii(author)
+    context += self.__convert_to_ascii(context)
+    
+    self.__SQL_INSERTION += f" VALUES ('{context}', '{author}', '{self.__opus}', '{self.__year}', \
+                                       '{self.__instruments}', '{self.__hash}' ) ;"
+    err = Database().executeInsertion(self.__SQL_INSERTION)
+    return err
+   
   def getCreationPage(self):
     meta = Metadata()
     return render_template("new_piece.html",\
@@ -264,14 +293,19 @@ class NewPieceCreator:
     if err:
       return err
     
-    count_before = Database().countRows("SELECT COUNT(*) FROM Pieces")
-    err = self.__insertPiece()
-    if err:
-      return err
-    
+    # insert piece
+    count_before   = Database().countRows("SELECT COUNT(*) FROM Pieces")
+    count_before_s = Database().countRows("SELECT COUNT(*) FROM Piece_search")
+    err1 = self.__insertPiece()
+    err2 = self.__insertPieceSearch()
+    if err1:
+      return err1
+    if err2:
+      return err2
     # Verify the insertion
-    count_after = Database().countRows("SELECT COUNT(*) FROM Pieces")
-    if count_after - count_before == 1:
+    count_after   = Database().countRows("SELECT COUNT(*) FROM Pieces")
+    count_after_s = Database().countRows("SELECT COUNT(*) FROM Piece_search")
+    if count_after - count_before == 1 and count_after_s - count_before_s == 1:
       return render_template("creation_ended.html", status="Created",
               head1="Created new piece:",\
               head2=f"<a href=\"/file/{self.__hash}\">{self.__title}, {self.__opus}</a>")
@@ -299,7 +333,7 @@ class NewCollectionCreator:
     if meta.collectionExists(self.__code):
       return True
     return False
-  
+
   def __checkHtmlForm(self, req_form: request) -> str:
     keylist = \
       ['new-collection-title', 'new-collection-subtitle', 'new-collection-subsubtitle',\
@@ -355,12 +389,12 @@ class NewCollectionCreator:
       '{self.__volume}','{self.__instruments}','{self.__description}');"
     err = Database().executeInsertion(SQL_INSERT)
     return err
-  
+
   def getSubmitPage(self) -> str:
     meta = Metadata()
     return render_template("new_collection.html",\
                             composerlist=meta.getComposerCodeNameList())
-  
+
   def submitHtmlForm(self, req_form: request) -> str:
     err = ""
     # Check HTLK form integrity
