@@ -2,3 +2,4 @@ SQLITE_MAX_RETRY = 10
 SQLITE_WAIT_TIME = 0.5
 
 DB_SYSTEM = "sqlite"
+DB_PATH   = ""

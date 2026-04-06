@@ -1,16 +1,19 @@
 import sqlite3, os, time
 from utilities import SingletonMeta
 from config import SQLITE_MAX_RETRY, SQLITE_WAIT_TIME
+from config import DB_PATH
 
 class DB_SQLITE(metaclass=SingletonMeta):
-  """Low-level SQLite database interface."""
+  """Low-level SQLite database interface. """
   
-
   def getDBPath(self) -> str:
     """Return database path in 'HYMNUS_DB' env variable."""
     if 'HYMNUS_DB' in os.environ.keys():
       return os.environ['HYMNUS_DB']
-    return ":memory:"
+    elif os.path.exists(DB_PATH):
+      return DB_PATH
+    else:
+      return ":memory:"
 
 
   def updateRows(self, query: str) -> str:
