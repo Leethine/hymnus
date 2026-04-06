@@ -1,0 +1,36 @@
+from unidecode import unidecode
+from datetime import datetime
+import os, time
+
+''' Singleton meta class. '''
+class SingletonMeta(type):
+  _instances = {}
+
+  def __call__(cls, *args, **kwargs):
+    if cls not in cls._instances:
+      instance = super().__call__(*args, **kwargs)
+      cls._instances[cls] = instance
+    return cls._instances[cls]
+  
+
+def toAscii(inputstr) -> str:
+  return unidecode(inputstr)
+
+
+def createHtmlAlertBox(message: str, level="Warning") -> str:
+  HTML = "<!DOCTYPE html><html><body>"
+  HTML += "<h2>{level}</h2><script>\n"
+  HTML += 'alert("' + message + '");'
+  HTML += 'history.back()'
+  HTML += "</script></body></html>"
+  return HTML
+
+
+def logUserActivity(username: str, action: str) -> None:
+  with open("user_activities.log", "a+") as f:
+    f.write("[" + str(datetime.now()) + "]\n")
+    f.write(username)
+    f.write("\n")
+    f.write(action)
+    f.write("\n================\n")
+
