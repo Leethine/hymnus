@@ -8,8 +8,8 @@ CREATE TABLE composers (
   bornyear INTEGER,
   diedyear INTEGER,
   listed INTEGER DEFAULT 0,
-  wikipedia_url TEXT,
-  imslp_url TEXT
+  wikipedia_url TEXT DEFAULT '',
+  imslp_url TEXT DEFAULT ''
 );
 
 INSERT INTO composers
@@ -56,11 +56,13 @@ CREATE TABLE pieces (
 
 DROP TABLE IF EXISTS piece_search;
 CREATE TABLE piece_search (
-  context       TEXT,
-  author        TEXT,
-  opus          TEXT,
-  composed_year TEXT DEFAULT '?',
-  instruments   TEXT,
-  folder_hash   TEXT UNIQUE NOT NULL
+  context         TEXT,
+  author          TEXT,
+  composer_code   TEXT NOT NULL DEFAULT 'zzz_unknown',
+  collection_code TEXT,
+  opus            TEXT,
+  composed_year   TEXT DEFAULT '?',
+  instruments     TEXT,
+  folder_hash     TEXT UNIQUE NOT NULL
     CHECK (LENGTH(folder_hash) = 40)
 );
