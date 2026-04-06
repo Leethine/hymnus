@@ -117,6 +117,8 @@ class SQLiteReadMetadata(metaclass=SingletonMeta):
     return count > 0
 
 
+
+
 class SQLiteWriteMetadata(metaclass=SingletonMeta):
   """Metadata WRITE interface for SQLITE database."""
 
