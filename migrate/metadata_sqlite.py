@@ -9,9 +9,20 @@ class SQLiteReadMetadata(metaclass=SingletonMeta):
   def getAllComposers(self, listed_only=True) -> list:
     """Get all composer metadata from DB"""
     if listed_only:
-      rows = DB_SQLITE().selectRows("SELECT * FROM Composers WHERE listed != 0;")
+      rows = DB_SQLITE().selectRows("SELECT * FROM Composers WHERE listed != 0 ORDER BY code;")
     else:
-      rows = DB_SQLITE().selectRows("SELECT * FROM Composers;")
+      rows = DB_SQLITE().selectRows("SELECT * FROM Composers ORDER BY code;")
+    return rows
+  
+
+  def getPartialComposers(self, items_per_page: int, page_number: int, listed_only=True) -> list:
+    """Get metadata of partial (paginated) composers from DB."""
+    if listed_only:
+      rows = DB_SQLITE().selectPartialRows("SELECT * FROM Composers WHERE listed != 0 ORDER BY code;", \
+                                            items_per_page, page_number)
+    else:
+      rows = DB_SQLITE().selectPartialRows("SELECT * FROM Composers ORDER BY code;", \
+                                            items_per_page, page_number)
     return rows
 
 
@@ -25,7 +36,14 @@ class SQLiteReadMetadata(metaclass=SingletonMeta):
 
   def getAllPieces(self) -> list:
     """Get metadata of all pieces from DB."""
-    rows = DB_SQLITE().selectRows("SELECT * FROM Pieces;")
+    rows = DB_SQLITE().selectRows("SELECT * FROM Pieces ORDER BY title;")
+    return rows
+  
+
+  def getPartialPieces(self, items_per_page: int, page_number: int) -> list:
+    """Get metadata of partial (paginated) pieces from DB."""
+    rows = DB_SQLITE().selectPartialRows("SELECT * FROM Pieces ORDER BY title;",
+                                         items_per_page, page_number)
     return rows
 
 
@@ -39,13 +57,20 @@ class SQLiteReadMetadata(metaclass=SingletonMeta):
 
   def getComposerPieces(self, composer_code: str) -> list:
     """Get pieces by a specific composer."""
-    rows = DB_SQLITE().selectRows(f"SELECT * FROM Pieces WHERE composer_code = '{composer_code}';")
+    rows = DB_SQLITE().selectRows(f"SELECT * FROM Pieces WHERE composer_code = '{composer_code}' ORDER BY title;")
     return rows
 
 
   def getAllCollections(self) -> list:
     """Get metadata of all collections from DB."""
-    rows = DB_SQLITE().selectRows("SELECT * FROM Collections;")
+    rows = DB_SQLITE().selectRows("SELECT * FROM Collections ORDER BY title;")
+    return rows
+  
+
+  def getPartialCollections(self, items_per_page: int, page_number: int) -> list:
+    """Get metadata of partial (paginated) collections from DB."""
+    rows = DB_SQLITE().selectPartialRows("SELECT * FROM Collections ORDER BY title;",
+                                         items_per_page, page_number)
     return rows
 
 
@@ -59,7 +84,7 @@ class SQLiteReadMetadata(metaclass=SingletonMeta):
 
   def getComposerCollections(self, composer_code: str) -> list:
     """Get collections related to a specific composer."""
-    rows = DB_SQLITE().selectRows(f"SELECT * FROM Collections WHERE composer_code = '{composer_code}';")
+    rows = DB_SQLITE().selectRows(f"SELECT * FROM Collections WHERE composer_code = '{composer_code}' ORDER BY title;")
     return rows
   
 
