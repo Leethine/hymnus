@@ -66,6 +66,12 @@ class SQLiteReadMetadata(metaclass=SingletonMeta):
     """Get pieces by a specific composer."""
     rows = DB_SQLITE().selectRows(f"SELECT * FROM Pieces WHERE composer_code = '{composer_code}' ORDER BY title;")
     return rows
+  
+  def getComposerPartialPieces(self, composer_code: str, items_per_page: int, page_number: int) -> list:
+    """Get pieces by a specific composer with pagination."""
+    rows = DB_SQLITE().selectPartialRows(f"SELECT * FROM Pieces WHERE composer_code = '{composer_code}' ORDER BY title;", \
+                                         items_per_page, page_number)
+    return rows
 
 
   def getAllCollections(self) -> list:
