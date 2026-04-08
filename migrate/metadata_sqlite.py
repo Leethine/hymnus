@@ -32,6 +32,13 @@ class SQLiteReadMetadata(metaclass=SingletonMeta):
     if rows:
       return rows[0]
     return {}
+  
+
+  def getComposerCodeNameDict(self) -> dict:
+    """Get a dictionary of composer code and knownas_name for all composers in DB."""
+    rows = DB_SQLITE().selectRows("SELECT code, knownas_name FROM Composers;")
+    code_name_dict = {composer['code']: composer['knownas_name'] for composer in rows}
+    return code_name_dict
 
 
   def getAllPieces(self) -> list:
@@ -88,9 +95,12 @@ class SQLiteReadMetadata(metaclass=SingletonMeta):
     return rows
   
 
-  def countComposers(self) -> int:
+  def countComposers(self, listed_only=True) -> int:
     """Get total number of composers in DB."""
-    count = DB_SQLITE().countRows("SELECT COUNT(*) FROM Composers;")
+    if listed_only:
+      count = DB_SQLITE().countRows("SELECT COUNT(*) FROM Composers WHERE listed != 0;")
+    else:
+      count = DB_SQLITE().countRows("SELECT COUNT(*) FROM Composers;")
     return count
   
 
