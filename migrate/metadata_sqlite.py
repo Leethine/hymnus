@@ -93,6 +93,12 @@ class SQLiteReadMetadata(metaclass=SingletonMeta):
     if rows:
       return rows[0]
     return {}
+  
+
+  def getCollectionPieces(self, collection_code: str) -> list:
+    """Get pieces in a specific collection."""
+    rows = DB_SQLITE().selectRows(f"SELECT * FROM Pieces WHERE collection_code LIKE '%{collection_code}%' ORDER BY title;")
+    return rows
 
 
   def getComposerCollections(self, composer_code: str) -> list:
@@ -409,10 +415,17 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
     if not self.__checkCollectionExists(collection_code):
       return f"Collection with code {collection_code} does not exist in DB."
     
-    err = DB_SQLITE().updateRows(f"UPDATE Pieces SET collection_code = '{collection_code}' \
+    # Append collection code to piece's collection_code field,
+    # do not modify if collection code already exists
+    piece_belongingto = DB_SQLITE().selectRows(f"SELECT collection_code FROM Pieces WHERE folder_hash = '{piece_hash}';")
+    new_collection_code = collection_code
+    if piece_belongingto != "" and collection_code not in piece_belongingto:
+        new_collection_code = piece_belongingto + "," + collection_code
+
+    err = DB_SQLITE().updateRows(f"UPDATE Pieces SET collection_code = '{new_collection_code}' \
                                  WHERE folder_hash = '{piece_hash}';")
     # update Piece_Search table
-    err += DB_SQLITE().updateRows(f"UPDATE Piece_Search SET collection_code = '{collection_code}' \
+    err += DB_SQLITE().updateRows(f"UPDATE Piece_Search SET collection_code = '{new_collection_code}' \
                                  WHERE folder_hash = '{piece_hash}';")
     return err
   
