@@ -1,0 +1,41 @@
+import usecase_display
+
+from flask import Flask
+
+app = Flask(__name__)
+app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+
+#@app.route("/")
+#@app.route("/index")
+
+@app.route("/composers")
+def display_composers():
+  return usecase_display.render_composer_list()
+
+@app.route("/composers/<int:page>")
+def display_composers_page(page):
+  return usecase_display.render_composer_list(page=page)
+
+@app.route("/collections")
+def display_collections():
+  return usecase_display.render_collection_list()
+
+@app.route("/collections/<int:page>")
+def display_collections_page(page):
+  return usecase_display.render_collection_list(page=page)
+
+@app.route("/all-pieces")
+def display_all_pieces():
+  return usecase_display.render_piece_list()
+
+@app.route("/all-pieces/<int:page>")
+def display_all_pieces_page(page):
+  return usecase_display.render_piece_list(page=page)
+
+@app.route("/works-by/<string:composer_code>")
+def display_composer_pieces(composer_code):
+  return usecase_display.render_composer_piece_list(composer_code)
+
+@app.route("/works-by/<string:composer_code>/<int:page>")
+def display_composer_pieces_page(composer_code, page):
+  return usecase_display.render_composer_piece_list(composer_code, page=page)
