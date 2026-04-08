@@ -42,10 +42,15 @@ def render_composer_piece_list(composer_code, page=1, items_per_page=PIECES_PER_
   total_pieces = Metadata().reader().countComposerPieces(composer_code)
   total_pages = int(math.ceil(total_pieces / float(items_per_page)))
   composer = Metadata().reader().getComposer(composer_code)
-  print(composer)
+  # Get abbr name, e.g. "Johann Sebastian Bach" ==> "J S Bach"
+  composer['knownas_name'] = composer.get('knownas_name', 'Unknown')
+  abbr_name = [l[0] for l in composer['knownas_name'].split(' ')[:-1]] + [composer['knownas_name'].split(' ')[-1]]
+  abbr_name = ' '.join(abbr_name)
+  print(abbr_name)
   return render_template("list_composer_pieces.html", \
                           piece_list=piece_list, \
                           composer_dict=composer, \
+                          composer_abbr=abbr_name, \
                           current_page=page, \
                           total_pages=total_pages)
 

@@ -1,15 +1,10 @@
-{# Variables needed: piece_list, composer_dict, current_page, total_pages #}
-
-{% set composer_knownas_name = composer_dict.get('knownas_name', 'Unknown') %}
-{# set composer_short_name = ' '.join([l[0] for l in composer_knownas_name.split(' ')[:-1]]) + ' ' + composer_knownas_name.split(' ')[-1] #}
-{% set composer_short_name = "" %}
-{% for token in composer_knownas_name.split(' ')[:-1] %}
-  {% set composer_short_name = composer_short_name + " " + token[0] %}
-{% endfor %}
-{% set composer_short_name = composer_short_name + " " + composer_knownas_name.split(' ')[-1] %}
+{# Variables needed: piece_list, composer_dict, composer_abbr, current_page, total_pages #}
 
 {% set composer_code = composer_dict.get('code') %}
 {% set composer_long_name = composer_dict.get('firstname', ' ') + " " + composer_dict.get('lastname', ' ') %}
+
+{% set composer_knownas_name = composer_dict.get('knownas_name', 'Unknown') %}
+{% set composer_last_name = composer_knownas_name.split(' ')[-1] %}
 
 {% set bornyear = composer_dict.get('bornyear', -1) %}
 {% set diedyear = composer_dict.get('diedyear', -1) %}
@@ -24,7 +19,7 @@
 <html lang="en">
 <head>
 
-  <title> {{ composer_short_name }} • Hymnus Library</title>
+  <title> {{ composer_last_name }} • Hymnus Library</title>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -78,7 +73,7 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
 
   <div class="w3-row w3-padding-64">
     <div class="w3-twothird w3-container">
-      <h1 class="w3-text-gray">List of works by {{ composer_short_name }}</h1>
+      <h1 class="w3-text-gray">List of works by {{ composer_abbr }}</h1>
       <p><h4>{{ composer_long_name }} ({{ bornyear }} - {{ diedyear }}) <a href="/delete-composer/{{ composer_code }}">                                                         <i class="bi bi-pencil" style="font-size:70%"></i></a></h4></p>
 
       <!-- Table here -->
