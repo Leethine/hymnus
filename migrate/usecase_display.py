@@ -55,3 +55,19 @@ def render_composer_piece_list(composer_code, page=1, items_per_page=PIECES_PER_
                           total_pages=total_pages)
 
 
+def render_collection_piece_list(collection_code):
+  piece_list = Metadata().reader().getCollectionPieces(collection_code)
+  collection = Metadata().reader().getCollection(collection_code)
+
+  composer_name = ""
+  if 'composer_code' in collection:
+    composer = Metadata().reader().getComposer(collection['composer_code'])
+    composer_name = "???"
+    if composer and 'knownas_name' in composer:
+      composer_name = composer['knownas_name']
+
+  return render_template("list_collection_pieces.html", \
+                          piece_list=piece_list, \
+                          collection_dict=collection, \
+                          composer_name=composer_name)
+

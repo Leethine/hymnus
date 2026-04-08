@@ -39,3 +39,7 @@ def display_composer_pieces(composer_code):
 @app.route("/works-by/<string:composer_code>/<int:page>")
 def display_composer_pieces_page(composer_code, page):
   return usecase_display.render_composer_piece_list(composer_code, page=page)
+
+@app.route("/collection-at/<string:collection_code>")
+def display_collection_pieces(collection_code):
+  return usecase_display.render_collection_piece_list(collection_code)
