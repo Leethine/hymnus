@@ -1,12 +1,14 @@
 import usecase_display
 
-from flask import Flask
+from flask import Flask, render_template
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
-#@app.route("/")
-#@app.route("/index")
+@app.route("/")
+@app.route("/index")
+def index():
+  return render_template("front_page.html")
 
 @app.route("/composers")
 def display_composers():
