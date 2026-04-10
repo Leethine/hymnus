@@ -10,6 +10,11 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 def index():
   return render_template("front_page.html")
 
+@app.route("/about")
+def about():
+  return render_template("about.html")
+
+
 @app.route("/composers")
 def display_composers():
   return usecase_display.render_composer_list()
