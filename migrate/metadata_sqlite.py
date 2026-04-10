@@ -282,6 +282,7 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
       return err
     return piece_hash
 
+
   def createCollection(self, title: str, subtitle="", subsubtitle="", editor="", \
                        composer_code="", opus="", volume="", instruments="", description="") -> str:
     """Insert collection metadata into DB."""
@@ -297,6 +298,7 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
     if err:
       return err
     return collection_code
+
 
   def updateComposer(self, composer_code: str, firstname="", lastname="", \
                      knownas_name="", bornyear="", diedyear="") -> str:
@@ -408,6 +410,7 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
       err += DB_SQLITE().updateRows(f"DELETE FROM Piece_Search WHERE collection_code = '{collection_code}';")
     return err
   
+  
   def addPieceToCollection(self, piece_hash: str, collection_code: str) -> str:
     """Add a piece to a collection."""
     if not self.__checkPieceExists(piece_hash):
@@ -439,6 +442,7 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
                                  WHERE code = '{composer_code}';")
     return err
   
+
   def addComposerWikiLink(self, composer_code: str, wiki_link: str) -> str:
     """Add Wiki link to a composer in DB."""
     if not self.__checkComposerExist(composer_code):
