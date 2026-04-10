@@ -10,3 +10,4 @@ PIECES_PER_PAGE = 10
 
 SQLITE_DB_PATH="./test.db"
 FILESYSTEM_PATH="./test_storage"
+USER_PASSWORDS_PATH="./users"
