@@ -51,6 +51,20 @@ CREATE TABLE pieces (
   comment TEXT
 );
 
+-- Table to store file information --
+DROP TABLE IF EXISTS piece_files;
+CREATE TABLE piece_files (
+  folder_hash TEXT UNIQUE NOT NULL
+    CHECK (LENGTH(folder_hash) = 40),
+  file_path        TEXT NOT NULL,
+  file_name        TEXT NOT NULL,
+  file_extension   TEXT NOT NULL,
+  file_title       TEXT NOT NULL,
+  file_description TEXT,
+  created_at       DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_modified    DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 DROP TABLE IF EXISTS piece_search;
 CREATE TABLE piece_search (
   context         TEXT,
@@ -63,3 +77,4 @@ CREATE TABLE piece_search (
   folder_hash     TEXT UNIQUE NOT NULL
     CHECK (LENGTH(folder_hash) = 40)
 );
+
