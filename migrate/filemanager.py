@@ -21,7 +21,7 @@ class FileManager(metaclass=SingletonMeta):
     return f"{self.getFSPath()}/{folder_hash[:2]}/{folder_hash}"
   
 
-  def getPieceFileList(self, folder_hash: str) -> list:
+  def getPieceFileListOS(self, folder_hash: str) -> list:
     """ Get a list of files in the directory corresponding to the given folder_hash. """
     file_list = []
     dir_path = self.getPieceDir(folder_hash)
@@ -30,6 +30,11 @@ class FileManager(metaclass=SingletonMeta):
         if os.path.isfile(os.path.join(dir_path, filename)):
           file_list.append(filename)
     return file_list
+  
+  def getPieceFileListDB(self, folder_hash: str) -> list:
+    """ Get a list of files in the directory corresponding to the given folder_hash. """
+    selected = DB_SQLITE().selectRows(f"SELECT * FROM piece_files WHERE folder_hash = '{folder_hash}';")
+    return selected
   
 
   def getPieceFilePathDB(self, folder_hash: str, filename: str) -> str:
