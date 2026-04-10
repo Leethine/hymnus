@@ -1,6 +1,6 @@
-import usecase_display
+import usecase_display, usecase_create
 
-from flask import Flask, render_template, send_file, abort
+from flask import Flask, request, render_template, send_file, abort
 
 app = Flask(__name__)
 app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
@@ -73,3 +73,9 @@ def download_piece_file(folder_hash, filename):
     return send_file(file_path, as_attachment=False)
   else:
     abort(502)
+
+@app.route("/new-composer", methods=['GET', 'POST'])
+def new_composer():
+  if request.method == 'POST':
+    return usecase_create.create_composer(request.form)
+  return usecase_create.render_create_composer_page()
