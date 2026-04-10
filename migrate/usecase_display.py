@@ -6,8 +6,8 @@ import math, os
 
 
 def render_composer_list(page=1, items_per_page=COMPOSERS_PER_PAGE):
-  composer_list = Metadata().reader().getPartialComposers(items_per_page=items_per_page, page_number=page, listed_only=False)
-  total_composers = Metadata().reader().countComposers(listed_only=False)
+  composer_list = Metadata().reader().getPartialComposers(items_per_page=items_per_page, page_number=page, listed_only=True)
+  total_composers = Metadata().reader().countComposers(listed_only=True)
   total_pages = int(math.ceil(total_composers / float(items_per_page)))
   return render_template("list_composers.html", \
                           composer_list=composer_list, \
