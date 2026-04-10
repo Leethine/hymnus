@@ -1,8 +1,8 @@
 from metadata import Metadata
 from filemanager import FileManager
-from flask import render_template, abort
+from flask import render_template
 from config import COMPOSERS_PER_PAGE, COLLECTIONS_PER_PAGE, PIECES_PER_PAGE
-import math
+import math, os
 
 
 def render_composer_list(page=1, items_per_page=COMPOSERS_PER_PAGE):
@@ -45,7 +45,7 @@ def render_composer_piece_list(composer_code, page=1, items_per_page=PIECES_PER_
   total_pages = int(math.ceil(total_pieces / float(items_per_page)))
   composer = Metadata().reader().getComposer(composer_code)
   if not composer:
-    abort(404)
+    return ""
 
   # Get abbr name, e.g. "Johann Sebastian Bach" ==> "J S Bach"
   composer['knownas_name'] = composer.get('knownas_name', 'Unknown')
@@ -64,7 +64,7 @@ def render_collection_piece_list(collection_code):
   piece_list = Metadata().reader().getCollectionPieces(collection_code)
   collection = Metadata().reader().getCollection(collection_code)
   if not collection:
-    abort(404)
+    return ""
 
   composer_name = ""
   if 'composer_code' in collection:
@@ -78,4 +78,26 @@ def render_collection_piece_list(collection_code):
                           collection_dict=collection, \
                           composer_name=composer_name)
 
+
+def render_piece_files(folder_hash: str) -> str:
+  piece = Metadata().reader().getPiece(folder_hash)
+  if not piece:
+    return ""
+  
+  file_metadata = FileManager().getPieceFileListDB(folder_hash)
+  warning = ""
+  if not FileManager().verifyFileList(folder_hash):
+    warning = "File list in the file system does not match the metadata in DB."
+  
+
+def get_download_file_path(folder_hash: str, filename: str) -> str:
+  file_path = FileManager().getPieceFilePathDB(folder_hash, filename)
+  if file_path and os.path.isfile(file_path):
+    return os.path.abspath(file_path)
+  else:
+    return ""
+
+
+def get_download_file_blob(folder_hash: str, filename: str) -> bytes:
+  return FileManager().downloadFile(folder_hash, filename)
 
