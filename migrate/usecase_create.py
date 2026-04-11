@@ -2,6 +2,7 @@ from metadata import Metadata
 from filemanager import FileManager
 from flask import render_template, request, redirect
 from utilities import createHtmlAlertBox, verifyFormKeys
+from auth import AuthWeak
 import re, os
 
 
@@ -10,6 +11,13 @@ def render_create_composer_page() -> str:
 
 
 def create_composer(req_form) -> str:
+  """ This is the workflow for creating a new composer.
+      It validates the user credentials, checks the form fields, preprocesses the input,
+      and creates the composer in the database. """
+  verify_usr_pwd_err = AuthWeak().verifyReqFormUserPassword(req_form)
+  if verify_usr_pwd_err:
+    return verify_usr_pwd_err  
+
   formkeys = ['firstname', 'lastname', 'knownas', 'bornyear', 'diedyear']
   if not verifyFormKeys(req_form, formkeys):
     return createHtmlAlertBox("Form fields missing, please check your input.", "Error")
@@ -39,8 +47,7 @@ def create_composer(req_form) -> str:
   lastname  = lastname.title()
   knownas   = knownas.title()
 
-  #TODO validate user name and password
-
+  # Verify creation result in DB
   code_or_err = Metadata().writer().createComposer(firstname, lastname, knownas, bornyear, diedyear)
   if "already exists in DB" in code_or_err:
     return createHtmlAlertBox("Composer already created. Please check the name and try again.", "Error")
@@ -62,6 +69,11 @@ def render_create_piece_page() -> str:
 
 
 def create_piece(req_form) -> str:
+  """ This is the workflow for creating a new piece. """
+  verify_usr_pwd_err = AuthWeak().verifyReqFormUserPassword(req_form)
+  if verify_usr_pwd_err:
+    return verify_usr_pwd_err
+
   formkeys = ['new-piece-title', 'new-piece-subtitle', 'new-piece-subsubtitle',
               'new-piece-dedicated', 'new-piece-year', 'new-piece-opus',
               'select-composer', 'arranger-name', 'new-piece-instrument', 'new-piece-comment']
@@ -95,8 +107,7 @@ def create_piece(req_form) -> str:
   instrument  = req_form.get('new-piece-instrument', '')
   comment     = req_form.get('new-piece-comment', '')
 
-  #TODO validate user name and password
-
+  # Verify creation result in DB
   hash_or_err = Metadata().writer().createPiece( \
     composer_code=composer_code, title=title, subtitle=subtitle, \
     subsubtitle=subsubtitle, opus=opus, dedicated=dedicated, \
@@ -114,19 +125,22 @@ def create_piece(req_form) -> str:
 
 
 def render_create_collection_page() -> str:
+  """ This is the workflow for creating a new collection. """
   composer_list = Metadata().reader().getAllComposers(listed_only=False)
   return render_template("new_collection.html", composer_list=composer_list)
 
 
 def create_collection(req_form) -> str:
+  check_usr_pwd_err = AuthWeak().verifyReqFormUserPassword(req_form)
+  if check_usr_pwd_err:
+    return check_usr_pwd_err
+
   formkeys = ['new-collection-title', 'new-collection-subtitle', 'new-collection-subsubtitle', \
               'new-collection-editor', 'new-collection-opus', 'new-collection-volume', \
               'new-collection-instrument', 'new-collection-description']
   
   if not verifyFormKeys(req_form, formkeys):
     return createHtmlAlertBox("Form fields missing, please check your input.", "Error")
-
-  #TODO validate user name and password
 
   title       = req_form.get('new-collection-title', '')
   subtitle    = req_form.get('new-collection-subtitle', '')
@@ -142,6 +156,7 @@ def create_collection(req_form) -> str:
     if not Metadata().reader().getComposer(composer_code):
       composer_code = "" # Invalid composer code, ignore it
 
+  # Verify creation result in DB  
   hash_or_err = Metadata().writer().createCollection( \
     title=title, subtitle=subtitle, subsubtitle=subsubtitle, editor=editor, \
     composer_code=composer_code, opus=opus, volume=volume, \

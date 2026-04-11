@@ -1,8 +1,9 @@
 import os, hashlib
 from utilities import SingletonMeta
+from utilities import createHtmlAlertBox, verifyFormKeys
 from config import USER_PASSWORDS_PATH
 
-class AuthWeak(SingletonMeta):
+class AuthWeak(metaclass=SingletonMeta):
   """ A simple authentication class that validates user credentials.
       The password files are stored in a specified directory. """
   
@@ -24,6 +25,17 @@ class AuthWeak(SingletonMeta):
         if m.hexdigest() == f.read().replace("\n", ""):
           return True
     return False
+  
+
+  def verifyReqFormUserPassword(self, req_form) -> str:
+    # validate user name and password
+    if verifyFormKeys(req_form, ['user', 'password']):
+      if not req_form['user'] or not req_form['password']:
+        return createHtmlAlertBox("Please provide a username and password.", "Error")
+      elif not AuthWeak().validateUserPassword(req_form['user'], req_form['password']):
+        return createHtmlAlertBox("Invalid username or password.", "Error")
+    else:
+      return createHtmlAlertBox("Usename or password fields missing. Please try again.", "Error")
 
 
   def createUser(self, user: str, password: str) -> str:
@@ -36,4 +48,4 @@ class AuthWeak(SingletonMeta):
       with open(userfile, 'w') as f:
         f.write(m.hexdigest())
       os.chmod(userfile, 400)
-    return ""
+    return "User created successfully."
