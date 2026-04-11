@@ -1,7 +1,7 @@
 from metadata import Metadata
 from filemanager import FileManager
 from flask import render_template, request, redirect
-from utilities import createHtmlAlertBox
+from utilities import createHtmlAlertBox, verifyFormKeys
 import re, os
 
 
@@ -11,6 +11,9 @@ def render_create_composer_page() -> str:
 
 def create_composer(req_form) -> str:
   formkeys = ['firstname', 'lastname', 'knownas', 'bornyear', 'diedyear']
+  if not verifyFormKeys(req_form, formkeys):
+    return createHtmlAlertBox("Form fields missing, please check your input.", "Error")
+  
   firstname = req_form.get('firstname', '')
   lastname  = req_form.get('lastname', '')
   knownas   = req_form.get('knownas', '')
@@ -38,9 +41,6 @@ def create_composer(req_form) -> str:
 
   #TODO validate user name and password
 
-
-
-
   code_or_err = Metadata().writer().createComposer(firstname, lastname, knownas, bornyear, diedyear)
   if "already exists in DB" in code_or_err:
     return createHtmlAlertBox("Composer already created. Please check the name and try again.", "Error")
@@ -54,3 +54,61 @@ def create_composer(req_form) -> str:
       Metadata().writer().unhideComposer(code_or_err)
   
   return redirect(f"/works-by/{code_or_err}")
+
+
+def render_create_piece_page() -> str:
+  composer_list = Metadata().reader().getAllComposers(listed_only=False)
+  return render_template("new_piece.html", composer_list=composer_list)
+
+
+def create_piece(req_form) -> str:
+  formkeys = ['new-piece-title', 'new-piece-subtitle', 'new-piece-subsubtitle',
+              'new-piece-dedicated', 'new-piece-year', 'new-piece-opus',
+              'select-composer', 'arranger-name', 'new-piece-instrument', 'new-piece-comment']
+  if not verifyFormKeys(req_form, formkeys):
+    return createHtmlAlertBox("Form fields missing, please check your input.", "Error")
+  
+  if ('check-is-arranged-piece' not in req_form and 'check-is-not-arranged-piece' not in req_form) or \
+     ('check-is-arranged-piece'     in req_form and 'check-is-not-arranged-piece'     in req_form) or \
+     ('check-is-arranged-piece'     in req_form and 'select-arranger' not in req_form \
+                                                and 'arranger-name'   not in req_form):
+    return createHtmlAlertBox("Please specify whether the piece is an arranged piece or not."
+                              "If yes, choose the arranger from the list or provide the name.", "Error")
+    
+  if not req_form['new-piece-title'] or not req_form['select-composer']:
+    return createHtmlAlertBox("Please provide the piece title and composer.", "Error")
+  
+  title       = req_form.get('new-piece-title', '')
+  subtitle    = req_form.get('new-piece-subtitle', '')
+  subsubtitle = req_form.get('new-piece-subsubtitle', '')
+  dedicated   = req_form.get('new-piece-dedicated', '')
+  year        = req_form.get('new-piece-year', '')
+  opus        = req_form.get('new-piece-opus', '')
+  composer_code = req_form.get('select-composer', '')
+  arranger_name = ""
+  arranger_code = ""
+  if 'check-is-arranged-piece' in req_form:
+    if 'select-arranger' in req_form and req_form['select-arranger']:
+      arranger_code = req_form['select-arranger']
+    elif 'arranger-name' in req_form and req_form['arranger-name']:
+      arranger_name = req_form['arranger-name']
+  instrument  = req_form.get('new-piece-instrument', '')
+  comment     = req_form.get('new-piece-comment', '')
+
+  #TODO validate user name and password
+
+  hash_or_err = Metadata().writer().createPiece( \
+    composer_code=composer_code, title=title, subtitle=subtitle, \
+    subsubtitle=subsubtitle, opus=opus, dedicated=dedicated, \
+    arranger_code=arranger_code, arranger_name=arranger_name, collection_code="", \
+    year=year, instruments=instrument, comment=comment)
+  
+  if 'already exists in DB' in hash_or_err:
+    return createHtmlAlertBox("Piece already exists. Please check your input.", "Error")
+  
+  if not Metadata().reader().getPiece(hash_or_err):
+    #TODO use production-level error handling here
+    return f"<h2>Error occurred while creating piece, error was:</h2> {hash_or_err}"
+  
+  return redirect(f"/file/{hash_or_err}")
+

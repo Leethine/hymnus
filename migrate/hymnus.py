@@ -66,6 +66,14 @@ def display_collection_pieces(collection_code):
   else:
     abort(404)
 
+@app.route("/file/<string:folder_hash>")
+def display_piece_files(folder_hash):
+  html = usecase_display.render_piece_files(folder_hash)
+  if html:
+    return html
+  else:
+    abort(404)
+
 @app.route("/download/<string:folder_hash>/<string:filename>")
 def download_piece_file(folder_hash, filename):
   file_path = usecase_display.get_download_file_path(folder_hash, filename)
@@ -79,3 +87,9 @@ def new_composer():
   if request.method == 'POST':
     return usecase_create.create_composer(request.form)
   return usecase_create.render_create_composer_page()
+
+@app.route("/new-piece", methods=['GET', 'POST'])
+def new_piece():
+  if request.method == 'POST':
+    return usecase_create.create_piece(request.form)
+  return usecase_create.render_create_piece_page()
