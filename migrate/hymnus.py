@@ -93,3 +93,9 @@ def new_piece():
   if request.method == 'POST':
     return usecase_create.create_piece(request.form)
   return usecase_create.render_create_piece_page()
+
+@app.route("/new-collection", methods=['GET', 'POST'])
+def new_collection():
+  if request.method == 'POST':
+    return usecase_create.create_collection(request.form)
+  return usecase_create.render_create_collection_page()

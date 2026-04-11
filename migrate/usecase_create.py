@@ -112,3 +112,47 @@ def create_piece(req_form) -> str:
   
   return redirect(f"/file/{hash_or_err}")
 
+
+def render_create_collection_page() -> str:
+  composer_list = Metadata().reader().getAllComposers(listed_only=False)
+  return render_template("new_collection.html", composer_list=composer_list)
+
+
+def create_collection(req_form) -> str:
+  formkeys = ['new-collection-title', 'new-collection-subtitle', 'new-collection-subsubtitle', \
+              'new-collection-editor', 'new-collection-opus', 'new-collection-volume', \
+              'new-collection-instrument', 'new-collection-description']
+  
+  if not verifyFormKeys(req_form, formkeys):
+    return createHtmlAlertBox("Form fields missing, please check your input.", "Error")
+
+  #TODO validate user name and password
+
+  title       = req_form.get('new-collection-title', '')
+  subtitle    = req_form.get('new-collection-subtitle', '')
+  subsubtitle = req_form.get('new-collection-subsubtitle', '')
+  editor      = req_form.get('new-collection-editor', '')
+  opus        = req_form.get('new-collection-opus', '')
+  volume      = req_form.get('new-collection-volume', '')
+  instrument  = req_form.get('new-collection-instrument', '')
+  description = req_form.get('new-collection-description', '')
+  composer_code = ""
+  if 'collection-has-composer' in req_form and 'select-composer' in req_form:
+    composer_code = req_form['select-composer']
+    if not Metadata().reader().getComposer(composer_code):
+      composer_code = "" # Invalid composer code, ignore it
+
+  hash_or_err = Metadata().writer().createCollection( \
+    title=title, subtitle=subtitle, subsubtitle=subsubtitle, editor=editor, \
+    composer_code=composer_code, opus=opus, volume=volume, \
+    instruments=instrument, description=description)
+  
+  if "already exists in DB" in hash_or_err:
+    return createHtmlAlertBox("Collection already created. Please check the input and try again.", "Error")
+  else:
+    if not Metadata().reader().getCollection(hash_or_err):
+      #TODO use production-level error handling here
+      return f"<h2>Error occurred while creating collection, error was:</h2> {hash_or_err}"
+  
+  return redirect(f"/collection-at/{hash_or_err}")
+
