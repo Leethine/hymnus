@@ -57,8 +57,8 @@ class FileManager(metaclass=SingletonMeta):
   
   def verifyFileList(self, folder_hash: str) -> bool:
     """ Verify that the files in the directory match the metadata in the database. """
-    piece_files_db = DB_SQLITE().selectRows(f"SELECT * FROM piece_files WHERE folder_hash = '{folder_hash}';")    
-    piece_files_fs = self.getPieceFileList(folder_hash)
+    piece_files_db = self.getPieceFileListDB(folder_hash)
+    piece_files_fs = self.getPieceFileListOS(folder_hash)
     if len(piece_files_fs) != len(piece_files_db):
       return False
 

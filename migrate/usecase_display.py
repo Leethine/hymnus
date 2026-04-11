@@ -84,11 +84,43 @@ def render_piece_files(folder_hash: str) -> str:
   if not piece:
     return ""
   
-  file_metadata = FileManager().getPieceFileListDB(folder_hash)
+  # Set arranger name
+  arranger_name = "Original"
+  # Try to get arranger name from DB if code exists
+  if 'arranger_code' in piece and piece['arranger_code']:
+    arranger = Metadata().reader().getComposer(piece['arranger_code'])
+    if arranger and 'knownas_name' in arranger:
+      arranger_name = arranger['knownas_name']
+  # Try to get arranger name from DB directly in case the user provided
+  # only the arranger name without code when creating the piece
+  if 'arranger_name' in piece and piece['arranger_name'] and arranger_name == "Original":
+    arranger_name = piece['arranger_name']
+
+  composer_name = "!??"
+  composer = Metadata().reader().getComposer(piece.get('composer_code', ""))
+  if composer and 'knownas_name' in composer.keys():
+    composer_name = composer['knownas_name']
+  
+
+  file_list = FileManager().getPieceFileListDB(folder_hash)
   warning = ""
   if not FileManager().verifyFileList(folder_hash):
     warning = "File list in the file system does not match the metadata in DB."
   
+  # Optional, show N/A for fields where info is missing
+  for k in piece.keys():
+    if not piece[k]:
+      piece[k] = "N/A"
+  if 'opus' in piece and piece['opus'] == "N/A":
+    piece['opus'] = "" # No need for 'opus'
+
+  return render_template("list_piece_files.html", \
+                          piece_metadata=piece, \
+                          file_metadata_list=file_list, \
+                          composer_name=composer_name, \
+                          arranger_name=arranger_name, \
+                          warning=warning)
+
 
 def get_download_file_path(folder_hash: str, filename: str) -> str:
   file_path = FileManager().getPieceFilePathDB(folder_hash, filename)

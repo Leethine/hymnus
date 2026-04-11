@@ -34,3 +34,9 @@ def logUserActivity(username: str, action: str) -> None:
     f.write(action)
     f.write("\n================\n")
 
+
+def verifyFormKeys(form, required_keys) -> bool:
+  for key in required_keys:
+    if key not in form.keys():
+      return False
+  return True

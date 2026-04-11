@@ -2,7 +2,7 @@
 {% set piece_title = piece_metadata.get('title','???') %}
 {% set piece_opus = piece_metadata.get('opus', '') %}
 {% set piece_subtitle = piece_metadata.get('subtitle','') %}
-{% set piece_sibsubtitle = piece_metadata.get('sibsubtitle','') %}
+{% set piece_subsubtitle = piece_metadata.get('subsubtitle','') %}
 {% set piece_dedicated = piece_metadata.get('dedicated_to','') %}
 {% set piece_instruments = piece_metadata.get('instruments','') %}
 {% set piece_comment = piece_metadata.get('comment','') %}
@@ -59,9 +59,9 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
   </a>
   <h4 class="w3-bar-item"><b>Browse</b></h4>
   <a class="w3-bar-item w3-button w3-hover-black"  href="/search">Search</a>
-  <a class="w3-bar-item w3-button w3-hover-black"  href="/browse/all-pieces">All Pieces</a>
-  <a class="w3-bar-item w3-button w3-hover-black"  href="/browse/collections">Collections</a>
-  <a class="w3-bar-item w3-button w3-hover-black"  href="/browse/composers">By Composer</a>
+  <a class="w3-bar-item w3-button w3-hover-black"  href="/all-pieces">All Pieces</a>
+  <a class="w3-bar-item w3-button w3-hover-black"  href="/collections">Collections</a>
+  <a class="w3-bar-item w3-button w3-hover-black"  href="/composers">By Composer</a>
 </nav>
 
 <!-- Overlay effect when opening sidebar on small screens -->
@@ -131,13 +131,22 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
 
 <ul class="list-group">
 
+{% if warning %}
+  <h6 class="text-danger"><i class="bi bi-x-square"></i> {{ warning }}</h6>
+  <br>
+{% endif %}
+
+{% if not file_metadata_list %}
+  <li class="list-group-item d-flex justify-content-between align-items-center">No files yet.</li>
+{% endif %}
+
 {% for file_metadata in file_metadata_list %}
   {% set file_name  = file_metadata.get('file_name','???') %}
   {% set file_ext   = file_metadata.get('file_extension','???') %}
   {% set file_title = file_metadata.get('file_title', ' ') %}
   {% set file_desc  = file_metadata.get('file_description', ' ') %}
 
-  <li class="list-group-item d-flex justify-content-between align-items-center"></li>
+  <li class="list-group-item d-flex justify-content-between align-items-center">
     <h5><a class="text-left font-weight-normal text-decoration-none text-dark" href="#" data-toggle="popover" title="" data-content="improved, pretty version, modified stem length" data-trigger="hover">&ensp;
     {{ file_title }}
     &emsp;</a></h5>
