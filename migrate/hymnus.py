@@ -99,3 +99,10 @@ def new_collection():
   if request.method == 'POST':
     return usecase_create.create_collection(request.form)
   return usecase_create.render_create_collection_page()
+
+@app.route("/addfile/<string:folder_hash>", methods=['GET', 'POST'])
+def add_file(folder_hash):
+  if request.method == 'POST':
+    return usecase_create.add_piece_file(folder_hash, request.form, request.files)
+  return usecase_create.render_add_file_page(folder_hash)
+

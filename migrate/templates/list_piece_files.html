@@ -147,7 +147,7 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
   {% set file_desc  = file_metadata.get('file_description', ' ') %}
 
   <li class="list-group-item d-flex justify-content-between align-items-center">
-    <h5><a class="text-left font-weight-normal text-decoration-none text-dark" href="#" data-toggle="popover" title="" data-content="improved, pretty version, modified stem length" data-trigger="hover">&ensp;
+    <h5><a class="text-left font-weight-normal text-decoration-none text-dark" href="#" data-toggle="popover" title="" data-content="{{ file_desc }}" data-trigger="hover">&ensp;
     {{ file_title }}
     &emsp;</a></h5>
     <h5><span class="badge badge-dark badge-pill"><a target="_blank" href="/download/{{ folder_hash }}/{{ file_name }}" class="badge badge-dark badge-pill">

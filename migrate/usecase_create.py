@@ -1,9 +1,12 @@
 from metadata import Metadata
 from filemanager import FileManager
-from flask import render_template, request, redirect
+from flask import request
+from flask import render_template, redirect
+from werkzeug.utils import secure_filename
 from utilities import createHtmlAlertBox, verifyFormKeys
 from auth import AuthWeak
-import re, os
+from config import ACCEPTED_FILE_UPLOAD_EXTENSIONS, FILE_UPLOAD_WAIT_TIME
+import re, os, time
 
 
 def render_create_composer_page() -> str:
@@ -171,3 +174,40 @@ def create_collection(req_form) -> str:
   
   return redirect(f"/collection-at/{hash_or_err}")
 
+
+def add_piece_file(folder_hash, req_form, req_file) -> str:
+  """ This is the workflow for adding a piece file. """
+  verify_usr_pwd_err = AuthWeak().verifyReqFormUserPassword(req_form)
+  if verify_usr_pwd_err:
+    return verify_usr_pwd_err
+  
+  if not verifyFormKeys(req_form, ['title', 'description']) or \
+     not 'file' in req_file:
+    return createHtmlAlertBox("Form fields missing, please check your input.", "Error")
+  
+  file = req_file['file']
+  title = req_form['title']
+  desc = req_form['description']
+
+  if not file or not title or not desc:
+    return createHtmlAlertBox("Please provide the file, title and description.", "Error")
+  
+  filename = secure_filename(file.filename)
+  ext = os.path.splitext(filename)[-1].lower()
+  if ext not in ACCEPTED_FILE_UPLOAD_EXTENSIONS:
+    return createHtmlAlertBox(f"Uploaded file type \"{ext}\" not accepted.", "Error")
+  time.sleep(FILE_UPLOAD_WAIT_TIME)
+
+  err = FileManager().uploadFile(folder_hash, filename, title, desc, file)
+  if err:
+    return createHtmlAlertBox(f"Failed to upload file: {err}", "Error")
+  
+  return redirect(f"/file/{folder_hash}")
+
+
+def render_add_file_page(folder_hash) -> str:
+  piece = Metadata().reader().getPiece(folder_hash)
+  if not piece:
+    return createHtmlAlertBox("Piece does not exist. Cannot add file.", "Error")
+  return render_template("upload_piece_file.html", \
+                         folder_hash=folder_hash, piece_title=piece.get('title', '!!??'))

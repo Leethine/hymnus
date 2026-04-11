@@ -70,17 +70,16 @@ class FileManager(metaclass=SingletonMeta):
   
 
   def uploadFile(self, folder_hash: str, filename: str, file_title: str, \
-                 file_desc: str, file_content: bytes) -> str:
+                 file_desc: str, req_file) -> str:
     """ Upload a file to the file system and update the database metadata. """
     file_path = self.getPieceFilePathOS(folder_hash, filename)
     try:
-      with open(file_path, 'wb') as f:
-        f.write(file_content)
+      req_file.save(file_path)
     except Exception as e:
       return f"Failed to write file to disk: {str(e)}"
 
     # Update DB metadata
-    file_extension = os.path.splitext(filename)[1]
+    file_extension = os.path.splitext(filename)[-1]
     insert_query = f"INSERT INTO piece_files \
                     (folder_hash, file_path, file_name, file_extension, file_title, file_description) \
                     VALUES ('{folder_hash}', '{file_path}', '{filename}', '{file_extension}', \

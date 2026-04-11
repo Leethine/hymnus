@@ -11,3 +11,10 @@ PIECES_PER_PAGE = 10
 SQLITE_DB_PATH="./test.db"
 FILESYSTEM_PATH="./test_storage"
 USER_PASSWORDS_PATH="./users"
+
+FILE_UPLOAD_WAIT_TIME = 0.5
+FILE_DOWNLOAD_WAIT_TIME = 0.5
+
+ACCEPTED_FILE_UPLOAD_EXTENSIONS = \
+['.pdf', '.xml', '.mxl', '.musicxml', '.ly', '.mid', '.midi', \
+ '.txt', '.zip', '.eps', '.png', '.tex']
