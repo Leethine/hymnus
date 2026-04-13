@@ -82,6 +82,13 @@ def download_piece_file(folder_hash, filename):
   else:
     abort(502)
 
+@app.route("/search", methods=['GET', 'POST'])
+def search_piece():
+  if request.method == 'GET':
+    return usecase_display.render_search_result(request.args)
+  return usecase_display.get_search_page()
+
+
 @app.route("/new-composer", methods=['GET', 'POST'])
 def new_composer():
   if request.method == 'POST':

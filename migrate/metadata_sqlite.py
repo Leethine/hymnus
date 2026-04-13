@@ -60,6 +60,18 @@ class SQLiteReadMetadata(metaclass=SingletonMeta):
     if rows:
       return rows[0]
     return {}
+  
+
+  def searchPiecesBySubstr(self, keyword: str) -> list:
+    """Search for pieces by keyword substring."""
+    rows = DB_SQLITE().selectRows(f"SELECT * FROM Piece_search WHERE context LIKE '%{keyword}%' ORDER BY context;")
+    for r in rows:
+      if 'folder_hash' in r:
+        piece_metadata = DB_SQLITE().selectRows(f"SELECT * FROM Pieces WHERE folder_hash = '{r['folder_hash']}';")
+        if piece_metadata:
+          r['title'] = piece_metadata[0].get('title', '?!!.')
+
+    return rows
 
 
   def getComposerPieces(self, composer_code: str) -> list:
@@ -67,6 +79,7 @@ class SQLiteReadMetadata(metaclass=SingletonMeta):
     rows = DB_SQLITE().selectRows(f"SELECT * FROM Pieces WHERE composer_code = '{composer_code}' ORDER BY title;")
     return rows
   
+
   def getComposerPartialPieces(self, composer_code: str, items_per_page: int, page_number: int) -> list:
     """Get pieces by a specific composer with pagination."""
     rows = DB_SQLITE().selectPartialRows(f"SELECT * FROM Pieces WHERE composer_code = '{composer_code}' ORDER BY title;", \

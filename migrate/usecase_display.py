@@ -138,3 +138,24 @@ def get_download_file_path(folder_hash: str, filename: str) -> str:
 def get_download_file_blob(folder_hash: str, filename: str) -> bytes:
   return FileManager().downloadFile(folder_hash, filename)
 
+
+def get_search_page():
+  return render_template("search.html", \
+                          search_results=[], \
+                          composer_dict={})
+
+
+def render_search_result(req_args):
+  composer_code_name_dict = Metadata().reader().getComposerCodeNameDict()
+  if req_args and 'keywords' in req_args and 'radio-select' in req_args:
+    keyword = req_args['keywords']
+    method = req_args['radio-select']
+    if method == "substring":
+      search_res = Metadata().reader().searchPiecesBySubstr(keyword)
+      return render_template("search.html", \
+                              search_results=search_res, \
+                              composer_dict=composer_code_name_dict)
+    #TODO add other search methods ( instrument search, fuzzy search)
+  return render_template("search.html", \
+                          search_results=[], \
+                          composer_dict=composer_code_name_dict)
