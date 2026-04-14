@@ -435,16 +435,43 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
     # do not modify if collection code already exists
     piece_belongingto = DB_SQLITE().selectRows(f"SELECT collection_code FROM Pieces WHERE folder_hash = '{piece_hash}';")
     new_collection_code = collection_code
-    if piece_belongingto != "" and collection_code not in piece_belongingto:
-        new_collection_code = piece_belongingto + "," + collection_code
+    if piece_belongingto and 'collection_code' in piece_belongingto[0].keys() and \
+       collection_code not in piece_belongingto[0]['collection_code']:
+      new_collection_code = piece_belongingto[0]['collection_code'] + "," + collection_code
 
     err = DB_SQLITE().updateRows(f"UPDATE Pieces SET collection_code = '{new_collection_code}' \
-                                 WHERE folder_hash = '{piece_hash}';")
+                                   WHERE folder_hash = '{piece_hash}';")
     # update Piece_Search table
     err += DB_SQLITE().updateRows(f"UPDATE Piece_Search SET collection_code = '{new_collection_code}' \
-                                 WHERE folder_hash = '{piece_hash}';")
+                                    WHERE folder_hash = '{piece_hash}';")
     return err
   
+
+  def rmPieceFromCollection(self, piece_hash: str, collection_code: str) -> str:
+    """Remove a piece from a collection."""
+    if not self.__checkPieceExists(piece_hash):
+      return f"Piece with hash {piece_hash} does not exist in DB."
+    if not self.__checkCollectionExists(collection_code):
+      return f"Collection with code {collection_code} does not exist in DB."
+    
+    # Append collection code to piece's collection_code field,
+    # do not modify if collection code already exists
+    piece_belongingto = DB_SQLITE().selectRows(f"SELECT collection_code FROM Pieces WHERE folder_hash = '{piece_hash}';")
+    new_collection_list = []
+    if piece_belongingto and 'collection_code' in piece_belongingto[0].keys() and \
+       collection_code in piece_belongingto[0]['collection_code']:
+      for coll in piece_belongingto[0]['collection_code'].split(','):
+        if coll != collection_code:
+          new_collection_list.append(coll)
+    new_collection_code = ",".join(new_collection_list)
+
+    err = DB_SQLITE().updateRows(f"UPDATE Pieces SET collection_code = '{new_collection_code}' \
+                                   WHERE folder_hash = '{piece_hash}';")
+    # update Piece_Search table
+    err += DB_SQLITE().updateRows(f"UPDATE Piece_Search SET collection_code = '{new_collection_code}' \
+                                    WHERE folder_hash = '{piece_hash}';")
+    return err
+
   
   def addComposerImslpLink(self, composer_code: str, imslp_link: str) -> str:
     """Add IMSLP link to a composer in DB."""

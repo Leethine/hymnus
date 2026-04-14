@@ -1,4 +1,4 @@
-import usecase_display, usecase_create
+import usecase_display, usecase_create, usecase_modify
 
 from flask import Flask, request, render_template, send_file, abort
 
@@ -113,3 +113,14 @@ def add_file(folder_hash):
     return usecase_create.add_piece_file(folder_hash, request.form, request.files)
   return usecase_create.render_add_file_page(folder_hash)
 
+@app.route("/add-to-collection/<string:collection_code>", methods=['GET', 'POST'])
+def add_to_collection(collection_code):
+  if request.method == 'POST':
+    return usecase_modify.add_piece_to_collection(collection_code, request.form)
+  return usecase_modify.get_add_piece_to_collection_page(collection_code)
+
+@app.route("/rm-from-collection/<string:collection_code>", methods=['GET', 'POST'])
+def remove_from_collection(collection_code):
+  if request.method == 'POST':
+    return usecase_modify.rm_piece_from_collection(collection_code, request.form)
+  return usecase_modify.get_rm_piece_from_collection_page(collection_code)
