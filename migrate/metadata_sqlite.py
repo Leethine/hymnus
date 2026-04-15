@@ -373,18 +373,6 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
     """Update collection metadata in DB."""
     if not self.__checkCollectionExists(collection_code):
       return f"Collection with code {collection_code} does not exist in DB."
-    
-    print(f"UPDATE Collections SET \
-      title = COALESCE('{title}', title), \
-      subtitle = COALESCE('{subtitle}', subtitle), \
-      subsubtitle = COALESCE('{subsubtitle}', subsubtitle), \
-      editor = COALESCE('{editor}', editor), \
-      composer_code = COALESCE('{composer_code}', composer_code), \
-      opus = COALESCE('{opus}', opus), \
-      volume = COALESCE('{volume}', volume), \
-      instruments = COALESCE('{instruments}', instruments), \
-      description_text = COALESCE('{description}', description_text) \
-      WHERE code = '{collection_code}';")
 
     err = DB_SQLITE().updateRows(f"UPDATE Collections SET \
       title = COALESCE('{title}', title), \

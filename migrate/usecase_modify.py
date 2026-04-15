@@ -8,9 +8,7 @@ from auth import AuthWeak
 from config import ACCEPTED_FILE_UPLOAD_EXTENSIONS, FILE_UPLOAD_WAIT_TIME
 import re, os, time
 
-
-#TODO merge add/rm piece collection pages into one
-def get_add_piece_to_collection_page(collection_code: str) -> str:
+def get_modify_collection_pieces_page(collection_code: str) -> str:
   collection = Metadata().reader().getCollection(collection_code)
   if not collection:
     return createHtmlAlertBox("Collection not found.", "Error")
@@ -18,66 +16,52 @@ def get_add_piece_to_collection_page(collection_code: str) -> str:
   opus = collection.get('opus', '')
   if opus:
     title += f" , {opus}"  
-  return render_template("update_add_to_collection.html", collection_title=title)
+  return render_template("update_collection_pieces.html", collection_title=title)
 
 
-def get_rm_piece_from_collection_page(collection_code: str) -> str:
-  collection = Metadata().reader().getCollection(collection_code)
-  if not collection:
-    return createHtmlAlertBox("Collection not found.", "Error")
-  title = collection.get('title', 'Unknown Collection')
-  opus = collection.get('opus', '')
-  if opus:
-    title += f" , {opus}"  
-  return render_template("update_rm_from_collection.html", collection_title=title)
-
-
-def add_piece_to_collection(collection_code: str, req_form) -> str:
-  """ This is the workflow for adding pieces to an existing collection. """
+def modify_collection_pieces(collection_code: str, req_form) -> str:
+  """ This is the workflow for modifying (add/remove) pieces in an existing collection. """
   verify_usr_pwd_err = AuthWeak().verifyReqFormUserPassword(req_form)
   if verify_usr_pwd_err:
     return verify_usr_pwd_err
 
-  formkeys = ['list-of-pieces']
-  if not verifyFormKeys(req_form, formkeys):
-    return createHtmlAlertBox("Form fields missing, please check your input.", "Error")
+  action = req_form.get('select-action', '')
+  if action not in ['add-to', 'remove-from']:
+    return createHtmlAlertBox("Invalid action selected.", "Error")
   
-  list_of_pieces = req_form.get('list-of-pieces', '')
-  piece_hashes = list_of_pieces.split(',')
+  if action == 'add-to':
+    if 'list-of-pieces-add' not in req_form.keys():
+      return createHtmlAlertBox("Form fields missing, please check your input.", "Error")
+    err = ""
+    for piece_hash in req_form.get('list-of-pieces-add', '').split(','):
+      piece_hash = piece_hash.replace(' ', '')
+      if piece_hash and Metadata().reader().getPiece(piece_hash):
+        # Ignore non-existing pieces
+        err += Metadata().writer().addPieceToCollection(piece_hash, collection_code)
+    if err:
+      #TODO use production-level error handling here
+      return f"<h2>Error occurred while updating collection:</h2> {err}"
+    else:
+      return redirect(f"/collection-at/{collection_code}")
 
-  err = ""
-  for piece_hash in piece_hashes:
-    piece_hash = piece_hash.replace(' ', '')
-    if Metadata().reader().getPiece(piece_hash):
-      # Ignore non-existing pieces
-      err += Metadata().writer().addPieceToCollection(piece_hash, collection_code)
-  if err:
-    #TODO use production-level error handling here
-    return f"<h2>Error occurred while updating collection:</h2> {err}"
-  else:
-    return redirect(f"/collection-at/{collection_code}")
+  elif action == 'remove-from':
+    if 'list-of-pieces-remove' not in req_form.keys():
+      return createHtmlAlertBox("Form fields missing, please check your input.", "Error")
+    err = ""
+    for piece_hash in req_form.get('list-of-pieces-remove', '').split(','):
+      piece_hash = piece_hash.replace(' ', '')
+      if piece_hash and Metadata().reader().getPiece(piece_hash):
+        err += Metadata().writer().rmPieceFromCollection(piece_hash, collection_code)
+        
+    if err:
+      #TODO use production-level error handling here
+      return f"<h2>Error occurred while updating collection:</h2> {err}"
+    else:
+      return redirect(f"/collection-at/{collection_code}")
   
+  return redirect("/")
 
-def rm_piece_from_collection(collection_code: str, req_form) -> str:
-  """ This is the workflow for removing a piece from a collection. """
-  verify_usr_pwd_err = AuthWeak().verifyReqFormUserPassword(req_form)
-  if verify_usr_pwd_err:
-    return verify_usr_pwd_err
 
-  formkeys = ['piece-hash']
-  if not verifyFormKeys(req_form, formkeys):
-    return createHtmlAlertBox("Form fields missing, please check your input.", "Error")
-  
-  piece_hash = req_form.get('piece-hash', '')
-  err = ""
-  if Metadata().reader().getPiece(piece_hash):
-    err = Metadata().writer().rmPieceFromCollection(piece_hash, collection_code)
-  if err:
-    #TODO use production-level error handling here
-    return f"<h2>Error occurred while updating collection:</h2> {err}"
-  else:
-    return redirect(f"/collection-at/{collection_code}")
-  
 
 def get_update_piece_page(piece_hash: str) -> str:
   piece = Metadata().reader().getPiece(piece_hash)
@@ -172,7 +156,6 @@ def update_collection_info(collection_code: str, req_form) -> str:
       folder_hash = piece.get('folder_hash', '')
       if folder_hash and Metadata().reader().getPiece(folder_hash):
         err += Metadata().writer().rmPieceFromCollection(folder_hash, collection_code)
-        err += "\n"
     err += Metadata().writer().deleteCollection(collection_code)
     if err:
       #TODO use production-level error handling here
@@ -194,7 +177,6 @@ def update_collection_info(collection_code: str, req_form) -> str:
     new_volume      = req_form.get('new-collection-volume', '')
     new_instrument  = req_form.get('new-collection-instrument', '')
     new_description = req_form.get('new-collection-description', '')
-    print("new_description: ", new_description)
     err = Metadata().writer().updateCollection( \
       collection_code=collection_code, title=new_title, subtitle=new_subtitle,
       subsubtitle=new_subsubtitle, editor=new_editor, composer_code="",
