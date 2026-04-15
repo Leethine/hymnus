@@ -1,0 +1,16 @@
+1. Improve deletion methods in metadata_sqlite: 
+  deleteComposer ==> make it possible to delete collection or/and pieces + files
+  addPieceToCollection, rmPieceFromCollection ==> also need to handle piece_search table
+Then, in the usecase workflow, remove manual deletion code, just use the automated methods of Metadata interface. (Maybe also put file deletion in metadata interface.)
+
+
+2. Use better error handling in the usecase workflow (check TODO tags)
+
+
+3. Also display composer pieces when the composer is an arranger of the works
+
+
+4. When displaying pieces, if it's arranged, also display a label next to the piece (something like "arranged work")
+
+
+5. Improve input string safety check for all creation/modification usecases
