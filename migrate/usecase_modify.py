@@ -9,6 +9,7 @@ from config import ACCEPTED_FILE_UPLOAD_EXTENSIONS, FILE_UPLOAD_WAIT_TIME
 import re, os, time
 
 
+#TODO merge add/rm piece collection pages into one
 def get_add_piece_to_collection_page(collection_code: str) -> str:
   collection = Metadata().reader().getCollection(collection_code)
   if not collection:
@@ -35,7 +36,7 @@ def add_piece_to_collection(collection_code: str, req_form) -> str:
   """ This is the workflow for adding pieces to an existing collection. """
   verify_usr_pwd_err = AuthWeak().verifyReqFormUserPassword(req_form)
   if verify_usr_pwd_err:
-    return verify_usr_pwd_err  
+    return verify_usr_pwd_err
 
   formkeys = ['list-of-pieces']
   if not verifyFormKeys(req_form, formkeys):
@@ -61,7 +62,7 @@ def rm_piece_from_collection(collection_code: str, req_form) -> str:
   """ This is the workflow for removing a piece from a collection. """
   verify_usr_pwd_err = AuthWeak().verifyReqFormUserPassword(req_form)
   if verify_usr_pwd_err:
-    return verify_usr_pwd_err  
+    return verify_usr_pwd_err
 
   formkeys = ['piece-hash']
   if not verifyFormKeys(req_form, formkeys):
@@ -100,31 +101,122 @@ def update_piece_info(piece_hash: str, req_form) -> str:
   """ This is the workflow for updating piece information. """
   verify_usr_pwd_err = AuthWeak().verifyReqFormUserPassword(req_form)
   if verify_usr_pwd_err:
-    return verify_usr_pwd_err  
+    return verify_usr_pwd_err
 
-  formkeys = ['new-piece-title', 'new-piece-subtitle', 'new-piece-subsubtitle', \
-              'new-piece-dedicated', 'new-piece-opus', 'new-piece-year', \
-              'new-piece-instrument', 'new-piece-comment']
-  if not verifyFormKeys(req_form, formkeys):
-    return createHtmlAlertBox("Form fields missing, please check your input.", "Error")
+  action = req_form.get('select-action', '')
+  if action not in ['modify', 'delete']:
+    return createHtmlAlertBox("Invalid action selected.", "Error")
   
-  new_title       = req_form.get('new-piece-title', '')
-  new_subtitle    = req_form.get('new-piece-subtitle', '')
-  new_subsubtitle = req_form.get('new-piece-subsubtitle', '')
-  new_dedicated   = req_form.get('new-piece-dedicated', '')
-  new_opus        = req_form.get('new-piece-opus', '')
-  new_year        = req_form.get('new-piece-year', '')
-  new_instrument  = req_form.get('new-piece-instrument', '')
-  new_comment     = req_form.get('new-piece-comment', '')
+  if action == 'delete':
+    err = Metadata().writer().deletePiece(piece_hash)
+    err += FileManager().deleteAllFiles(piece_hash)
+    if err:
+      #TODO use production-level error handling here
+      return f"<h2>Error occurred while deleting piece:</h2> {err}"
+    else:
+      return redirect("/all-pieces")
+  
+  elif action == 'modify':
+    formkeys = ['new-piece-title', 'new-piece-subtitle', 'new-piece-subsubtitle', \
+                'new-piece-dedicated', 'new-piece-opus', 'new-piece-year', \
+                'new-piece-instrument', 'new-piece-comment']
+    if not verifyFormKeys(req_form, formkeys):
+      return createHtmlAlertBox("Form fields missing, please check your input.", "Error")
+    new_title       = req_form.get('new-piece-title', '')
+    new_subtitle    = req_form.get('new-piece-subtitle', '')
+    new_subsubtitle = req_form.get('new-piece-subsubtitle', '')
+    new_dedicated   = req_form.get('new-piece-dedicated', '')
+    new_opus        = req_form.get('new-piece-opus', '')
+    new_year        = req_form.get('new-piece-year', '')
+    new_instrument  = req_form.get('new-piece-instrument', '')
+    new_comment     = req_form.get('new-piece-comment', '')
+    err = Metadata().writer().updatePiece( \
+      piece_hash=piece_hash, title=new_title, subtitle=new_subtitle, subsubtitle=new_subsubtitle, \
+      opus=new_opus, dedicated=new_dedicated, collection_code="", year=new_year, \
+      instruments=new_instrument, comment=new_comment)
+    if err:
+      #TODO use production-level error handling here
+      return f"<h2>Error occurred while modifying piece:</h2> {err}"
+    else:
+      return redirect(f"/file/{piece_hash}")
+    
+  return redirect("/")
 
-  err = Metadata().writer().updatePiece( \
-    piece_hash=piece_hash, title=new_title, subtitle=new_subtitle, subsubtitle=new_subsubtitle, \
-    opus=new_opus, dedicated=new_dedicated, collection_code="", year=new_year, \
-    instruments=new_instrument, comment=new_comment)
-  if err:
-    #TODO use production-level error handling here
-    return f"<h2>Error occurred while updating piece information:</h2> {err}"
-  else:
-    return redirect(f"/file/{piece_hash}")
+
+def get_update_collection_page(collection_code: str) -> str:
+  collection = Metadata().reader().getCollection(collection_code)
+  if not collection:
+    return createHtmlAlertBox("Collection not found.", "Error")
+  composer_code = collection.get('composer_code', '')
+  if composer_code:
+    composer = Metadata().reader().getComposer(composer_code)
+    if composer:
+      collection['composer_name'] = composer.get('knownas_name', '')
+  
+  return render_template("update_collection.html", collection_info=collection)
 
 
+def update_collection_info(collection_code: str, req_form) -> str:
+  """ This is the workflow for updating collection information. """
+  verify_usr_pwd_err = AuthWeak().verifyReqFormUserPassword(req_form)
+  if verify_usr_pwd_err:
+    return verify_usr_pwd_err
+
+  action = req_form.get('select-action', '')
+  if action not in ['modify', 'delete']:
+    return createHtmlAlertBox("Invalid action selected.", "Error")
+  
+  if action == 'delete':
+    err = ""
+    for piece in Metadata().reader().getCollectionPieces(collection_code):
+      folder_hash = piece.get('folder_hash', '')
+      if folder_hash and Metadata().reader().getPiece(folder_hash):
+        err += Metadata().writer().rmPieceFromCollection(folder_hash, collection_code)
+        err += "\n"
+    err += Metadata().writer().deleteCollection(collection_code)
+    if err:
+      #TODO use production-level error handling here
+      return f"<h2>Error occurred while deleting collection:</h2> {err}"
+    else:
+      return redirect("/collections")
+    
+  elif action == 'modify':
+    formkeys = ['new-collection-title', 'new-collection-subtitle', 'new-collection-subsubtitle', \
+                'new-collection-editor', 'new-collection-opus', 'new-collection-volume', \
+                'new-collection-instrument', 'new-collection-description']
+    if not verifyFormKeys(req_form, formkeys):
+      return createHtmlAlertBox("Form fields missing, please check your input.", "Error")
+    new_title       = req_form.get('new-collection-title', '')
+    new_subtitle    = req_form.get('new-collection-subtitle', '')
+    new_subsubtitle = req_form.get('new-collection-subsubtitle', '')
+    new_editor      = req_form.get('new-collection-editor', '')
+    new_opus        = req_form.get('new-collection-opus', '')
+    new_volume      = req_form.get('new-collection-volume', '')
+    new_instrument  = req_form.get('new-collection-instrument', '')
+    new_description = req_form.get('new-collection-description', '')
+    print("new_description: ", new_description)
+    err = Metadata().writer().updateCollection( \
+      collection_code=collection_code, title=new_title, subtitle=new_subtitle,
+      subsubtitle=new_subsubtitle, editor=new_editor, composer_code="",
+      opus=new_opus, volume=new_volume, instruments=new_instrument, description=new_description)
+    if err:
+      #TODO use production-level error handling here
+      return f"<h2>Error occurred while modifying collection:</h2> {err}"
+    else:
+      return redirect(f"/collection-at/{collection_code}")
+  return redirect("/")
+
+
+#TODO
+def update_composer_info(composer_code: str, req_form) -> str:
+  """ This is the workflow for updating composer information. """
+  verify_usr_pwd_err = AuthWeak().verifyReqFormUserPassword(req_form)
+  if verify_usr_pwd_err:
+    return verify_usr_pwd_err
+
+  action = req_form.get('select-action', '')
+  if action not in ['modify', 'delete']:
+    return createHtmlAlertBox("Invalid action selected.", "Error")
+  
+  #TODO implement modify and delete logic here
+  return redirect("/")

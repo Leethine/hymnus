@@ -130,3 +130,9 @@ def modify_piece(folder_hash):
   if request.method == 'POST':
     return usecase_modify.update_piece_info(folder_hash, request.form)
   return usecase_modify.get_update_piece_page(folder_hash)
+
+@app.route("/modify-collection/<string:collection_code>", methods=['GET', 'POST'])
+def modify_collection(collection_code):
+  if request.method == 'POST':
+    return usecase_modify.update_collection_info(collection_code, request.form)
+  return usecase_modify.get_update_collection_page(collection_code)

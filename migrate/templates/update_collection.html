@@ -1,4 +1,4 @@
-{# Variables needed : piece_info, composer_selected, arranger_selected, arranger_name #}
+{# variables needed : collection_info #}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -44,10 +44,10 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
     <i class="fa fa-remove"></i>
   </a>
   <h4 class="w3-bar-item"><b>Browse</b></h4>
-  <a class="w3-bar-item w3-button w3-hover-black"  href="/search">Search</a>
-  <a class="w3-bar-item w3-button w3-hover-black"  href="/all-pieces">All Pieces</a>
-  <a class="w3-bar-item w3-button w3-hover-black"  href="/collections">Collections</a>
-  <a class="w3-bar-item w3-button w3-hover-black"  href="/composers">By Composer</a>
+  <a class="w3-bar-item w3-button w3-hover-black "   href="/search">Search</a>
+  <a class="w3-bar-item w3-button w3-hover-black "   href="/browse/all-pieces">All Pieces</a>
+  <a class="w3-bar-item w3-button w3-hover-black "   href="/browse/collections">Collections</a>
+  <a class="w3-bar-item w3-button w3-hover-black "   href="/browse/composers">By Composer</a>
 </nav>
 
 <!-- Overlay effect when opening sidebar on small screens -->
@@ -55,9 +55,10 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
 
 <!-- Main content: shift it to the right by 250 pixels when the sidebar is visible -->
 <div class="w3-main" style="margin-left:250px">
+
   <div class="w3-row w3-padding-64">
     <div class="w3-twothird w3-container">
-      <h1 class="w3-text-gray">Modify or delete piece</h1>
+      <h1 class="w3-text-gray">Modify or delete collection</h1>
 
 
 <form method="post" enctype="multipart/form-data">
@@ -69,85 +70,72 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
     </div>
     <select class="custom-select" id="select-action" name="select-action">
       <option value="modify">Modify metadata</option>
-      <option value="delete">Delete piece</option>
+      <option value="delete">Delete collection</option>
     </select>
   </div>
-      <div id="new-piece-form-1">
+
+      <div id="new-collection-form-1">
+        <label for="new-collection-title">Title</label>
+        <input id="new-collection-title" name="new-collection-title" type="text" class="form-control" value="{{ collection_info.get("title", "") }}">
         <br>
-        <label for="new-piece-title">Title</label>
-        <input id="new-piece-title" name="new-piece-title" type="text" class="form-control" value="{{ piece_info.get("title", "") }}">
+        <label for="new-collection-subtitle">Subtitle</label>
+        <input id="new-collection-subtitle" name="new-collection-subtitle" type="text" class="form-control" value="{{ collection_info.get("subtitle", "") }}">
         <br>
-        <label for="new-piece-subtitle">Subtitle</label>
-        <input id="new-piece-subtitle" name="new-piece-subtitle" type="text" class="form-control" value="{{ piece_info.get("subtitle", "") }}">
+        <label for="new-collection-subsubtitle">Subsubtitle</label>
+        <input id="new-collection-subsubtitle" name="new-collection-subsubtitle" type="text" class="form-control" value="{{ collection_info.get("subsubtitle", "") }}">
         <br>
-        <label for="new-piece-subsubtitle">Subsubtitle</label>
-        <input id="new-piece-subsubtitle" name="new-piece-subsubtitle" type="text" class="form-control" value="{{ piece_info.get("subsubtitle", "") }}">
+        <label for="new-collection-editor">Editor</label>
+        <input id="new-collection-editor" name="new-collection-editor" type="text" class="form-control" value="{{ collection_info.get("editor", "") }}">
         <br>
-        <label for="new-piece-dedicated">Dedicated to</label>
-        <input id="new-piece-dedicated" name="new-piece-dedicated" type="text" class="form-control" value="{{ piece_info.get("dedicated_to", "") }}">
+        <label for="new-collection-opus">Opus</label>
+        <input id="new-collection-opus" name="new-collection-opus" type="text" class="form-control" value="{{ collection_info.get("opus", "") }}">
         <br>
-        <label for="new-piece-opus">Opus</label>
-        <input id="new-piece-opus" name="new-piece-opus" type="text" class="form-control" value="{{ piece_info.get("opus", "") }}">
-        <br>
-        <label for="new-piece-year">Composed year</label>
-        <input id="new-piece-year" name="new-piece-year" type="text" class="form-control" value="{{ piece_info.get("composed_year", "") }}">
+        <label for="new-collection-volume">Volume</label>
+        <input id="new-collection-volume" name="new-collection-volume" type="text" class="form-control" value="{{ collection_info.get("volume", "") }}">
         <br>
       </div>
 
-      <label for="select-composer">Composer of this piece:</label>
+      <label for="select-composer">Composer of this collection:</label>
+
       <div class="form-row">
         <div class="col-auto">
           <select class="custom-select mr-sm-1" id="select-composer" name="select-composer" disabled>
-            <option selected>{{ composer_selected }}</option>
-          </select>
-        </div>
-      </div>
-      <br>
-
-      <label for="select-arranger">Arranger of this piece (if applicable):</label>
-      <div class="form-row">
-        <div class="col-auto">
-          <select class="custom-select mr-sm-1" id="select-arranger" name="select-arranger" disabled>
-            <option selected>{{ arranger_selected }}</option>
+            <option selected> {{ collection_info.get("composer_name", "") }} </option>
           </select>
         </div>
       </div>
 
-      <br>
-      <label for="arranger-name">Arranger name (if applicable):</label>
-      <input id="arranger-name" name="arranger-name" type="text" class="form-control" value="{{ arranger_name }}" disabled>
-      
-      <div id="new-piece-form-2">
+      <div id="new-collection-form-2">
         <br>
-        <label for="new-piece-instrument">Instruments</label>
-        <input id="new-piece-instrument" name="new-piece-instrument" type="text" class="form-control" value="{{ piece_info.get("instruments", "") }}">
+        <label for="new-collection-instrument">Instruments</label>
+        <input id="new-collection-instrument" name="new-collection-instrument" type="text" class="form-control" value="{{ collection_info.get("instruments", "") }}"/>
         <br>
-        <label for="new-piece-comment">Comment</label>
-        <textarea class="form-control" id="new-piece-comment" name="new-piece-comment" aria-label="new-piece-comment-label">{{ piece_info.get("comment", "") }}</textarea>
+        <label for="new-collection-description">Description</label>
+        <textarea class="form-control" id="new-collection-description" name="new-collection-description" aria-label="new-collection-description-label">{{ collection_info.get("description_text", "") }}</textarea>
       </div>
       <br>
-      <input type="submit" class="btn btn-primary" id="submit-button-successful" value="Submit changes">
+      <button type="submit" class="btn btn-primary" id="button-submit-form">Submit changes</button>
 
-<div class="input-group mt-4">
-  <label class="form-label">Please provide your username and password:</label>
-</div>
-<div class="input-group mb-5" id="user-login-group">
-  <div class="input-group-prepend">
-    <span class="input-group-text">User</span>
-  </div>
-  <input type="text" name="user" id="form-user" placeholder="User Name" class="form-control">
-  <div class="input-group-prepend">
-    <span class="input-group-text">Password</span>
-  </div>
-  <input type="password" name="password" id="form-password" placeholder="Password" class="form-control">
-</div>
+      <div class="input-group mt-4">
+        <label class="form-label">Please provide your username and password:</label>
+      </div>
+      <div class="input-group mb-5" id="user-login-group">
+        <div class="input-group-prepend">
+          <span class="input-group-text">User</span>
+        </div>
+        <input type="text" name="user" id="form-user" placeholder="User Name" class="form-control">
+        <div class="input-group-prepend">
+          <span class="input-group-text">Password</span>
+        </div>
+        <input type="password" name="password" id="form-password" placeholder="Password" class="form-control">
+      </div>
 
 </form>
 
 
-
     </div>
   </div>
+
 <!-- END MAIN -->
 </div>
 

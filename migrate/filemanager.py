@@ -151,6 +151,21 @@ class FileManager(metaclass=SingletonMeta):
       return ""
     else:
       return "File does not exist in DB, cannot delete"
+  
+
+  def deleteAllFiles(self, folder_hash: str) -> str:
+    """ Delete all files associated with a piece from the file system. """
+    dir_path = os.path.abspath(self.getPieceDir(folder_hash))
+    if os.path.isdir(dir_path):
+      try:
+        shutil.rmtree(dir_path)
+      except Exception as e:
+        return f"Failed to delete files from disk: {str(e)}"
+    
+    err = DB_SQLITE().updateRows(f"DELETE FROM piece_files WHERE folder_hash = '{folder_hash}';")
+    if err:
+      return f"Failed to delete metadata from DB: {err}"
+    return ""
 
 
   def downloadFile(self, folder_hash: str, filename: str) -> bytes:

@@ -369,11 +369,23 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
   
 
   def updateCollection(self, collection_code: str, title="", subtitle="", subsubtitle="", \
-                       editor="", composer_code="", opus="", volumn="", description="") -> str:
+                       editor="", composer_code="", opus="", volume="", instruments="", description="") -> str:
     """Update collection metadata in DB."""
     if not self.__checkCollectionExists(collection_code):
       return f"Collection with code {collection_code} does not exist in DB."
     
+    print(f"UPDATE Collections SET \
+      title = COALESCE('{title}', title), \
+      subtitle = COALESCE('{subtitle}', subtitle), \
+      subsubtitle = COALESCE('{subsubtitle}', subsubtitle), \
+      editor = COALESCE('{editor}', editor), \
+      composer_code = COALESCE('{composer_code}', composer_code), \
+      opus = COALESCE('{opus}', opus), \
+      volume = COALESCE('{volume}', volume), \
+      instruments = COALESCE('{instruments}', instruments), \
+      description_text = COALESCE('{description}', description_text) \
+      WHERE code = '{collection_code}';")
+
     err = DB_SQLITE().updateRows(f"UPDATE Collections SET \
       title = COALESCE('{title}', title), \
       subtitle = COALESCE('{subtitle}', subtitle), \
@@ -381,7 +393,8 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
       editor = COALESCE('{editor}', editor), \
       composer_code = COALESCE('{composer_code}', composer_code), \
       opus = COALESCE('{opus}', opus), \
-      volumn = COALESCE('{volumn}', volumn), \
+      volume = COALESCE('{volume}', volume), \
+      instruments = COALESCE('{instruments}', instruments), \
       description_text = COALESCE('{description}', description_text) \
       WHERE code = '{collection_code}';")
     
