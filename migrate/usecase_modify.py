@@ -1,3 +1,5 @@
+from fileinput import filename
+
 from metadata import Metadata
 from filemanager import FileManager
 from flask import request
@@ -189,16 +191,103 @@ def update_collection_info(collection_code: str, req_form) -> str:
   return redirect("/")
 
 
-#TODO
-def update_composer_info(composer_code: str, req_form) -> str:
-  """ This is the workflow for updating composer information. """
+def get_update_composer_page() -> str:
+  composer_list = Metadata().reader().getAllComposers(listed_only=False)
+  if not composer_list:
+    return createHtmlAlertBox("No composers found in DB.", "Error")
+  return render_template("update_composer.html", composer_list=composer_list)
+
+
+def update_or_delete_composer(req_form) -> str:
+  """ This is the workflow for unhide/hide composer or deleting composer. """
   verify_usr_pwd_err = AuthWeak().verifyReqFormUserPassword(req_form)
   if verify_usr_pwd_err:
     return verify_usr_pwd_err
 
   action = req_form.get('select-action', '')
-  if action not in ['modify', 'delete']:
+  if action not in ['delete', 'hide', 'unhide']:
     return createHtmlAlertBox("Invalid action selected.", "Error")
+  composer_code = req_form.get('select-composer', '')
+  if not composer_code:
+    return createHtmlAlertBox("No composer selected.", "Error")
   
-  #TODO implement modify and delete logic here
+  if action == 'delete':
+    err = ""
+    if 'also-delete-pieces' in req_form.keys() and req_form['also-delete-pieces'] == 'on':
+      for piece in Metadata().reader().getComposerPieces(composer_code):
+        folder_hash = piece.get('folder_hash', '')
+        # delete piece first
+        if folder_hash and Metadata().reader().getPiece(folder_hash):
+          err += FileManager().deleteAllFiles(folder_hash)
+          err += Metadata().writer().deletePiece(folder_hash)
+    if 'also-delete-collections' in req_form.keys() and req_form['also-delete-collections'] == 'on':
+      for collection in Metadata().reader().getComposerCollections(composer_code):
+        collection_code = collection.get('code', '')
+        if collection_code:
+          # remove pieces from collection before deleting collection
+          for piece in Metadata().reader().getCollectionPieces(collection_code):
+            folder_hash = piece.get('folder_hash', '')
+            if folder_hash and Metadata().reader().getPiece(folder_hash):
+              err += Metadata().writer().rmPieceFromCollection(folder_hash, collection_code)
+          err += Metadata().writer().deleteCollection(collection_code)
+    err += Metadata().writer().deleteComposer(composer_code)
+    if err:
+      #TODO use production-level error handling here
+      return f"<h2>Error occurred while deleting composer:</h2> {err}"
+    else:
+      return redirect("/composers")
+  
+  elif action == 'hide':
+    err = Metadata().writer().hideComposer(composer_code)
+    if err:
+      #TODO use production-level error handling here
+      return f"<h2>Error occurred while hiding composer:</h2> {err}"
+    else:
+      return redirect("/composers")
+  
+  elif action == 'unhide':
+    err = Metadata().writer().unhideComposer(composer_code)
+    if err:
+      #TODO use production-level error handling here
+      return f"<h2>Error occurred while unhiding composer:</h2> {err}"
+    else:
+      return redirect("/composers")
+
   return redirect("/")
+
+
+#TODO
+def update_file_metadata(folder_hash: str, file_title: str, req_form) -> str:
+  """ This is the workflow for updating file metadata. """
+  verify_usr_pwd_err = AuthWeak().verifyReqFormUserPassword(req_form)
+  if verify_usr_pwd_err:
+    return verify_usr_pwd_err
+
+  new_title = req_form.get('new-file-title', '')
+  new_description = req_form.get('new-file-description', '')
+  err = FileManager().modifyFileMetadata(folder_hash, file_title, new_title, new_description)
+  if err:
+    #TODO use production-level error handling here
+    return f"<h2>Error occurred while modifying file metadata:</h2> {err}"
+  else:
+    return redirect(f"/file/{folder_hash}")
+
+
+#TODO
+def delete_file(folder_hash: str, file_title: str, req_form) -> str:
+  """ This is the workflow for deleting a file. """
+  verify_usr_pwd_err = AuthWeak().verifyReqFormUserPassword(req_form)
+  if verify_usr_pwd_err:
+    return verify_usr_pwd_err
+
+  err = FileManager().deleteFile(folder_hash, file_title)
+  if err:
+    #TODO use production-level error handling here
+    return f"<h2>Error occurred while deleting file:</h2> {err}"
+  else:
+    return redirect(f"/file/{folder_hash}")
+
+
+#TODO
+def replace_file(folder_hash: str, file_title: str, req_form) -> str:
+  pass

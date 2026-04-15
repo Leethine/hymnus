@@ -130,3 +130,9 @@ def modify_collection(collection_code):
   if request.method == 'POST':
     return usecase_modify.update_collection_info(collection_code, request.form)
   return usecase_modify.get_update_collection_page(collection_code)
+
+@app.route("/modify-composer", methods=['GET', 'POST'])
+def modify_composer():
+  if request.method == 'POST':
+    return usecase_modify.update_or_delete_composer(request.form)
+  return usecase_modify.get_update_composer_page()
