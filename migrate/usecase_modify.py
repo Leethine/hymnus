@@ -256,16 +256,35 @@ def update_or_delete_composer(req_form) -> str:
   return redirect("/")
 
 
-#TODO
-def update_file_metadata(folder_hash: str, file_title: str, req_form) -> str:
+def get_update_file_info_page(folder_hash: str) -> str:
+  title_list = []
+  for f in FileManager().getPieceFileListDB(folder_hash):
+    title_list.append(f.get('file_title', ''))
+  piece = Metadata().reader().getPiece(folder_hash)
+  piece_title = piece.get('title', '') if piece else '?!?'
+
+  if not title_list:
+    return createHtmlAlertBox("No files found, nothing to do.", "Warning")
+  return render_template("update_modify_file_metadata.html", folder_hash=folder_hash, \
+                         piece_title=piece_title, file_title_list=title_list)
+
+
+def update_file_metadata(folder_hash: str, req_form) -> str:
   """ This is the workflow for updating file metadata. """
   verify_usr_pwd_err = AuthWeak().verifyReqFormUserPassword(req_form)
   if verify_usr_pwd_err:
     return verify_usr_pwd_err
-
-  new_title = req_form.get('new-file-title', '')
-  new_description = req_form.get('new-file-description', '')
-  err = FileManager().modifyFileMetadata(folder_hash, file_title, new_title, new_description)
+  
+  if not verifyFormKeys(req_form, ['title', 'description']):
+    return createHtmlAlertBox("Form fields missing, please check your input.", "Error")
+  current_title = req_form.get('select-file', '')
+  new_title = req_form.get('title', '')
+  new_description = req_form.get('description', '')
+  if not current_title:
+    return createHtmlAlertBox("No file selected.", "Error")
+  err = ""
+  err = FileManager().modifyFileMetadata(folder_hash=folder_hash, old_title=current_title, \
+                                         new_title=new_title, new_description=new_description)
   if err:
     #TODO use production-level error handling here
     return f"<h2>Error occurred while modifying file metadata:</h2> {err}"

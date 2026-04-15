@@ -113,6 +113,13 @@ def add_file(folder_hash):
     return usecase_create.add_piece_file(folder_hash, request.form, request.files)
   return usecase_create.render_add_file_page(folder_hash)
 
+@app.route("/mdfmetadata/<string:folder_hash>", methods=['GET', 'POST'])
+def modify_file_metadata(folder_hash):
+  if request.method == 'POST':
+    return usecase_modify.update_file_metadata(folder_hash, request.form)
+  return usecase_modify.get_update_file_info_page(folder_hash)
+
+
 @app.route("/add-rm-collection-pieces/<string:collection_code>", methods=['GET', 'POST'])
 def add_rm_collection_pieces(collection_code):
   if request.method == 'POST':

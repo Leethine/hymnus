@@ -110,11 +110,11 @@ class FileManager(metaclass=SingletonMeta):
     return ""
   
 
-  def modifyFileMetadata(self, folder_hash: str, filename: str, new_title="", new_description="") -> str:
+  def modifyFileMetadata(self, folder_hash: str, old_title: str, new_title="", new_description="") -> str:
     """ Modify the metadata of a file in the file system. """
     if DB_SQLITE().countRows(f"SELECT COUNT(*) FROM piece_files WHERE \
                                folder_hash = '{folder_hash}' AND \
-                               file_name = '{filename}';") != 1:
+                               file_title = '{old_title}';") != 1:
       return "File does not exist in DB, cannot modify metadata"
     
     update_fields = ""
@@ -128,7 +128,7 @@ class FileManager(metaclass=SingletonMeta):
     
     update_query = f"UPDATE piece_files SET last_modified = CURRENT_TIMESTAMP \
                     {update_fields} \
-                    WHERE folder_hash = '{folder_hash}' AND file_name = '{filename}' ;"
+                    WHERE folder_hash = '{folder_hash}' AND file_title = '{old_title}' ;"
     err = DB_SQLITE().updateRows(update_query)
     if err:
       return f"Failed to update file metadata, DB error: {err}"
