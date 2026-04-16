@@ -16,3 +16,5 @@ Then, in the usecase workflow, remove manual deletion code, just use the automat
 5. Improve input string safety check for all creation/modification usecases
 
 6. Maybe change route name
+
+7. FileManager and usecase workflows are still messy
