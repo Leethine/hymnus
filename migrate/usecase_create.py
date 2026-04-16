@@ -184,7 +184,8 @@ def add_piece_file(folder_hash, req_form, req_file) -> str:
   if not verifyFormKeys(req_form, ['title', 'description']) or \
      not 'file' in req_file:
     return createHtmlAlertBox("Form fields missing, please check your input.", "Error")
-  
+  if 'file' not in req_file:
+    return createHtmlAlertBox("No file uploaded, please check your input.", "Error")
   file = req_file['file']
   title = req_form['title']
   desc = req_form['description']

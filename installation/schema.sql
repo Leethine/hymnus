@@ -54,7 +54,7 @@ CREATE TABLE pieces (
 -- Table to store file information --
 DROP TABLE IF EXISTS piece_files;
 CREATE TABLE piece_files (
-  folder_hash TEXT UNIQUE NOT NULL
+  folder_hash TEXT NOT NULL
     CHECK (LENGTH(folder_hash) = 40),
   file_path        TEXT NOT NULL,
   file_name        TEXT NOT NULL,
