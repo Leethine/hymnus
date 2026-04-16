@@ -119,6 +119,17 @@ def modify_file_metadata(folder_hash):
     return usecase_modify.update_file_metadata(folder_hash, request.form)
   return usecase_modify.get_update_file_info_page(folder_hash)
 
+@app.route("/rmfile/<string:folder_hash>", methods=['GET', 'POST'])
+def delete_file(folder_hash):
+  if request.method == 'POST':
+    return usecase_modify.delete_file(folder_hash, request.form)
+  return usecase_modify.get_file_deletion_page(folder_hash)
+
+@app.route("/replacefile/<string:folder_hash>", methods=['GET', 'POST'])
+def replace_file(folder_hash):
+  if request.method == 'POST':
+    return usecase_modify.replace_file(folder_hash, request.form, request.files)
+  return usecase_modify.get_replace_file_page(folder_hash)
 
 @app.route("/add-rm-collection-pieces/<string:collection_code>", methods=['GET', 'POST'])
 def add_rm_collection_pieces(collection_code):

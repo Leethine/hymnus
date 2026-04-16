@@ -266,7 +266,7 @@ def get_update_file_info_page(folder_hash: str) -> str:
   if not title_list:
     return createHtmlAlertBox("No files found, nothing to do.", "Warning")
   return render_template("update_modify_file_metadata.html", folder_hash=folder_hash, \
-                         piece_title=piece_title, file_title_list=title_list)
+                          piece_title=piece_title, file_title_list=title_list)
 
 
 def update_file_metadata(folder_hash: str, req_form) -> str:
@@ -292,14 +292,32 @@ def update_file_metadata(folder_hash: str, req_form) -> str:
     return redirect(f"/file/{folder_hash}")
 
 
-#TODO
-def delete_file(folder_hash: str, file_title: str, req_form) -> str:
+def get_file_deletion_page(folder_hash: str) -> str:
+  title_list = []
+  for f in FileManager().getPieceFileListDB(folder_hash):
+    title_list.append(f.get('file_title', ''))
+  piece = Metadata().reader().getPiece(folder_hash)
+  piece_title = piece.get('title', '') if piece else '?!?'
+
+  if not title_list:
+    return createHtmlAlertBox("No files found, nothing to do.", "Warning")
+  return render_template("update_delete_file.html", folder_hash=folder_hash, \
+                          piece_title=piece_title, file_title_list=title_list)
+
+
+def delete_file(folder_hash: str, req_form) -> str:
   """ This is the workflow for deleting a file. """
   verify_usr_pwd_err = AuthWeak().verifyReqFormUserPassword(req_form)
   if verify_usr_pwd_err:
     return verify_usr_pwd_err
-
-  err = FileManager().deleteFile(folder_hash, file_title)
+  
+  if 'select-file' not in req_form.keys():
+    return createHtmlAlertBox("Form fields missing, please check your input.", "Error")
+  file_title = req_form.get('select-file', '')
+  if not file_title:
+    return createHtmlAlertBox("No file selected.", "Error")
+  
+  err = FileManager().deleteFileByTitle(folder_hash, file_title)
   if err:
     #TODO use production-level error handling here
     return f"<h2>Error occurred while deleting file:</h2> {err}"
@@ -307,6 +325,35 @@ def delete_file(folder_hash: str, file_title: str, req_form) -> str:
     return redirect(f"/file/{folder_hash}")
 
 
-#TODO
-def replace_file(folder_hash: str, file_title: str, req_form) -> str:
-  pass
+def get_replace_file_page(folder_hash: str) -> str:
+  title_list = []
+  for f in FileManager().getPieceFileListDB(folder_hash):
+    title_list.append(f.get('file_title', ''))
+  piece = Metadata().reader().getPiece(folder_hash)
+  piece_title = piece.get('title', '') if piece else '?!?'
+  if not title_list:
+    return createHtmlAlertBox("No files found, nothing to do.", "Warning")
+  return render_template("update_replace_file.html", folder_hash=folder_hash, \
+                          piece_title=piece_title, file_title_list=title_list)
+
+
+def replace_file(folder_hash: str, req_form, req_file) -> str:
+  """ This is the workflow for replacing a file. """
+  verify_usr_pwd_err = AuthWeak().verifyReqFormUserPassword(req_form)
+  if verify_usr_pwd_err:
+    return verify_usr_pwd_err
+  
+  if 'select-file' not in req_form.keys() or not req_form.get('select-file', ''):
+    return createHtmlAlertBox("No file selected.", "Error")
+  if 'file' not in req_file or not req_file['file']:
+    return createHtmlAlertBox("No file uploaded, please check your input.", "Error")
+  file_title = req_form.get('select-file', '')
+  err = FileManager().replaceFile(folder_hash=folder_hash, file_title=file_title, req_file=req_file['file'])
+  if "File extension cannot be changed when replacing file" in err:
+    return createHtmlAlertBox(f"Please upload a file with the same extension.", "Error")
+
+  if err:
+    #TODO use production-level error handling here
+    return f"<h2>Error occurred while replacing file:</h2> {err}"
+  else:
+    return redirect(f"/file/{folder_hash}")

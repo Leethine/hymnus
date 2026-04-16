@@ -1,6 +1,7 @@
 from utilities import SingletonMeta
 from db_sqlite import DB_SQLITE
 from config import FILESYSTEM_PATH
+from werkzeug.utils import secure_filename
 import os, sys, shutil
 
 class FileManager(metaclass=SingletonMeta):
@@ -31,6 +32,7 @@ class FileManager(metaclass=SingletonMeta):
           file_list.append(filename)
     return file_list
   
+
   def getPieceFileListDB(self, folder_hash: str) -> list:
     """ Get a list of files in the directory corresponding to the given folder_hash. """
     selected = DB_SQLITE().selectRows(f"SELECT * FROM piece_files WHERE folder_hash = '{folder_hash}';")
@@ -92,21 +94,42 @@ class FileManager(metaclass=SingletonMeta):
     return ""
   
 
-  def replaceFile(self, folder_hash: str, filename: str, file_content: bytes) -> str:
+  def replaceFile(self, folder_hash: str, file_title: str, req_file) -> str:
     """ Upload a file to the file system and update the database metadata. """
-    file_path = self.getPieceFilePathOS(folder_hash, filename)
+    file_info = DB_SQLITE().selectRows(\
+      f"SELECT * FROM piece_files WHERE \
+      folder_hash = '{folder_hash}' AND file_title = '{file_title}';")
+    if len(file_info) != 1:
+      return "File does not exist in DB, cannot replace file"
+  
+    old_filename = file_info[0].get('file_name', '')
+    new_filename = secure_filename(req_file.filename)
+    old_file_path = self.getPieceFilePathOS(folder_hash, old_filename)
+    new_file_path = self.getPieceDir(folder_hash) + "/" + new_filename
+    if os.path.isfile(new_file_path) or os.path.isdir(new_file_path):
+      return "A file with the new filename already exists, rename it before uploading."
+    if not old_filename or not old_file_path or not os.path.isfile(old_file_path):
+      return "Previous file does not exist on disk, cannot replace file"
+    old_file_extension = os.path.splitext(old_filename)[-1]
+    new_file_extension = os.path.splitext(new_filename)[-1]
+    if old_file_extension != new_file_extension:
+      return "File extension cannot be changed when replacing file."
+  
     try:
-      with open(file_path, 'wb') as f:
-        f.write(file_content)
+      with open(old_file_path, 'wb') as f:
+        req_file.save(old_file_path)
+      shutil.move(old_file_path, new_file_path)
     except Exception as e:
       return f"Failed to write file to disk: {str(e)}"
 
-    # Update DB metadata
-    insert_query = f"UPDATE piece_files SET last_modified = CURRENT_TIMESTAMP \
-                     WHERE folder_hash = '{folder_hash}' AND file_name = '{filename}' ;"
+    # Update DB timestamp and file_name data
+    insert_query = f"UPDATE piece_files SET \
+                     last_modified = CURRENT_TIMESTAMP, \
+                     file_path  = '{new_file_path}', file_name = '{new_filename}' \
+                     WHERE folder_hash = '{folder_hash}' AND file_title = '{file_title}';"
     err = DB_SQLITE().updateRows(insert_query)
     if err:
-      return f"Failed to update DB metadata: {err}"
+      return f"Failed to update DB timestamp and file_name: {err}"
     return ""
   
 
@@ -135,17 +158,47 @@ class FileManager(metaclass=SingletonMeta):
     return ""
   
 
-  def deleteFile(self, folder_hash: str, filename: str) -> str:
+  def deleteFileByTitle(self, folder_hash: str, file_title: str) -> str:
     if DB_SQLITE().countRows(f"SELECT COUNT(*) FROM piece_files WHERE \
                                folder_hash = '{folder_hash}' AND \
-                               file_name = '{filename}';") == 1:
-      file_path = self.getPieceFilePathOS(folder_hash, filename)
+                               file_title = '{file_title}';") == 1:
+      file_metadata = DB_SQLITE().selectRows(f"SELECT * FROM piece_files WHERE \
+                                              folder_hash = '{folder_hash}' AND \
+                                              file_title = '{file_title}';")
+      if len(file_metadata) != 1 or 'file_name' not in file_metadata[0].keys():
+        return "File metadata is corrupted in DB, cannot delete file"
+      
+      file_path = self.getPieceFilePathOS(folder_hash, file_metadata[0]['file_name'])
       if os.path.isfile(file_path):
         os.remove(file_path)
       
       err = DB_SQLITE().updateRows(f"DELETE FROM piece_files WHERE \
                                      folder_hash = '{folder_hash}' AND \
-                                     file_name = '{filename}';")
+                                     file_title = '{file_title}';")
+      if err:
+        return f"Failed to delete file metadata from DB: {err}"
+      return ""
+    else:
+      return "File does not exist in DB, cannot delete"
+  
+
+  def deleteFileByName(self, folder_hash: str, file_name: str) -> str:
+    if DB_SQLITE().countRows(f"SELECT COUNT(*) FROM piece_files WHERE \
+                               folder_hash = '{folder_hash}' AND \
+                               file_name = '{file_name}';") == 1:
+      file_metadata = DB_SQLITE().selectRows(f"SELECT * FROM piece_files WHERE \
+                                              folder_hash = '{folder_hash}' AND \
+                                              file_name = '{file_name}';")
+      if len(file_metadata) != 1 or 'file_name' not in file_metadata[0].keys():
+        return "File metadata is corrupted in DB, cannot delete file"
+      
+      file_path = self.getPieceFilePathOS(folder_hash, file_metadata[0]['file_name'])
+      if os.path.isfile(file_path):
+        os.remove(file_path)
+      
+      err = DB_SQLITE().updateRows(f"DELETE FROM piece_files WHERE \
+                                     folder_hash = '{folder_hash}' AND \
+                                     file_name = '{file_name}';")
       if err:
         return f"Failed to delete file metadata from DB: {err}"
       return ""
