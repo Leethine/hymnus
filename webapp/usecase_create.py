@@ -192,14 +192,24 @@ def add_piece_file(folder_hash, req_form, req_file) -> str:
 
   if not file or not title or not desc:
     return createHtmlAlertBox("Please provide the file, title and description.", "Error")
+  if FileManager().getPieceFilePathDB(folder_hash=folder_hash, file_title=title, file_name=""):
+    return createHtmlAlertBox(f"The file title \"{title}\" already exists for this piece.", "Error")
   
+  # Check extension before saving file
   filename = secure_filename(file.filename)
   file_ext = os.path.splitext(filename)[-1].lower()
   if file_ext not in ACCEPTED_FILE_UPLOAD_EXTENSIONS:
     return createHtmlAlertBox(f"Uploaded file type \"{file_ext}\" not accepted.", "Error")
-  time.sleep(FILE_UPLOAD_WAIT_TIME)
-
+  
+  # Deal with duplicate filename, also prevent filename length overflow
+  if FileManager().getPieceFilePathDB(folder_hash=folder_hash, file_title="", file_name=filename):
+    if len(filename) > 50:
+      filename = time.strftime("%m%d%H%M%S_") + "_" + filename[40:]
+    else:
+      filename = time.strftime("%m%d%H%M%S_") + "_" + filename
+  
   # Try uploading the file, collect DB insertion error and file saving exception
+  time.sleep(FILE_UPLOAD_WAIT_TIME)
   exp = ""
   try:
     file.save(os.path.join(FileManager().getPieceDir(folder_hash), filename))

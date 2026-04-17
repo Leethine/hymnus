@@ -282,6 +282,11 @@ def update_file_metadata(folder_hash: str, req_form) -> str:
   new_description = req_form.get('description', '')
   if not current_title:
     return createHtmlAlertBox("No file selected.", "Error")
+
+  # Prevent duplicated file title  
+  if new_title != current_title and FileManager().getPieceFilePathDB(folder_hash=folder_hash, file_title=new_title, file_name=""):
+    return createHtmlAlertBox(f"The file title \"{new_title}\" already exists for this piece.", "Error")
+
   err = ""
   err = FileManager().modifyFileMetadata(folder_hash=folder_hash, old_title=current_title, \
                                          new_title=new_title, new_description=new_description)
@@ -356,7 +361,14 @@ def replace_file(folder_hash: str, req_form, req_file) -> str:
   # Process old and new file metadata
   old_file_path = FileManager().getPieceFilePathDB(folder_hash=folder_hash, file_title=file_title, file_name="")
   old_file_name = os.path.basename(old_file_path) if old_file_path else ""
+
   new_file_name = secure_filename(file.filename)
+  # Deal with duplicate filename, also prevent filename length overflow
+  if FileManager().getPieceFilePathDB(folder_hash=folder_hash, file_title="", file_name=new_file_name):
+    if len(new_file_name) > 50:
+      new_file_name = time.strftime("%m%d%H%M%S_") + "_" + new_file_name[40:]
+    else:
+      new_file_name = time.strftime("%m%d%H%M%S_") + "_" + new_file_name
   new_file_path = os.path.join(FileManager().getPieceDir(folder_hash), new_file_name)
 
   # Try updating metadata and uploading file, roll back if any error occurs  
