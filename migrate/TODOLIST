@@ -17,4 +17,6 @@ Then, in the usecase workflow, remove manual deletion code, just use the automat
 
 6. Maybe change route name
 
-7. FileManager and usecase workflows are still messy
+7. For 'piece_files' DB table, change abs path to variable + path
+
+8. FileManager and usecase workflows are still messy
