@@ -1,5 +1,5 @@
 import sys
-sys.path.append("../migrate/")
+sys.path.append("../webapp/")
 
 from metadata import Metadata
 from db_sqlite import DB_SQLITE

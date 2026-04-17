@@ -1,5 +1,5 @@
 import sys
-sys.path.append('../migrate/')
+sys.path.append('../webapp/')
 
 import random, os
 from multiprocessing import Process
