@@ -10,7 +10,7 @@ from auth import AuthWeak
 from config import ACCEPTED_FILE_UPLOAD_EXTENSIONS, FILE_UPLOAD_WAIT_TIME
 import re, os, time
 
-def get_modify_collection_pieces_page(collection_code: str) -> str:
+def render_modify_collection_pieces_page(collection_code: str) -> str:
   collection = Metadata().reader().getCollection(collection_code)
   if not collection:
     return createHtmlAlertBox("Collection not found.", "Error")
@@ -65,7 +65,7 @@ def modify_collection_pieces(collection_code: str, req_form) -> str:
 
 
 
-def get_update_piece_page(piece_hash: str) -> str:
+def render_update_piece_page(piece_hash: str) -> str:
   piece = Metadata().reader().getPiece(piece_hash)
   composer_code = piece.get('composer_code', '')
   composer_name = Metadata().reader().getComposer(composer_code).get('knownas_name', '')
@@ -129,7 +129,7 @@ def update_piece_info(piece_hash: str, req_form) -> str:
   return redirect("/")
 
 
-def get_update_collection_page(collection_code: str) -> str:
+def render_update_collection_page(collection_code: str) -> str:
   collection = Metadata().reader().getCollection(collection_code)
   if not collection:
     return createHtmlAlertBox("Collection not found.", "Error")
@@ -191,7 +191,7 @@ def update_collection_info(collection_code: str, req_form) -> str:
   return redirect("/")
 
 
-def get_update_composer_page() -> str:
+def render_update_composer_page() -> str:
   composer_list = Metadata().reader().getAllComposers(listed_only=False)
   if not composer_list:
     return createHtmlAlertBox("No composers found in DB.", "Error")
@@ -256,7 +256,7 @@ def update_or_delete_composer(req_form) -> str:
   return redirect("/")
 
 
-def get_update_file_info_page(folder_hash: str) -> str:
+def render_update_file_info_page(folder_hash: str) -> str:
   title_list = []
   for f in FileManager().getPieceFileListDB(folder_hash):
     title_list.append(f.get('file_title', ''))
@@ -292,7 +292,7 @@ def update_file_metadata(folder_hash: str, req_form) -> str:
     return redirect(f"/file/{folder_hash}")
 
 
-def get_file_deletion_page(folder_hash: str) -> str:
+def render_file_deletion_page(folder_hash: str) -> str:
   title_list = []
   for f in FileManager().getPieceFileListDB(folder_hash):
     title_list.append(f.get('file_title', ''))
@@ -325,7 +325,7 @@ def delete_file(folder_hash: str, req_form) -> str:
     return redirect(f"/file/{folder_hash}")
 
 
-def get_replace_file_page(folder_hash: str) -> str:
+def render_replace_file_page(folder_hash: str) -> str:
   title_list = []
   for f in FileManager().getPieceFileListDB(folder_hash):
     title_list.append(f.get('file_title', ''))

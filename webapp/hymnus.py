@@ -86,7 +86,7 @@ def download_piece_file(folder_hash, filename):
 def search_piece():
   if request.method == 'GET':
     return usecase_display.render_search_result(request.args)
-  return usecase_display.get_search_page()
+  return usecase_display.render_search_page()
 
 
 @app.route("/new-composer", methods=['GET', 'POST'])
@@ -117,40 +117,40 @@ def add_file(folder_hash):
 def modify_file_metadata(folder_hash):
   if request.method == 'POST':
     return usecase_modify.update_file_metadata(folder_hash, request.form)
-  return usecase_modify.get_update_file_info_page(folder_hash)
+  return usecase_modify.render_update_file_info_page(folder_hash)
 
 @app.route("/rmfile/<string:folder_hash>", methods=['GET', 'POST'])
 def delete_file(folder_hash):
   if request.method == 'POST':
     return usecase_modify.delete_file(folder_hash, request.form)
-  return usecase_modify.get_file_deletion_page(folder_hash)
+  return usecase_modify.render_file_deletion_page(folder_hash)
 
 @app.route("/replacefile/<string:folder_hash>", methods=['GET', 'POST'])
 def replace_file(folder_hash):
   if request.method == 'POST':
     return usecase_modify.replace_file(folder_hash, request.form, request.files)
-  return usecase_modify.get_replace_file_page(folder_hash)
+  return usecase_modify.render_replace_file_page(folder_hash)
 
 @app.route("/add-rm-collection-pieces/<string:collection_code>", methods=['GET', 'POST'])
 def add_rm_collection_pieces(collection_code):
   if request.method == 'POST':
     return usecase_modify.modify_collection_pieces(collection_code, request.form)
-  return usecase_modify.get_modify_collection_pieces_page(collection_code)
+  return usecase_modify.render_modify_collection_pieces_page(collection_code)
 
 @app.route("/modify-piece/<string:folder_hash>", methods=['GET', 'POST'])
 def modify_piece(folder_hash):
   if request.method == 'POST':
     return usecase_modify.update_piece_info(folder_hash, request.form)
-  return usecase_modify.get_update_piece_page(folder_hash)
+  return usecase_modify.render_update_piece_page(folder_hash)
 
 @app.route("/modify-collection/<string:collection_code>", methods=['GET', 'POST'])
 def modify_collection(collection_code):
   if request.method == 'POST':
     return usecase_modify.update_collection_info(collection_code, request.form)
-  return usecase_modify.get_update_collection_page(collection_code)
+  return usecase_modify.render_update_collection_page(collection_code)
 
 @app.route("/modify-composer", methods=['GET', 'POST'])
 def modify_composer():
   if request.method == 'POST':
     return usecase_modify.update_or_delete_composer(request.form)
-  return usecase_modify.get_update_composer_page()
+  return usecase_modify.render_update_composer_page()

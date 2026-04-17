@@ -135,7 +135,7 @@ def get_download_file_path(folder_hash: str, filename: str) -> str:
     return ""
 
 
-def get_search_page():
+def render_search_page():
   return render_template("search.html", \
                           search_results=[], \
                           composer_dict={})
