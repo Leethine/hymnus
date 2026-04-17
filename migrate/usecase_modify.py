@@ -348,12 +348,34 @@ def replace_file(folder_hash: str, req_form, req_file) -> str:
   if 'file' not in req_file or not req_file['file']:
     return createHtmlAlertBox("No file uploaded, please check your input.", "Error")
   file_title = req_form.get('select-file', '')
-  err = FileManager().replaceFile(folder_hash=folder_hash, file_title=file_title, req_file=req_file['file'])
-  if "File extension cannot be changed when replacing file" in err:
-    return createHtmlAlertBox(f"Please upload a file with the same extension.", "Error")
+  
+  file = req_file['file']
+  if not file or not file.filename:
+    return createHtmlAlertBox("No file uploaded, please check your input.", "Error")
+  
+  # Process old and new file metadata
+  old_file_path = FileManager().getPieceFilePathDB(folder_hash=folder_hash, file_title=file_title, file_name="")
+  old_file_name = os.path.basename(old_file_path) if old_file_path else ""
+  new_file_name = secure_filename(file.filename)
+  new_file_path = os.path.join(FileManager().getPieceDir(folder_hash), new_file_name)
 
-  if err:
-    #TODO use production-level error handling here
-    return f"<h2>Error occurred while replacing file:</h2> {err}"
+  # Try updating metadata and uploading file, roll back if any error occurs  
+  err = FileManager().reUploadFileMetadata(folder_hash=folder_hash, new_file_name=new_file_name, old_file_name=old_file_name)
+  if "File extension cannot be changed when re-uploading file" in err:
+    return createHtmlAlertBox(f"Please upload a file with the same extension.", "Error")
+  if "Cannot re-upload file with the same name" in err:
+    # No need to replace file if the same file is uploaded
+    return redirect(f"/file/{folder_hash}")
+  exp = ""
+  try:
+    file.save(new_file_path)
+    if old_file_path and os.path.isfile(old_file_path):
+      os.remove(old_file_path)
+  except Exception as e:
+    exp = str(e)
+  
+  if err or exp:
+    err += "\n" + FileManager().rollbackFileReUpload(folder_hash=folder_hash, new_file_name=new_file_name, old_file_name=old_file_name)
+    return createHtmlAlertBox(f"Error occurred while replacing file: {err} -- AND -- {exp}", "Error")
   else:
     return redirect(f"/file/{folder_hash}")

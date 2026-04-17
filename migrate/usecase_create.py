@@ -194,14 +194,22 @@ def add_piece_file(folder_hash, req_form, req_file) -> str:
     return createHtmlAlertBox("Please provide the file, title and description.", "Error")
   
   filename = secure_filename(file.filename)
-  ext = os.path.splitext(filename)[-1].lower()
-  if ext not in ACCEPTED_FILE_UPLOAD_EXTENSIONS:
-    return createHtmlAlertBox(f"Uploaded file type \"{ext}\" not accepted.", "Error")
+  file_ext = os.path.splitext(filename)[-1].lower()
+  if file_ext not in ACCEPTED_FILE_UPLOAD_EXTENSIONS:
+    return createHtmlAlertBox(f"Uploaded file type \"{file_ext}\" not accepted.", "Error")
   time.sleep(FILE_UPLOAD_WAIT_TIME)
 
-  err = FileManager().uploadFile(folder_hash, filename, title, desc, file)
-  if err:
-    return createHtmlAlertBox(f"Failed to upload file: {err}", "Error")
+  # Try uploading the file, collect DB insertion error and file saving exception
+  exp = ""
+  try:
+    file.save(os.path.join(FileManager().getPieceDir(folder_hash), filename))
+  except Exception as e:
+    exp = str(e)
+  err = FileManager().uploadFileMetadata(folder_hash=folder_hash, file_name=filename, \
+                                         file_title=title, file_desc=desc)
+  if err or exp:
+    err += "\n" + FileManager().rollbackFileUpload(folder_hash, filename)
+    return createHtmlAlertBox(f"Failed to upload file: {err} --AND-- {exp}", "Error")
   
   return redirect(f"/file/{folder_hash}")
 

@@ -128,15 +128,11 @@ def render_piece_files(folder_hash: str) -> str:
 
 
 def get_download_file_path(folder_hash: str, filename: str) -> str:
-  file_path = FileManager().getPieceFilePathDB(folder_hash, filename)
+  file_path = FileManager().getPieceFilePathDB(folder_hash=folder_hash, file_title="", file_name=filename)
   if file_path and os.path.isfile(file_path):
     return os.path.abspath(file_path)
   else:
     return ""
-
-
-def get_download_file_blob(folder_hash: str, filename: str) -> bytes:
-  return FileManager().downloadFile(folder_hash, filename)
 
 
 def get_search_page():
