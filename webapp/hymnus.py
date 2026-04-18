@@ -8,6 +8,8 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 @app.route("/")
 @app.route("/index")
 def index():
+  if not usecase_display.check_setup():
+    return render_template("front_page_nosetup.html")
   return render_template("front_page.html")
 
 @app.route("/about")

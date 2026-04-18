@@ -155,3 +155,18 @@ def render_search_result(req_args):
   return render_template("search.html", \
                           search_results=[], \
                           composer_dict=composer_code_name_dict)
+
+
+#TODO move this function to a more appropriate module
+def check_setup() -> bool:
+  import config
+  if os.path.isfile(os.environ.get('HYMNUS_DB', '???')) and \
+     os.path.isdir(os.environ.get('HYMNUS_FS', '???'))  and \
+     os.path.isdir(os.environ.get('HYMNUS_USERS', '???')):
+    return True
+  elif os.path.isfile(config.SQLITE_DB_PATH) and \
+       os.path.isdir(config.FILESYSTEM_PATH) and \
+       os.path.isdir(config.USER_PASSWORDS_PATH):
+    return True
+  else:
+    return False
