@@ -19,9 +19,9 @@ def toAscii(inputstr) -> str:
 
 def createHtmlAlertBox(message: str, level="Warning") -> str:
   HTML = "<!DOCTYPE html><html><body>"
-  HTML += "<h2>{level}</h2><script>\n"
-  HTML += 'alert("' + message + '");'
-  HTML += 'history.back()'
+  HTML += f"<h2>{level}</h2><script>\n"
+  HTML += f"alert('{message}');"
+  HTML += "history.back()"
   HTML += "</script></body></html>"
   return HTML
 

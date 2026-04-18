@@ -6,7 +6,7 @@ from werkzeug.utils import secure_filename
 from utilities import createHtmlAlertBox, verifyFormKeys
 from auth import AuthWeak
 from config import ACCEPTED_FILE_UPLOAD_EXTENSIONS, FILE_UPLOAD_WAIT_TIME
-import re, os, time
+import re, os, time, pathlib
 
 
 def render_create_composer_page() -> str:
@@ -212,11 +212,13 @@ def add_piece_file(folder_hash, req_form, req_file) -> str:
   time.sleep(FILE_UPLOAD_WAIT_TIME)
   exp = ""
   try:
+    pathlib.Path(FileManager().getPieceDir(folder_hash)).mkdir(exist_ok=True, parents=True)
     file.save(os.path.join(FileManager().getPieceDir(folder_hash), filename))
-  except Exception as e:
-    exp = str(e)
+  except:
+    exp = "Error occurred while saving the file."
   err = FileManager().uploadFileMetadata(folder_hash=folder_hash, file_name=filename, \
                                          file_title=title, file_desc=desc)
+
   if err or exp:
     err += "\n" + FileManager().rollbackFileUpload(folder_hash, filename)
     return createHtmlAlertBox(f"Failed to upload file: {err} --AND-- {exp}", "Error")

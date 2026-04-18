@@ -82,7 +82,7 @@ class FileManager(metaclass=SingletonMeta):
 
   def rollbackFileUpload(self, folder_hash: str, file_name: str) -> str:
     """ Rollback a file upload by deleting the file from the file system and removing the metadata from the database. """
-    file_path = self.getPieceFilePathDB(folder_hash, file_name)
+    file_path = self.getPieceFilePathDB(folder_hash=folder_hash, file_name=file_name, file_title="")
     if os.path.isfile(file_path):
       try:
         os.remove(file_path)
