@@ -67,9 +67,9 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
     <div class="input-group-prepend">
       <label class="input-group-text" for="select-action">Action</label>
     </div>
-    <select class="custom-select" id="select-action" name="select-action">
+    <select class="custom-select" id="select-action" name="select-action" onchange="toggleCheckBoxesOnChange()">
       <option value="unhide">Unhide composer</option>
-      <option value="hide">Hide composer</option>
+      <option value="hide"  >Hide composer</option>
       <option value="delete">Delete composer</option>
     </select>
   </div>
@@ -109,14 +109,14 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
       <br>
       <label for="also-delete-pieces">Delete associated pieces?</label>
       <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" id="also-delete-pieces" name="also-delete-pieces">
+        <input class="form-check-input" type="checkbox" id="also-delete-pieces" name="also-delete-pieces" disabled>
         <label class="form-check-label" for="also-delete-pieces">Yes</label>
       </div>
       <br>
 
       <label for="also-delete-collections">Delete associated collections?</label>
       <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" id="also-delete-collections" name="also-delete-collections">
+        <input class="form-check-input" type="checkbox" id="also-delete-collections" name="also-delete-collections" disabled>
         <label class="form-check-label" for="also-delete-collections">Yes</label>
       </div>
       <br>
@@ -165,6 +165,8 @@ COMPOSERLISTDATA = [
   </div>
 <!-- END MAIN -->
 </div>
+
+<script src="{{ url_for('static', filename='update_composer.js') }}"></script>
 
 <script>
 // Get the Sidebar
