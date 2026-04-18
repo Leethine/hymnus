@@ -14,15 +14,29 @@ class FileManager(metaclass=SingletonMeta):
       return os.path.abspath(FILESYSTEM_PATH)
     else:
       return os.path.abspath("./")
-    
+  
+  
+  def getPieceDirReplaceStr(self) -> str:
+    """ Get the string to be replaced with the piece directory in DB table. """
+    return "#$%PIECEDIR%$#"
+
 
   def getPieceDir(self, folder_hash: str) -> str:
     """ Get the directory path for a given folder_hash. """
     return os.path.join(self.getFSPath(), folder_hash[:2], folder_hash)
   
 
+  def getFileMetadataList(self, folder_hash: str) -> list:
+    """ Get the list of file metadata for a given folder_hash from DB. """
+    selected = DB_SQLITE().selectRows(f"SELECT * FROM piece_files WHERE folder_hash = '{folder_hash}';")
+    for row in selected:
+      if 'file_path' in row.keys():
+        row['file_path'] = row['file_path'].replace(self.getPieceDirReplaceStr(), self.getPieceDir(folder_hash))
+    return selected
+  
+
   def getPieceFileListOS(self, folder_hash: str) -> list:
-    """ Get a list of files in the directory corresponding to the given folder_hash. """
+    """ Get a list of files in the directory corresponding to the given folder_hash by scanning the file system. """
     file_list = []
     dir_path = self.getPieceDir(folder_hash)
     if os.path.isdir(dir_path):
@@ -33,9 +47,13 @@ class FileManager(metaclass=SingletonMeta):
   
 
   def getPieceFileListDB(self, folder_hash: str) -> list:
-    """ Get a list of files in the directory corresponding to the given folder_hash. """
+    """ Get a list of files in the directory corresponding to the given folder_hash from DB. """
     selected = DB_SQLITE().selectRows(f"SELECT * FROM piece_files WHERE folder_hash = '{folder_hash}';")
-    return selected
+    flist = []
+    for row in selected:
+      if 'file_path' in row.keys():
+        flist.append(row['file_path'].replace(self.getPieceDirReplaceStr(), self.getPieceDir(folder_hash)))
+    return flist
   
 
   def getPieceFilePathDB(self, folder_hash: str, file_title: str, file_name: str) -> str:
@@ -53,7 +71,7 @@ class FileManager(metaclass=SingletonMeta):
       return ""
     selected = DB_SQLITE().selectRows(QUERY)
     if len(selected) == 1 and 'file_path' in selected[0].keys():
-      return selected[0]['file_path']
+      return selected[0]['file_path'].replace(self.getPieceDirReplaceStr(), self.getPieceDir(folder_hash))
     else:
       return ""
 
@@ -73,8 +91,7 @@ class FileManager(metaclass=SingletonMeta):
     if len(piece_files_fs) != len(piece_files_db):
       return False
 
-    for p in piece_files_db:
-      fpath = p.get('file_path', '?')
+    for fpath in piece_files_db:
       if not os.path.isfile(fpath):
         return False
     return True
@@ -97,6 +114,7 @@ class FileManager(metaclass=SingletonMeta):
   def uploadFileMetadata(self, folder_hash: str, file_name: str, file_title: str, file_desc: str) -> str:
     """ Create database metadata for a new uploaded file. """
     file_path = os.path.join(self.getPieceDir(folder_hash), file_name)
+    file_path = file_path.replace(self.getPieceDir(folder_hash), self.getPieceDirReplaceStr())
 
     # Update DB metadata
     file_extension = os.path.splitext(file_name)[-1].lower()
@@ -135,6 +153,7 @@ class FileManager(metaclass=SingletonMeta):
       return "Cannot re-upload file with the same name."
 
     file_path = os.path.join(self.getPieceDir(folder_hash), new_file_name)
+    file_path = file_path.replace(self.getPieceDir(folder_hash), self.getPieceDirReplaceStr())
     file_extension = os.path.splitext(new_file_name)[-1].lower()
 
     # Check metadata and extension

@@ -258,7 +258,7 @@ def update_or_delete_composer(req_form) -> str:
 
 def render_update_file_info_page(folder_hash: str) -> str:
   title_list = []
-  for f in FileManager().getPieceFileListDB(folder_hash):
+  for f in FileManager().getFileMetadataList(folder_hash):
     title_list.append(f.get('file_title', ''))
   piece = Metadata().reader().getPiece(folder_hash)
   piece_title = piece.get('title', '') if piece else '?!?'
@@ -299,7 +299,7 @@ def update_file_metadata(folder_hash: str, req_form) -> str:
 
 def render_file_deletion_page(folder_hash: str) -> str:
   title_list = []
-  for f in FileManager().getPieceFileListDB(folder_hash):
+  for f in FileManager().getFileMetadataList(folder_hash):
     title_list.append(f.get('file_title', ''))
   piece = Metadata().reader().getPiece(folder_hash)
   piece_title = piece.get('title', '') if piece else '?!?'
@@ -332,7 +332,7 @@ def delete_file(folder_hash: str, req_form) -> str:
 
 def render_replace_file_page(folder_hash: str) -> str:
   title_list = []
-  for f in FileManager().getPieceFileListDB(folder_hash):
+  for f in FileManager().getFileMetadataList(folder_hash):
     title_list.append(f.get('file_title', ''))
   piece = Metadata().reader().getPiece(folder_hash)
   piece_title = piece.get('title', '') if piece else '?!?'

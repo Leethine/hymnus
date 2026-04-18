@@ -107,7 +107,7 @@ def render_piece_files(folder_hash: str) -> str:
     composer_name = composer['knownas_name']
   
 
-  file_list = FileManager().getPieceFileListDB(folder_hash)
+  file_list = FileManager().getFileMetadataList(folder_hash)
   warning = ""
   if not FileManager().verifyFileList(folder_hash):
     warning = "File list in the file system does not match the metadata in DB."
