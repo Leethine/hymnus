@@ -3,12 +3,16 @@ var is_arranged = 0;
 function setArranged() {
   is_arranged = 1;
   document.getElementById("check-is-not-arranged-piece").checked = false;
+
+  toggleArrangerField();
 }
 
 function setNotArranged() {
   is_arranged = 0;
   document.getElementById("select-arranger").value = "";
   document.getElementById("check-is-arranged-piece").checked = false;
+
+  toggleArrangerField();
 }
 
 function prettifyText(strval) {
@@ -139,4 +143,17 @@ function clearInput() {
   document.getElementById("select-composer").className = "form-control";
 
   document.getElementById("new-piece-script").className = "form-control";
+}
+
+function toggleArrangerField() {
+  if (is_arranged) {
+    document.getElementById("button-arranger").disabled = false;
+    document.getElementById("arranger-name").disabled = false;
+    document.getElementById("select-arranger").disabled = false;
+  }
+  else {
+    document.getElementById("button-arranger").disabled = true;
+    document.getElementById("arranger-name").disabled = true;
+    document.getElementById("select-arranger").disabled = true;
+  }
 }

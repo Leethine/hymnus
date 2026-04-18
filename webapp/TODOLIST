@@ -6,3 +6,5 @@ Then, in the usecase workflow, remove manual deletion code, just use the automat
 2. Use better error handling in the usecase workflow (check TODO tags)
 
 3. Change flask app route name, make the route more consistent
+
+4. JS improvement : piece creation (toggle disable arranger), collection creation (also toggle disable composer)

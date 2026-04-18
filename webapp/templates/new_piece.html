@@ -99,10 +99,10 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
       <label for="select-arranger">For arranged piece, tick the box and select arranger.</label>
       <div class="form-row">
         <div class="col-auto">
-          <button type="button" id="button-arranger" class="btn btn-secondary" onclick="createDropDownMenu('select-arranger')">Show Arrangers</button>
+          <button type="button" id="button-arranger" class="btn btn-secondary" onclick="createDropDownMenu('select-arranger')" disabled>Show Arrangers</button>
         </div>
         <div class="col-auto">
-          <select class="custom-select mr-sm-1" id="select-arranger" name="select-arranger">
+          <select class="custom-select mr-sm-1" id="select-arranger" name="select-arranger" disabled>
           </select>
         </div>
         <div class="form-check">
@@ -123,7 +123,7 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
       <div id="new-piece-form-2">
         <br>
         <label for="arranger-name">Arranger name, if not in the list (optional):</label>
-        <input id="arranger-name" name="arranger-name" type="text" class="form-control" placeholder="Some Musician">
+        <input id="arranger-name" name="arranger-name" type="text" class="form-control" placeholder="Some Musician" disabled>
         <br>
         <label for="new-piece-instrument">Instruments</label>
         <input id="new-piece-instrument" name="new-piece-instrument" type="text" class="form-control" placeholder="Piano, Violin, ...">

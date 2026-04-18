@@ -92,12 +92,13 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
         <label class="form-check-label" for="collection-has-composer">Yes</label>
       </div>
 
+      <br>
       <div class="form-row">
         <div class="col-auto">
-          <button type="button" id="button-composer" class="btn btn-secondary" onclick="createDropDownMenu('select-composer')">Show Composers</button>
+          <button type="button" id="button-composer" class="btn btn-secondary" onclick="createDropDownMenu('select-composer')" disabled>Show Composers</button>
         </div>
         <div class="col-auto">
-          <select class="custom-select mr-sm-1" id="select-composer" name="select-composer">
+          <select class="custom-select mr-sm-1" id="select-composer" name="select-composer" disabled>
           </select>
         </div>
       </div>
@@ -163,7 +164,7 @@ var COMPOSERLISTDATA = [] ;
 {% if composer_list %}
 COMPOSERLISTDATA = [
   {% for composer in composer_list %}
-    {% if composer.get('knownas_name_fmt', '') and composer.get('code', '') %}
+    {% if composer.get('knownas_name_fmt', '') and composer.get('code', '') and composer.get('code', '') != "zzz_unknown" %}
       [ "{{ composer["code"] }}", "{{ composer["knownas_name_fmt"] }}" ],
     {% endif %}
   {% endfor %}

@@ -181,8 +181,8 @@ def update_collection_info(collection_code: str, req_form) -> str:
     new_description = req_form.get('new-collection-description', '')
     err = Metadata().writer().updateCollection( \
       collection_code=collection_code, title=new_title, subtitle=new_subtitle,
-      subsubtitle=new_subsubtitle, editor=new_editor, composer_code="",
-      opus=new_opus, volume=new_volume, instruments=new_instrument, description=new_description)
+      subsubtitle=new_subsubtitle, editor=new_editor, opus=new_opus, \
+      volume=new_volume, instruments=new_instrument, description=new_description)
     if err:
       #TODO use production-level error handling here
       return f"<h2>Error occurred while modifying collection:</h2> {err}"

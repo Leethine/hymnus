@@ -82,7 +82,7 @@ def create_piece(req_form) -> str:
 
   formkeys = ['new-piece-title', 'new-piece-subtitle', 'new-piece-subsubtitle',
               'new-piece-dedicated', 'new-piece-year', 'new-piece-opus',
-              'select-composer', 'arranger-name', 'new-piece-instrument', 'new-piece-comment']
+              'select-composer', 'new-piece-instrument', 'new-piece-comment']
   if not verifyFormKeys(req_form, formkeys):
     return createHtmlAlertBox("Form fields missing, please check your input.", "Error")
   
