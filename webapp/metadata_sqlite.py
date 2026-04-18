@@ -395,6 +395,8 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
       return f"Composer with code {composer_code} does not exist in DB."
     
     err = DB_SQLITE().updateRows(f"DELETE FROM Composers WHERE code = '{composer_code}';")
+
+    #TODO improvement
     if deleted_associated_works:
       err += DB_SQLITE().updateRows(f"DELETE FROM Pieces WHERE composer_code = '{composer_code}';")
       err += DB_SQLITE().updateRows(f"DELETE FROM Piece_Search WHERE composer_code = '{composer_code}';")
@@ -419,6 +421,7 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
       return f"Collection with code {collection_code} does not exist in DB."
     
     err = DB_SQLITE().updateRows(f"DELETE FROM Collections WHERE code = '{collection_code}';")
+    #TODO improvement
     if deleted_associated_piece:
       err += DB_SQLITE().updateRows(f"DELETE FROM Pieces WHERE collection_code = '{collection_code}';")
       err += DB_SQLITE().updateRows(f"DELETE FROM Piece_Search WHERE collection_code = '{collection_code}';")
