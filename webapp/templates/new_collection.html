@@ -163,8 +163,8 @@ var COMPOSERLISTDATA = [] ;
 {% if composer_list %}
 COMPOSERLISTDATA = [
   {% for composer in composer_list %}
-    {% if composer["knownas_name"] and composer["code"] %}
-      [ "{{ composer["code"] }}", "{{ composer["knownas_name"] }}" ],
+    {% if composer.get('knownas_name_fmt', '') and composer.get('code', '') %}
+      [ "{{ composer["code"] }}", "{{ composer["knownas_name_fmt"] }}" ],
     {% endif %}
   {% endfor %}
 []

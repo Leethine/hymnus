@@ -195,6 +195,8 @@ def render_update_composer_page() -> str:
   composer_list = Metadata().reader().getAllComposers(listed_only=False)
   if not composer_list:
     return createHtmlAlertBox("No composers found in DB.", "Error")
+  for composer in composer_list:
+    composer['knownas_name_fmt'] = f"{composer.get('knownas_name', '').split(' ')[-1]}, {' '.join(composer.get('knownas_name', '').split(' ')[:-1])}"
   return render_template("update_composer.html", composer_list=composer_list)
 
 

@@ -68,6 +68,9 @@ def create_composer(req_form) -> str:
 
 def render_create_piece_page() -> str:
   composer_list = Metadata().reader().getAllComposers(listed_only=False)
+  for composer in composer_list:
+    composer['knownas_name_fmt'] = f"{composer.get('knownas_name', '').split(' ')[-1]}, {' '.join(composer.get('knownas_name', '').split(' ')[:-1])}"
+
   return render_template("new_piece.html", composer_list=composer_list)
 
 
@@ -130,6 +133,8 @@ def create_piece(req_form) -> str:
 def render_create_collection_page() -> str:
   """ This is the workflow for creating a new collection. """
   composer_list = Metadata().reader().getAllComposers(listed_only=False)
+  for composer in composer_list:
+    composer['knownas_name_fmt'] = f"{composer.get('knownas_name', '').split(' ')[-1]}, {' '.join(composer.get('knownas_name', '').split(' ')[:-1])}"
   return render_template("new_collection.html", composer_list=composer_list)
 
 

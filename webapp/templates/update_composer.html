@@ -107,9 +107,9 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
 COMPOSERLISTDATA = [
 
 {% for composer in composer_list %}
-  {% if composer.get('code', '') and composer.get('knownas_name', '') %}
+  {% if composer.get('code', '') and composer.get('knownas_name_fmt', '') and composer.get('code', '') != "zzz_unknown" %}
 
-    [ "{{ composer['code'] }}" , "{{ composer['knownas_name'] }}" ],
+    [ "{{ composer['code'] }}" , "{{ composer['knownas_name_fmt'] }}" ],
 
   {% endif %}
 {% endfor %}
