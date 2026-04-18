@@ -108,7 +108,15 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
   <td class="text-left">{{ piece_title }}</td>
   <td class="text-left">{{ piece_opus }}</td>
   <td class="text-left">{{ composer_name }}</td>
-  <td class="text-left"><a href="/file/{{ folder_hash }}"><i class="bi bi-arrow-up-right-square"></i></a></td>
+  {% if 'arranged' in piece %}
+    {% if piece['arranged'] != 0 %}
+      <td class="text-left"><i class="bi bi-journal-text" style="color: blue;"></i> <a href="/file/{{ folder_hash }}"><i class="bi bi-arrow-up-right-square"></i></a></td>
+    {% else %}
+      <td class="text-left"><i class="bi bi-journal-text" style="color: white;"></i> <a href="/file/{{ folder_hash }}"><i class="bi bi-arrow-up-right-square"></i></a></td>
+    {% endif %}
+  {% else %}
+      <td class="text-left"><i class="bi bi-journal-text" style="color: white;"></i> <a href="/file/{{ folder_hash }}"><i class="bi bi-arrow-up-right-square"></i></a></td>
+  {% endif %}
   </tr>
 
 {% endfor %}

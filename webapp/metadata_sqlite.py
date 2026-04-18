@@ -70,6 +70,7 @@ class SQLiteReadMetadata(metaclass=SingletonMeta):
         piece_metadata = DB_SQLITE().selectRows(f"SELECT * FROM Pieces WHERE folder_hash = '{r['folder_hash']}';")
         if piece_metadata:
           r['title'] = piece_metadata[0].get('title', '?!!.')
+          r['arranged'] = piece_metadata[0].get('arranged', 0)
 
     return rows
 
@@ -261,19 +262,22 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
   def createPiece(self, composer_code: str, title: str, subtitle="", subsubtitle="", opus="", dedicated="", \
                   arranger_code="", arranger_name="", collection_code="", year="?", instruments="", comment="") -> str:
     """Insert piece metadata into DB."""
-    information = [composer_code, title, subtitle, subsubtitle, opus, dedicated, arranger_code, \
-                   arranger_name, collection_code, year, instruments, comment]
-    piece_hash = self.__generatePieceHash('-'.join(information))
+    is_arranged = 0
+    if arranger_code or arranger_name:
+      is_arranged = 1
+    all_information = [composer_code, title, subtitle, subsubtitle, opus, dedicated, str(is_arranged), \
+                       arranger_code, arranger_name, collection_code, year, instruments, comment]
+    piece_hash = self.__generatePieceHash('-'.join(all_information))
     if self.__checkPieceExists(piece_hash):
       return f"Piece with hash {piece_hash} already exists in DB."
     
     err = ""
     if self.__checkComposerExist(composer_code):
       err = DB_SQLITE().updateRows(f"INSERT INTO Pieces \
-        (folder_hash, composer_code, title, subtitle, subsubtitle, opus, \
-        dedicated_to, arranger_code, arranger_name, collection_code, composed_year, instruments, comment) \
+        (folder_hash, composer_code, title, subtitle, subsubtitle, opus, dedicated_to, \
+         arranged, arranger_code, arranger_name, collection_code, composed_year, instruments, comment) \
         VALUES ('{piece_hash}', '{composer_code}', '{title}', '{subtitle}', '{subsubtitle}', \
-        '{opus}', '{dedicated}', '{arranger_code}', '{arranger_name}', \
+        '{opus}', '{dedicated}', {is_arranged}, '{arranger_code}', '{arranger_name}', \
         '{collection_code}', '{year}', '{instruments}', '{comment}');")
       
       composer = DB_SQLITE().selectRows(f"SELECT * FROM Composers WHERE code = '{composer_code}';")[0]
