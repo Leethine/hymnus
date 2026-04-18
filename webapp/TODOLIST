@@ -5,8 +5,4 @@ Then, in the usecase workflow, remove manual deletion code, just use the automat
 
 2. Use better error handling in the usecase workflow (check TODO tags)
 
-3. Also display composer pieces when the composer is an arranger of the works
-
-4. When displaying pieces, if it's arranged, also display a label next to the piece (something like "arranged work")
-
-6. Change flask app route name, make the route more consistent
+3. Change flask app route name, make the route more consistent
