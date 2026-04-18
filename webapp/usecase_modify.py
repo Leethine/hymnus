@@ -200,6 +200,13 @@ def render_update_composer_page() -> str:
   return render_template("update_composer.html", composer_list=composer_list)
 
 
+def render_update_one_composer_page(composer_code: str) -> str:
+  composer = Metadata().reader().getComposer(composer_code)
+  if not composer:
+    return createHtmlAlertBox("No composers found in DB.", "Error")
+  return render_template("update_composer.html", composer_list=[composer])
+
+
 def update_or_delete_composer(req_form) -> str:
   """ This is the workflow for unhide/hide composer or deleting composer. """
   verify_usr_pwd_err = AuthWeak().verifyReqFormUserPassword(req_form)
