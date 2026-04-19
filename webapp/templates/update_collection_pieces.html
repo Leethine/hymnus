@@ -68,9 +68,9 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
     <div class="input-group-prepend">
       <label class="input-group-text" for="select-action">Action</label>
     </div>
-    <select class="custom-select" id="select-action" name="select-action">
+    <select class="custom-select" id="select-action" name="select-action" onchange="toggleInputField()">
       <option value="add-to">Add pieces to collection</option>
-      <option value="remove-from">Remove a piece from collection</option>
+      <option value="remove-from">Remove pieces from collection</option>
     </select>
   </div>
 
@@ -79,10 +79,10 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
         <input id="collection-title" name="collection-title" type="text" class="form-control" value="{{ collection_title }}" disabled>
         <br>
         <label for="list-of-pieces-add">To add pieces, provide list of pieces' hash code, separated by comma " <b>,</b> " </label>
-        <input id="list-of-pieces-add" name="list-of-pieces-add" type="text" class="form-control" placeholder="adc83b19e793491b1c6ea0fd8b46cd9f32e592fc">
+        <input id="list-of-pieces-add" name="list-of-pieces-add" type="text" class="form-control" placeholder="piece hash code">
         <br>
         <label for="list-of-pieces-remove">To remove pieces, provide list of pieces' hash code, separated by comma " <b>,</b> " </label>
-        <input id="list-of-pieces-remove" name="list-of-pieces-remove" type="text" class="form-control" placeholder="adc83b19e793491b1c6ea0fd8b46cd9f32e592fc">
+        <input id="list-of-pieces-remove" name="list-of-pieces-remove" type="text" class="form-control" placeholder="piece hash code" disabled>
       </div>
 
       <div class="input-group mt-4">
@@ -109,6 +109,8 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
 
 <!-- END MAIN -->
 </div>
+
+<script src="{{ url_for('static', filename='update_collection_pieces.js') }}"></script>
 
 <script>
 // Get the Sidebar
