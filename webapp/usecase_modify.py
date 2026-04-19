@@ -286,13 +286,13 @@ def update_file_metadata(folder_hash: str, req_form) -> str:
   
   if not verifyFormKeys(req_form, ['title', 'description']):
     return createHtmlAlertBox("Form fields missing, please check your input.", "Error")
-  current_title = req_form.get('select-file', '')
-  new_title = req_form.get('title', '')
+  current_title = req_form.get('select-file', '').strip()
+  new_title = req_form.get('title', '').strip()
   new_description = req_form.get('description', '')
   if not current_title:
     return createHtmlAlertBox("No file selected.", "Error")
 
-  # Prevent duplicated file title  
+  # Prevent duplicated file title
   if new_title != current_title and FileManager().getPieceFilePathDB(folder_hash=folder_hash, file_title=new_title, file_name=""):
     return createHtmlAlertBox(f"The file title \"{new_title}\" already exists for this piece.", "Error")
 
