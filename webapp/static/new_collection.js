@@ -9,6 +9,12 @@ function toggleComposerList() {
   }
   if (! has_composer) {
     document.getElementById("select-composer").value = "";
+    document.getElementById("select-composer").disabled = true;
+    document.getElementById("button-composer").disabled = true;
+  }
+  else {
+    document.getElementById("select-composer").disabled = false;
+    document.getElementById("button-composer").disabled = false;
   }
 }
 

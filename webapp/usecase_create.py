@@ -68,6 +68,9 @@ def create_composer(req_form) -> str:
 
 def render_create_piece_page() -> str:
   composer_list = Metadata().reader().getAllComposers(listed_only=False)
+  for composer in composer_list:
+    composer['knownas_name_fmt'] = f"{composer.get('knownas_name', '').split(' ')[-1]}, {' '.join(composer.get('knownas_name', '').split(' ')[:-1])}"
+
   return render_template("new_piece.html", composer_list=composer_list)
 
 
@@ -79,7 +82,7 @@ def create_piece(req_form) -> str:
 
   formkeys = ['new-piece-title', 'new-piece-subtitle', 'new-piece-subsubtitle',
               'new-piece-dedicated', 'new-piece-year', 'new-piece-opus',
-              'select-composer', 'arranger-name', 'new-piece-instrument', 'new-piece-comment']
+              'select-composer', 'new-piece-instrument', 'new-piece-comment']
   if not verifyFormKeys(req_form, formkeys):
     return createHtmlAlertBox("Form fields missing, please check your input.", "Error")
   
@@ -130,6 +133,8 @@ def create_piece(req_form) -> str:
 def render_create_collection_page() -> str:
   """ This is the workflow for creating a new collection. """
   composer_list = Metadata().reader().getAllComposers(listed_only=False)
+  for composer in composer_list:
+    composer['knownas_name_fmt'] = f"{composer.get('knownas_name', '').split(' ')[-1]}, {' '.join(composer.get('knownas_name', '').split(' ')[:-1])}"
   return render_template("new_collection.html", composer_list=composer_list)
 
 
@@ -187,7 +192,7 @@ def add_piece_file(folder_hash, req_form, req_file) -> str:
   if 'file' not in req_file:
     return createHtmlAlertBox("No file uploaded, please check your input.", "Error")
   file = req_file['file']
-  title = req_form['title']
+  title = req_form['title'].strip()
   desc = req_form['description']
 
   if not file or not title or not desc:

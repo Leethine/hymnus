@@ -156,3 +156,9 @@ def modify_composer():
   if request.method == 'POST':
     return usecase_modify.update_or_delete_composer(request.form)
   return usecase_modify.render_update_composer_page()
+
+@app.route("/modify-composer/<string:composer_code>", methods=['GET', 'POST'])
+def modify_one_composer(composer_code):
+  if request.method == 'POST':
+    return usecase_modify.update_or_delete_composer(request.form)
+  return usecase_modify.render_update_one_composer_page(composer_code)

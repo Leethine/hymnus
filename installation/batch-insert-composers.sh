@@ -1,11 +1,15 @@
 #!/bin/bash
 
-if [[ -z "${HYMNUS_DATAPATH}" ]] || [[ -f "${HYMNUS_DATAPATH}" ]]; then
-  printf "Error: \n Env variable HYMNUS_DATAPATH not correctly set."
+if [[ -z "${HYMNUS_DB}" ]] || [[ ! -f "${HYMNUS_DB}" ]]; then
+  printf "Error: \n Env variable HYMNUS_DB not correctly set."
   exit 1;
 fi
-DBFILE="${HYMNUS_DATAPATH}/tables.db"
-FSPATH="${HYMNUS_DATAPATH}/files"
+#if [[ -z "${HYMNUS_FS}" ]] || [[ ! -d "${HYMNUS_FS}" ]]; then
+#  printf "Error: \n Env variable HYMNUS_FS not correctly set."
+#  exit 1;
+#fi
+DBFILE="${HYMNUS_DB}"
+#FSPATH="${HYMNUS_FS}"
 
 CSVFILE=${1}
 
@@ -46,10 +50,9 @@ EOF
 done < ${CSVFILE}
 
 # Delete header
-#sqlite3 "${DBFILE}" <<EOF
-#DELETE FROM composers WHERE
-#code = 'code';
-#EOF
+sqlite3 "${DBFILE}" <<EOF
+DELETE FROM composers WHERE
+code = 'code';
+EOF
 
-#echo "Done batch insert composers."
-echo "Created temporary batch script."
+echo "Done batch insert composers."

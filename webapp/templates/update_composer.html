@@ -67,15 +67,32 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
     <div class="input-group-prepend">
       <label class="input-group-text" for="select-action">Action</label>
     </div>
-    <select class="custom-select" id="select-action" name="select-action">
-      <option value="delete">Delete composer</option>
-      <option value="hide">Hide composer</option>
+    <select class="custom-select" id="select-action" name="select-action" onchange="toggleCheckBoxesOnChange()">
       <option value="unhide">Unhide composer</option>
+      <option value="hide"  >Hide composer</option>
+      <option value="delete">Delete composer</option>
     </select>
   </div>
   <br>
 
   <label for="select-composer">Select composer from drop-down menu.</label>
+
+
+{% if composer_list|length == 1 %}
+
+    <div class="form-row">
+      <div class="col-auto">
+        <button type="button" id="button-composer" class="btn btn-secondary" disabled>Show Composers</button>
+      </div>
+      <div class="col-auto">
+        <select class="custom-select mr-sm-1" id="select-composer" name="select-composer">
+          <option value="{{ composer_list[0]['code'] }}" selected>{{ composer_list[0]['knownas_name'] }}</option>
+        </select>
+      </div>
+    </div>
+
+{% else %}
+
     <div class="form-row">
       <div class="col-auto">
         <button type="button" id="button-composer" class="btn btn-secondary" onclick="createDropDownMenu('select-composer')">Show Composers</button>
@@ -85,17 +102,21 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
         </select>
       </div>
     </div>
+
+{% endif %}
+
+
       <br>
       <label for="also-delete-pieces">Delete associated pieces?</label>
       <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" id="also-delete-pieces" name="also-delete-pieces">
+        <input class="form-check-input" type="checkbox" id="also-delete-pieces" name="also-delete-pieces" disabled>
         <label class="form-check-label" for="also-delete-pieces">Yes</label>
       </div>
       <br>
 
       <label for="also-delete-collections">Delete associated collections?</label>
       <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" id="also-delete-collections" name="also-delete-collections">
+        <input class="form-check-input" type="checkbox" id="also-delete-collections" name="also-delete-collections" disabled>
         <label class="form-check-label" for="also-delete-collections">Yes</label>
       </div>
       <br>
@@ -107,9 +128,9 @@ html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
 COMPOSERLISTDATA = [
 
 {% for composer in composer_list %}
-  {% if composer.get('code', '') and composer.get('knownas_name', '') %}
+  {% if composer.get('code', '') and composer.get('knownas_name_fmt', '') and composer.get('code', '') != "zzz_unknown" %}
 
-    [ "{{ composer['code'] }}" , "{{ composer['knownas_name'] }}" ],
+    [ "{{ composer['code'] }}" , "{{ composer['knownas_name_fmt'] }}" ],
 
   {% endif %}
 {% endfor %}
@@ -144,6 +165,8 @@ COMPOSERLISTDATA = [
   </div>
 <!-- END MAIN -->
 </div>
+
+<script src="{{ url_for('static', filename='update_composer.js') }}"></script>
 
 <script>
 // Get the Sidebar

@@ -181,8 +181,8 @@ def update_collection_info(collection_code: str, req_form) -> str:
     new_description = req_form.get('new-collection-description', '')
     err = Metadata().writer().updateCollection( \
       collection_code=collection_code, title=new_title, subtitle=new_subtitle,
-      subsubtitle=new_subsubtitle, editor=new_editor, composer_code="",
-      opus=new_opus, volume=new_volume, instruments=new_instrument, description=new_description)
+      subsubtitle=new_subsubtitle, editor=new_editor, opus=new_opus, \
+      volume=new_volume, instruments=new_instrument, description=new_description)
     if err:
       #TODO use production-level error handling here
       return f"<h2>Error occurred while modifying collection:</h2> {err}"
@@ -195,7 +195,16 @@ def render_update_composer_page() -> str:
   composer_list = Metadata().reader().getAllComposers(listed_only=False)
   if not composer_list:
     return createHtmlAlertBox("No composers found in DB.", "Error")
+  for composer in composer_list:
+    composer['knownas_name_fmt'] = f"{composer.get('knownas_name', '').split(' ')[-1]}, {' '.join(composer.get('knownas_name', '').split(' ')[:-1])}"
   return render_template("update_composer.html", composer_list=composer_list)
+
+
+def render_update_one_composer_page(composer_code: str) -> str:
+  composer = Metadata().reader().getComposer(composer_code)
+  if not composer:
+    return createHtmlAlertBox("No composers found in DB.", "Error")
+  return render_template("update_composer.html", composer_list=[composer])
 
 
 def update_or_delete_composer(req_form) -> str:
@@ -277,13 +286,13 @@ def update_file_metadata(folder_hash: str, req_form) -> str:
   
   if not verifyFormKeys(req_form, ['title', 'description']):
     return createHtmlAlertBox("Form fields missing, please check your input.", "Error")
-  current_title = req_form.get('select-file', '')
-  new_title = req_form.get('title', '')
+  current_title = req_form.get('select-file', '').strip()
+  new_title = req_form.get('title', '').strip()
   new_description = req_form.get('description', '')
   if not current_title:
     return createHtmlAlertBox("No file selected.", "Error")
 
-  # Prevent duplicated file title  
+  # Prevent duplicated file title
   if new_title != current_title and FileManager().getPieceFilePathDB(folder_hash=folder_hash, file_title=new_title, file_name=""):
     return createHtmlAlertBox(f"The file title \"{new_title}\" already exists for this piece.", "Error")
 

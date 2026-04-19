@@ -69,9 +69,10 @@ def render_collection_piece_list(collection_code):
   composer_name = ""
   if 'composer_code' in collection:
     composer = Metadata().reader().getComposer(collection['composer_code'])
-    composer_name = "???"
     if composer and 'knownas_name' in composer:
       composer_name = composer['knownas_name']
+    else:
+      composer_name = "??!"
   
   # Optional, show N/A for fields where info is missing
   for k in collection.keys():
