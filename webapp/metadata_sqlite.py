@@ -176,8 +176,13 @@ class SQLiteReadMetadata(metaclass=SingletonMeta):
     """Check if a composer has pieces in DB."""
     count = DB_SQLITE().countRows(f"SELECT COUNT(*) FROM Pieces WHERE composer_code = '{composer_code}';")
     return count > 0
+  
 
-
+  def collectionHasPiece(self, collection_code: str, piece_hash: str) -> bool:
+    """Check if a piece is in collection in DB."""
+    count = DB_SQLITE().countRows(f"SELECT COUNT(*) FROM Pieces WHERE collection_code LIKE '%{collection_code}%' \
+                                    AND folder_hash = '{piece_hash}';")
+    return count > 0
 
 
 class SQLiteWriteMetadata(metaclass=SingletonMeta):
@@ -399,7 +404,6 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
     
     err = DB_SQLITE().updateRows(f"DELETE FROM Composers WHERE code = '{composer_code}';")
 
-    #TODO improvement
     if deleted_associated_works:
       err += DB_SQLITE().updateRows(f"DELETE FROM Pieces WHERE composer_code = '{composer_code}';")
       err += DB_SQLITE().updateRows(f"DELETE FROM Piece_Search WHERE composer_code = '{composer_code}';")
@@ -418,16 +422,21 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
     return err
   
 
-  def deleteCollection(self, collection_code: str, deleted_associated_piece=False) -> str:
+  def deleteCollection(self, collection_code: str) -> str:
     """Delete collection from DB."""
     if not self.__checkCollectionExists(collection_code):
-      return f"Collection '{collection_code}' does not exist in DB."
-    
+      return f"Collection '{collection_code}' does not exist in DB."    
     err = DB_SQLITE().updateRows(f"DELETE FROM Collections WHERE code = '{collection_code}';")
-    #TODO improvement
-    if deleted_associated_piece:
-      err += DB_SQLITE().updateRows(f"DELETE FROM Pieces WHERE collection_code = '{collection_code}';")
-      err += DB_SQLITE().updateRows(f"DELETE FROM Piece_Search WHERE collection_code = '{collection_code}';")
+    for piece in DB_SQLITE.selectRows(f"SELECT * FROM Pieces WHERE collection_code LIKE '%{collection_code}%'"):
+      coll =  piece.get('collection_code', '')
+      folder_hash = piece.get('folder_hash', '')
+      if coll and folder_hash:
+        new_coll = coll.replace(collection_code, '')
+        err += DB_SQLITE.updateRows(f"UPDATE Pieces SET collection_code = '{new_coll}' \
+                                      WHERE folder_hash = '{folder_hash}';")
+        err += DB_SQLITE.updateRows(f"UPDATE Piece_search SET collection_code = '{new_coll}' \
+                                      WHERE folder_hash = '{folder_hash}';")
+        #TODO remove unecessary comma
     return err
   
   
