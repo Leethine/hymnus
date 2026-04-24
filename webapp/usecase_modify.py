@@ -236,8 +236,7 @@ def update_or_delete_composer(req_form) -> str:
         collection_code = collection.get('code', '')
         if collection_code:
           # remove pieces from collection before deleting collection
-          #TODO use simplified workflow,
-          # just call Metadata().writer().deleteCollection(...) is enough
+          #TODO use simplified workflow, just call Metadata().writer().deleteCollection(...) is enough
           for piece in Metadata().reader().getCollectionPieces(collection_code):
             folder_hash = piece.get('folder_hash', '')
             if folder_hash and Metadata().reader().getPiece(folder_hash):
