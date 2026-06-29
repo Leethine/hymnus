@@ -1,0 +1,69 @@
+enabled,firstname,lastname,knownas_name,bornyear,diedyear,code
+N,Girolamo Alessandro,Frescobaldi,Girolamo Frescobaldi,1583,1643,frescobaldi_g
+N,Giovanni Pierluigi,da Palestrina,Palestrina,1525,1594,palestrina
+N,Claudio Giovanni Antonio,Monteverdi,Claudio Monteverdi,1567,1643,monteverdi_c
+N,Jean-Baptiste,Lully,Jean-Baptiste Lully,1632,1687,lully_j_b
+N,Dieterich,Buxtehude,Dieterich Buxtehude,1637,1707,buxtehude_d
+N,Henry,Purcell,Henry Purcell,1659,1695,purcell_h
+N,Johann Sebastian,Bach,Johann Sebastian Bach,1685,1750,bach_j_s
+N,Johann,Pachelbel,Johann Pachelbel,1653,1706,pachelbel_j
+N,George Frideric,Handel,George Frideric Handel,1685,1759,handel_g_f
+N,Giuseppe Domenico,Scarlatti,Domenico Scarlatti,1685,1757,scarlatti_d
+N,Pietro Alessandro Gaspare,Scarlatti,Alessandro Scarlatti,1660,1725,scarlatti_a
+N,François,Couperin,François Couperin,1668,1733,couperin_f
+N,Georg Philipp,Telemann,Georg Philipp Telemann,1681,1767,telemann_g_p
+N,Jean-Philippe Rameau,Rameau,Jean-Philippe Rameau,1683,1764,rameau_j_p
+N,Antonio Lucio,Vivaldi,Antonio Vivaldi,1678,1741,vivaldi_a
+N,Wolfgang Amadeus,Mozart,Wolfgang Amadeus Mozart,1756,1791,mozart_w_a
+N,Ludwig,Beethoven,Ludwig van Beethoven,1770,1827,beethoven_l_van
+N,Carl Philipp Emanuel,Bach,Carl Philipp Emanuel Bach,1714,1788,bach_c_p_e
+N,Franz Joseph,Haydn,Joseph Haydn,1732,1809,haydn_j
+N,Johann Christian,Bach,Johann Christian Bach,1735,1782,bach_j_c
+N,Franz Peter,Schubert,Franz Schubert,1797,1828,schubert_f
+N,Gioachino Antonio,Rossini,Gioachino Rossini,1792,1868,rossini_g
+N,Domenico Gaetano Maria,Donizetti,Gaetano Donizetti,1797,1848,donizetti_g
+N,Jakob Ludwig Felix,Mendelssohn Bartholdy,Felix Mendelssohn,1809,1847,mendelssohn_f
+N,Frédéric François,Chopin,Frédéric Chopin,1810,1849,chopin_f
+N,Robert,Schumann,Robert Schumann,1810,1856,schumann_r
+N,Franz,Liszt,Franz Liszt,1811,1886,liszt_f
+N,Wilhelm Richard,Wagner,Richard Wagner,1813,1883,wagner_r
+N,Giuseppe Fortunino Francesco,Verdi,Giuseppe Verdi,1813,1901,verdi_g
+N,César-Auguste-Jean-Guillaume-Hubert,Franck,César Franck,1822,1890,franck_c
+N,Johannes,Brahms,Johannes Brahms,1833,1897,brahms_j
+N,Charles-Camille,Saint-Saëns,Camille Saint-Saëns,1835,1921,saintsaens_c
+N,Charles-François,Gounod,Charles Gounod,1818,1893,gounod_c
+N,Georges,Bizet,Georges Bizet,1838,1875,bizet_g
+N,Modest Petrovich,Mussorgsky,Modest Mussorgsky,1839,1881,mussorgsky_m
+N,Josef Gabriel,Rheinberger,Josef Rheinberger,1839,1901,rheinberger_j
+N,Pyotr Ilyich,Tchaikovsky,Pyotr Ilyich Tchaikovsky,1840,1893,tchaikovsky_p
+N,Edward William,Elgar,Edward Elgar,1857,1934,elgar_e
+N,Antonín Leopold,Dvořák,Antonín Dvořák,1841,1904,dvorak_a
+N,Edvard Hagerup,Grieg,Edvard Grieg,1843,1907,grieg_e
+N,Nikolai Andreyevich,Rimsky-Korsakov,Nikolai Rimsky-Korsakov,1844,1908,rimskykorsakov_n
+N,Gabriel Urbain,Fauré,Gabriel Fauré,1845,1924,faure_g
+N,Charles-Marie-Jean-Albert,Widor,Charles-Marie Widor,1844,1937,widor_c_m
+N,Domenico,Zipoli,Domenico Zipoli,1688,1726,zipoli_d
+N,Giacomo,Puccini,Giacomo Puccini,1858,1924,puccini_g
+N,Louis-Hector,Berlioz,Hector Berlioz,1803,1869,berlioz_h
+N,Gustav,Mahler,Gustav Mahler,1860,1911,mahler_g
+N,Richard Georg,Strauss,Richard Strauss,1864,1949,strauss_r
+N,Eugène-Auguste,Ysaÿe,Eugène Ysaÿe,1858,1931,ysaye_e
+N,Jean,Sibelius,Jean Sibelius,1865,1957,sibelius_j
+N,Sergei Vasilyevich,Rachmaninoff,Sergei Rachmaninoff,1873,1943,rachmaninoff_s
+N,Alexander Nikolayevich,Scriabin,Alexander Scriabin,1872,1915,scriabin_a
+N,Claude Achille,Debussy,Claude Debussy,1862,1918,debussy_c
+N,Johann Baptist Joseph Maximilian,Reger,Max Reger,1873,1916,reger_max
+N,Joseph Anton,Bruckner,Anton Bruckner,1824,1896,bruckner_a
+N,Arnold,Schoenberg,Arnold Schoenberg,1874,1951,schoenberg_a
+N,Béla Viktor János,Bartók,Béla Bartók,1881,1945,bartok_b
+N,Joseph Maurice,Ravel,Maurice Ravel,1875,1937,ravel_m
+N,Igor Fyodorovich,Stravinsky,Igor Stravinsky,1882,1971,stravinsky_igor
+N,Alban Maria Johannes,Berg,Alban Berg,1885,1935,berg_a
+N,Anton Friedrich Wilhelm,von Webern,Anton Webern,1883,1945,webern_a
+N,Sergei Sergeyevich,Prokofiev,Sergei Prokofiev,1891,1953,prokofiev_s
+N,Dmitri Dmitriyevich,Shostakovich,Dmitri Shostakovich,1906,1975,shostakovich_d
+N,Louis Victor Jules,Vierne,Louis Vierne,1870,1937,vierne_l
+N,Juliette Nadia,Boulanger,Nadia Boulanger,1887,1979,boulanger_n
+N,Marie-Juliette,Boulanger,Lili Boulanger,1893,1918,boulanger_l
+N,Jehan-Ariste Paul,Alain,Jehan Alain,1911,1940,alain_j
+N,Olivier Eugène Prosper Charles,Messiaen,Olivier Messiaen,1908,1992,messiaen_o
