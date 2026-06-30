@@ -1,42 +1,36 @@
-#include "sqlite3_interface.hpp"
-#include <iostream>
+#include "../sqlite3_interface.hpp"
+#include <stdexcept>
 
 using namespace hymnus;
 
-int main() {
+int main(int argc, char ** argv) {
 
   SQLite3_Interface s;
 
-  std::vector<RowEntry> rows;
-
-  s.runSqlRead("SELECT COUNT(*) FROM Composers WHERE code = \'zzz_unknown_000\';", rows, 2, 3);
-  for (auto it = rows.begin(); it != rows.end(); it++) {
-    for (auto it2 = it->begin(); it2 != it->end(); it2++) {
-      std::cout << it2->first << ": " << it2->second << ", ";
+  if (argc > 1) {
+    std::string str (argv[1]);
+    std::string str2;
+    int n = 0;
+    if (argc > 2) {
+      str2 = std::string(argv[2]);
     }
-    std::cout << "\n";
-  }
 
-
-  s.runSqlWrite("INSERT INTO composers (code,firstname,lastname,knownas_name,bornyear,diedyear) VALUES (\'zzz_unknown_000\', \'UNKNOWN\', \'UNKNOWNXXX\', \'???\', -1, -1);");
-
-  s.runSqlRead("SELECT * FROM Composers WHERE code = \'zzz_unknown_000\';", rows, 2, 3);
-  for (auto it = rows.begin(); it != rows.end(); it++) {
-    for (auto it2 = it->begin(); it2 != it->end(); it2++) {
-      std::cout << it2->first << ": " << it2->second << ", ";
+    if (str == "d" || str == "del") {
+      s.runSqlWrite("DELETE FROM A_Test_Table;");
     }
-    std::cout << "\n";
-  }
-
-  s.runSqlWrite("DELETE FROM Composers WHERE code = \'zzz_unknown_000\';");
-
-
-  s.runSqlRead("SELECT * FROM Composers WHERE code = \'zzz_unknown_000\';", rows, 2, 3);
-  for (auto it = rows.begin(); it != rows.end(); it++) {
-    for (auto it2 = it->begin(); it2 != it->end(); it2++) {
-      std::cout << it2->first << ": " << it2->second << ", ";
+    else if (str2 == "d" || str2 == "del") {
+      s.runSqlWrite("DELETE FROM A_Test_Table WHERE col1 = \'test" + str + "\';");
     }
-    std::cout << "\n";
+    else {
+      try {
+        n = std::stoi(str);
+        s.runSqlWrite("INSERT INTO A_Test_Table (col1,col2,col3) VALUES(\'test" + str + "\', \'hello" + str + "\'," + str + ");");
+      }
+      catch (std::invalid_argument const& ex) {
+      }
+      catch (std::out_of_range const& ex) {
+      }
+    }
   }
 
   return 0;

@@ -6,11 +6,14 @@
 #include <chrono>
 #include <thread>
 #include <sqlite3.h>
+#include <limits.h>
 
 // wait time (in ms)
 #define SQLITE_WRITE_WAIT_TIME 10
+#define SQLITE_READ_WAIT_TIME 10
 // total timeout (in ms)
 #define SQLITE_WRITE_TIMEOUT 10000
+#define SQLITE_READ_TIMEOUT 1000
 
 namespace hymnus {
 
@@ -90,47 +93,7 @@ SQLite3_Interface::~SQLite3_Interface() {
 
 int SQLite3_Interface::runSqlRead(const std::string& __sql,
                                   std::vector<RowEntry>& __rows) {
-  if (!_initialized) {
-    return DBERROR_NOT_INITIALIZED;
-  }
-
-  __rows.clear();
-  std::string dbpath = SQLite3_Interface::getDbPath();
-  sqlite3 * db;
-  int rc;
-  rc = sqlite3_open_v2(dbpath.c_str(), &db, SQLITE_OPEN_READONLY, NULL);
-  if (rc != SQLITE_OK) {
-    sqlite3_close(db);
-    return DBERROR_FAILED_TO_OPEN_DB;
-  }
-  sqlite3_stmt* stmt;
-  rc = sqlite3_prepare_v2(db, __sql.c_str(), -1, &stmt, NULL);
-  if (rc != SQLITE_OK) {
-    sqlite3_finalize(stmt);
-    sqlite3_close(db);
-    if (rc == SQLITE_ERROR) {
-      return DBERROR_INVALID_SQL_SYNTAX;
-    }
-    return DBERROR_FAILED_TO_READ_DATA;
-  }
-  // do the work
-  int total_columns = sqlite3_column_count(stmt);
-  std::string col_val;
-  RowEntry row;
-  while (sqlite3_step(stmt) == SQLITE_ROW) {
-    row.clear();
-    for (int i = 0; i < total_columns; i++) {
-      get_column_anytype(stmt, i, col_val);
-      const char *col_name = sqlite3_column_name(stmt, i);
-      std::string col_key(col_name);
-      row.insert({col_key, col_val});
-    }
-    __rows.push_back(row);
-  }
-
-  sqlite3_finalize(stmt);
-  sqlite3_close(db);
-  return DBERROR_OK;
+  return runSqlRead(__sql, __rows, 0, INT_MAX);
 }
 
 int SQLite3_Interface::runSqlRead(const std::string& __sql,
@@ -161,9 +124,20 @@ int SQLite3_Interface::runSqlRead(const std::string& __sql,
   }
 
   // skip the pages
+  int elapsed_ms = 0;
   size_t n_skip = __nth_page * __nbr_of_rows_per_page;
-  for(size_t i = 0; i < n_skip; i++) {
-    sqlite3_step(stmt);
+  while (n_skip > 0 && elapsed_ms < SQLITE_READ_TIMEOUT) {
+    rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW) {
+      n_skip--;
+    }
+    else if (rc == SQLITE_BUSY || rc == SQLITE_LOCKED) {
+      std::this_thread::sleep_for(SQLITE_WRITE_WAIT_TIME * 1ms);
+      elapsed_ms += SQLITE_READ_WAIT_TIME;
+    }
+    else {
+      break;
+    }
   }
 
   // do the work
@@ -171,15 +145,31 @@ int SQLite3_Interface::runSqlRead(const std::string& __sql,
   std::string col_val;
   RowEntry row;
   size_t count = 0;
-  while (sqlite3_step(stmt) == SQLITE_ROW && count++ < __nbr_of_rows_per_page) {
-    row.clear();
-    for (int i = 0; i < total_columns; i++) {
-      get_column_anytype(stmt, i, col_val);
-      const char *col_name = sqlite3_column_name(stmt, i);
-      std::string col_key(col_name);
-      row.insert({col_key, col_val});
+  while (1) {
+    if (! (count < __nbr_of_rows_per_page && elapsed_ms < SQLITE_READ_TIMEOUT) ) {
+      break;
     }
-    __rows.push_back(row);
+    rc = sqlite3_step(stmt);
+    if (rc == SQLITE_ROW) {
+      row.clear();
+      for (int i = 0; i < total_columns; i++) {
+        get_column_anytype(stmt, i, col_val);
+        const char *col_name = sqlite3_column_name(stmt, i);
+        std::string col_key(col_name);
+        row.insert({col_key, col_val});
+      }
+      __rows.push_back(row);
+      count++;
+    }
+    else {
+      if (rc == SQLITE_BUSY || rc == SQLITE_LOCKED) {
+        std::this_thread::sleep_for(SQLITE_WRITE_WAIT_TIME * 1ms);
+        elapsed_ms += SQLITE_READ_WAIT_TIME;
+      }
+      else {
+        break;
+      }
+    }
   }
 
   sqlite3_finalize(stmt);
@@ -192,7 +182,6 @@ int SQLite3_Interface::runSqlWrite(const std::string& __sql) {
     return DBERROR_NOT_INITIALIZED;
   }
 
-  // TODO: set timeout using sqlite3_busy_timeout(XXms) to avoid manually handling timeout
   int elapsed_ms = 0;
   std::string dbpath = SQLite3_Interface::getDbPath();
   sqlite3 * db;

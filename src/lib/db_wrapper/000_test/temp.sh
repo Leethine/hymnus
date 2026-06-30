@@ -1,1 +1,0 @@
-g++ -std=c++17 test_count.cpp sqlite3_interface.o -lsqlite3 -o test
