@@ -293,4 +293,16 @@ class FileManager(metaclass=SingletonMeta):
     if err:
       return f"Failed to delete file metadata from DB: {err}"
     return ""
+  
 
+  def deleteOwnerlessFiles(self) -> str:
+    """ Delete files in DB and File system if nothing found in Pieces table. """
+    err = ""
+    for piece in DB_SQLITE().selectRows(f"SELECT * FROM Piece_files WHERE \
+                                          folder_hash NOT IN (SELECT folder_hash FROM Pieces);"):
+      folder_hash = piece.get('folder_hash', '')
+      if folder_hash:
+        err += self.deletePieceFiles(folder_hash)
+    err += DB_SQLITE().updateRows(f"DELETE FROM Piece_files WHERE \
+                                    folder_hash NOT IN (SELECT folder_hash FROM Pieces);");
+    return err

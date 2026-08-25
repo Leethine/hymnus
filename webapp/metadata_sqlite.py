@@ -176,8 +176,13 @@ class SQLiteReadMetadata(metaclass=SingletonMeta):
     """Check if a composer has pieces in DB."""
     count = DB_SQLITE().countRows(f"SELECT COUNT(*) FROM Pieces WHERE composer_code = '{composer_code}';")
     return count > 0
+  
 
-
+  def collectionHasPiece(self, collection_code: str, piece_hash: str) -> bool:
+    """Check if a piece is in collection in DB."""
+    count = DB_SQLITE().countRows(f"SELECT COUNT(*) FROM Pieces WHERE collection_code LIKE '%{collection_code}%' \
+                                    AND folder_hash = '{piece_hash}';")
+    return count > 0
 
 
 class SQLiteWriteMetadata(metaclass=SingletonMeta):
@@ -244,7 +249,7 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
   def hideComposer(self, composer_code: str) -> str:
     """Hide composer in DB by setting a flag. Hidden composer will not be returned in getAllComposers()."""
     if not self.__checkComposerExist(composer_code):
-      return f"Composer with code {composer_code} does not exist in DB."
+      return f"Composer '{composer_code}' does not exist in DB."
     
     err = DB_SQLITE().updateRows(f"UPDATE Composers SET listed = 0 WHERE code = '{composer_code}';")
     return err
@@ -253,7 +258,7 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
   def unhideComposer(self, composer_code: str) -> str:
     """Unhide composer in DB by setting the 'listed' flag."""
     if not self.__checkComposerExist(composer_code):
-      return f"Composer with code {composer_code} does not exist in DB."
+      return f"Composer '{composer_code}' does not exist in DB."
     
     err = DB_SQLITE().updateRows(f"UPDATE Composers SET listed = 1 WHERE code = '{composer_code}';")
     return err
@@ -269,7 +274,7 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
                        arranger_code, arranger_name, collection_code, year, instruments, comment]
     piece_hash = self.__generatePieceHash('-'.join(all_information))
     if self.__checkPieceExists(piece_hash):
-      return f"Piece with hash {piece_hash} already exists in DB."
+      return f"Piece '{piece_hash}' already exists in DB."
     
     err = ""
     if self.__checkComposerExist(composer_code):
@@ -293,7 +298,7 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
         VALUES ('{context}', '{author}', '{composer_code}', \
                 '{opus}', '{year}', '{toAscii(instruments)}', '{piece_hash}');")
     else:
-      err = f"Composer with code {composer_code} does not exist in DB. Cannot create piece."
+      err = f"Composer '{composer_code}' does not exist in DB. Cannot create piece."
 
     if err:
       return err
@@ -306,7 +311,7 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
     information = [title, subtitle, subsubtitle, editor, composer_code, opus, volume]
     collection_code = self.__generateCollectionCode('-'.join(information))
     if self.__checkCollectionExists(collection_code):
-      return f"Collection with code {collection_code} already exists in DB."
+      return f"Collection '{collection_code}' already exists in DB."
     
     err = DB_SQLITE().updateRows(f"INSERT INTO Collections \
       (code,title,subtitle,subsubtitle,editor,composer_code,opus,volume,instruments,description_text) \
@@ -337,7 +342,7 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
                   dedicated="", collection_code="", year="", instruments="", comment="") -> str:
     """Update piece metadata in DB."""
     if not self.__checkPieceExists(piece_hash):
-      return f"Piece with hash {piece_hash} does not exist in DB."
+      return f"Piece '{piece_hash}' does not exist in DB."
     
     # update Piece_Search table
     try:
@@ -354,7 +359,7 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
         instruments = COALESCE('{toAscii(instruments)}', instruments) \
         WHERE folder_hash = '{piece_hash}';")
     except IndexError:
-      return f"Piece with hash {piece_hash} does not have a valid composer code in DB. Cannot update piece."
+      return f"Piece '{piece_hash}' does not have a valid composer code in DB. Cannot update piece."
     
     # update Pieces table
     err += DB_SQLITE().updateRows(f"UPDATE Pieces SET \
@@ -376,7 +381,7 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
                        editor="", opus="", volume="", instruments="", description="") -> str:
     """Update collection metadata in DB."""
     if not self.__checkCollectionExists(collection_code):
-      return f"Collection with code {collection_code} does not exist in DB."
+      return f"Collection '{collection_code}' does not exist in DB."
 
     err = DB_SQLITE().updateRows(f"UPDATE Collections SET \
       title = COALESCE('{title}', title), \
@@ -395,11 +400,10 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
   def deleteComposer(self, composer_code: str, deleted_associated_works=False) -> str:
     """Delete composer from DB. This will also delete all pieces and collections related to the composer."""
     if not self.__checkComposerExist(composer_code):
-      return f"Composer with code {composer_code} does not exist in DB."
+      return f"Composer '{composer_code}' does not exist in DB."
     
     err = DB_SQLITE().updateRows(f"DELETE FROM Composers WHERE code = '{composer_code}';")
 
-    #TODO improvement
     if deleted_associated_works:
       err += DB_SQLITE().updateRows(f"DELETE FROM Pieces WHERE composer_code = '{composer_code}';")
       err += DB_SQLITE().updateRows(f"DELETE FROM Piece_Search WHERE composer_code = '{composer_code}';")
@@ -411,32 +415,37 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
   def deletePiece(self, piece_hash: str) -> str:
     """Delete piece from DB."""
     if not self.__checkPieceExists(piece_hash):
-      return f"Piece with hash {piece_hash} does not exist in DB."
+      return f"Piece '{piece_hash}' does not exist in DB."
     
     err = DB_SQLITE().updateRows(f"DELETE FROM Pieces WHERE folder_hash = '{piece_hash}';")
     err += DB_SQLITE().updateRows(f"DELETE FROM Piece_Search WHERE folder_hash = '{piece_hash}';")
     return err
   
 
-  def deleteCollection(self, collection_code: str, deleted_associated_piece=False) -> str:
+  def deleteCollection(self, collection_code: str) -> str:
     """Delete collection from DB."""
     if not self.__checkCollectionExists(collection_code):
-      return f"Collection with code {collection_code} does not exist in DB."
-    
+      return f"Collection '{collection_code}' does not exist in DB."    
     err = DB_SQLITE().updateRows(f"DELETE FROM Collections WHERE code = '{collection_code}';")
-    #TODO improvement
-    if deleted_associated_piece:
-      err += DB_SQLITE().updateRows(f"DELETE FROM Pieces WHERE collection_code = '{collection_code}';")
-      err += DB_SQLITE().updateRows(f"DELETE FROM Piece_Search WHERE collection_code = '{collection_code}';")
+    for piece in DB_SQLITE.selectRows(f"SELECT * FROM Pieces WHERE collection_code LIKE '%{collection_code}%'"):
+      coll =  piece.get('collection_code', '')
+      folder_hash = piece.get('folder_hash', '')
+      if coll and folder_hash:
+        new_coll = coll.replace(collection_code, '')
+        err += DB_SQLITE.updateRows(f"UPDATE Pieces SET collection_code = '{new_coll}' \
+                                      WHERE folder_hash = '{folder_hash}';")
+        err += DB_SQLITE.updateRows(f"UPDATE Piece_search SET collection_code = '{new_coll}' \
+                                      WHERE folder_hash = '{folder_hash}';")
+        #TODO remove unecessary comma
     return err
   
   
   def addPieceToCollection(self, piece_hash: str, collection_code: str) -> str:
     """Add a piece to a collection."""
     if not self.__checkPieceExists(piece_hash):
-      return f"Piece with hash {piece_hash} does not exist in DB."
+      return f"Piece '{piece_hash}' does not exist in DB."
     if not self.__checkCollectionExists(collection_code):
-      return f"Collection with code {collection_code} does not exist in DB."
+      return f"Collection '{collection_code}' does not exist in DB."
     
     # Append collection code to piece's collection_code field,
     # do not modify if collection code already exists
@@ -457,9 +466,9 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
   def rmPieceFromCollection(self, piece_hash: str, collection_code: str) -> str:
     """Remove a piece from a collection."""
     if not self.__checkPieceExists(piece_hash):
-      return f"Piece with hash {piece_hash} does not exist in DB."
+      return f"Piece '{piece_hash}' does not exist in DB."
     if not self.__checkCollectionExists(collection_code):
-      return f"Collection with code {collection_code} does not exist in DB."
+      return f"Collection '{collection_code}' does not exist in DB."
     
     # Append collection code to piece's collection_code field,
     # do not modify if collection code already exists
@@ -483,19 +492,19 @@ class SQLiteWriteMetadata(metaclass=SingletonMeta):
   def addComposerImslpLink(self, composer_code: str, imslp_link: str) -> str:
     """Add IMSLP link to a composer in DB."""
     if not self.__checkComposerExist(composer_code):
-      return f"Composer with code {composer_code} does not exist in DB."
+      return f"Composer '{composer_code}' does not exist in DB."
     
     err = DB_SQLITE().updateRows(f"UPDATE Composers SET imslp_url = '{imslp_link}' \
-                                 WHERE code = '{composer_code}';")
+                                   WHERE code = '{composer_code}';")
     return err
   
 
   def addComposerWikiLink(self, composer_code: str, wiki_link: str) -> str:
     """Add Wiki link to a composer in DB."""
     if not self.__checkComposerExist(composer_code):
-      return f"Composer with code {composer_code} does not exist in DB."
+      return f"Composer '{composer_code}' does not exist in DB."
     
     err = DB_SQLITE().updateRows(f"UPDATE Composers SET wikipedia_url = '{wiki_link}' \
-                                 WHERE code = '{composer_code}';")
+                                   WHERE code = '{composer_code}';")
     return err
   
