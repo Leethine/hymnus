@@ -16,6 +16,14 @@ INSERT INTO composers
   (code,firstname,lastname,knownas_name,bornyear,diedyear)
 VALUES ('zzz_unknown', ' ', ' ', '?', -1, -1);
 
+INSERT INTO composers
+  (code,firstname,lastname,knownas_name,bornyear,diedyear)
+VALUES ('zzz_anonymous', ' ', ' ', 'Anonymous', -1, -1);
+
+INSERT INTO composers
+  (code,firstname,lastname,knownas_name,bornyear,diedyear)
+VALUES ('zzz_various', ' ', ' ', 'Various', -1, -1);
+
 -- Table to store collections --
 DROP TABLE IF EXISTS collections;
 CREATE TABLE collections (
@@ -28,7 +36,12 @@ CREATE TABLE collections (
   description_text TEXT,
   volume TEXT,
   instruments TEXT,
-  editor TEXT
+  editor TEXT,
+  -- list of hash of pieces this collection
+  list_pieces TEXT,
+  -- the serie how the pieces are presented
+  -- e.g. 1,2,3 or I, II, III, IV ... 
+  list_series TEXT
 );
 
 -- Table to store single pieces --
@@ -38,7 +51,6 @@ CREATE TABLE pieces (
   arranged BOOLEAN NOT NULL DEFAULT 0,
   arranger_code TEXT,
   arranger_name TEXT,
-  collection_code TEXT,
   title TEXT NOT NULL,
   subtitle TEXT,
   subsubtitle TEXT,
@@ -70,7 +82,6 @@ CREATE TABLE piece_search (
   context         TEXT,
   author          TEXT,
   composer_code   TEXT NOT NULL DEFAULT 'zzz_unknown',
-  collection_code TEXT,
   opus            TEXT,
   composed_year   TEXT DEFAULT '?',
   instruments     TEXT,
