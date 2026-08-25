@@ -40,7 +40,7 @@ CREATE TABLE collections (
   -- list of hash of pieces this collection
   list_pieces TEXT,
   -- the serie how the pieces are presented
-  -- e.g. 1,2,3 or I, II, III, IV ... 
+  -- e.g. num (1,2,3) or roman (I, II, III, IV) ... 
   list_series TEXT
 );
 
