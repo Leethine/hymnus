@@ -1,17 +1,17 @@
 import sqlite3, os, time
 from utilities import SingletonMeta
-from config import SQLITE_MAX_RETRY, SQLITE_WAIT_TIME
-from config import SQLITE_DB_PATH
+from CONFIG import SQLITE_MAX_RETRY, SQLITE_WAIT_TIME
+from CONFIG import DB_PATH
 
-class DB_SQLITE(metaclass=SingletonMeta):
+class SQLite3Adapter(metaclass=SingletonMeta):
   """Low-level SQLite database interface. """
   
   def getDBPath(self) -> str:
     """Return database path in 'HYMNUS_DB' env variable."""
     if 'HYMNUS_DB' in os.environ.keys():
       return os.environ['HYMNUS_DB']
-    elif os.path.isfile(SQLITE_DB_PATH):
-      return SQLITE_DB_PATH
+    elif os.path.isfile(DB_PATH):
+      return DB_PATH
     else:
       return ":memory:"
 
@@ -35,10 +35,8 @@ class DB_SQLITE(metaclass=SingletonMeta):
       except sqlite3.DatabaseError as e:
         err = str(e)
         break
-    
     if retry_count >= SQLITE_MAX_RETRY:
       err = f"SQLite database is locked after {retry_count} retries."
-    
     con.close()
     return err
 
@@ -66,6 +64,7 @@ class DB_SQLITE(metaclass=SingletonMeta):
 
   def selectRows(self, query: str) -> list:
     """Execute SQLITE DB query."""
+    retry_count = 0
     selected_rows = []
     con = sqlite3.connect(self.getDBPath())
     con.row_factory = sqlite3.Row
@@ -82,25 +81,30 @@ class DB_SQLITE(metaclass=SingletonMeta):
       except sqlite3.OperationalError as e:
         if "database is locked" in str(e):
           time.sleep(SQLITE_WAIT_TIME)
+          retry_count += 1
       except sqlite3.DatabaseError as e:
-        break
+        return [-1, str(e)]
     con.close()
+    if retry_count >= SQLITE_MAX_RETRY:
+      return [-1, f"SQLite database is locked after {retry_count} retries."]
     return selected_rows
 
 
   def selectPartialRows(self, query_select: str, n_rows: int, part=1) -> list:
     """Execute select query from SQLITE DB and return the result as Python list.
       (Only select N rows from the N-th part.)"""
-
     selected_rows = []
     con = sqlite3.connect(self.getDBPath())
     con.row_factory = sqlite3.Row
+    # count paging in partial selection
+    part_count = 0
     for i in range(SQLITE_MAX_RETRY):
       try:
         cur = con.cursor()
         query_res = cur.execute(query_select)
         res = None
-        for i in range(part):
+        while part_count < part:
+          part_count += 1
           res = query_res.fetchmany(n_rows)
         if res:
           for r in res:
@@ -111,11 +115,24 @@ class DB_SQLITE(metaclass=SingletonMeta):
         break
       except sqlite3.OperationalError as e:
         if "database is locked" in str(e):
+          # step back
+          part_count -= 1
           time.sleep(SQLITE_WAIT_TIME)
+          retry_count += 1
       except sqlite3.DatabaseError as e:
-        break
+        return [-1, str(e)]
     con.close()
+    if retry_count >= SQLITE_MAX_RETRY:
+      return [-1, f"SQLite database is locked after {retry_count} retries."]
     return selected_rows
+
+
+  def getSqlSelectError(self, selected : list) -> str:
+    if len(selected) > 1 and type(selected[0]) == int:
+      return str(selected[1])
+    elif len(selected) == 1 and type(selected[0]) == int:
+      return "Unknown error"
+    return ""
 
 
   def verifySQLiteSyntax(self, query: str) -> bool:
