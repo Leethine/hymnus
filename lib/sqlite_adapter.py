@@ -8,7 +8,7 @@ class SQLite3Adapter(metaclass=SingletonMeta):
   
   def getDBPath(self) -> str:
     """Return database path in 'HYMNUS_DB' env variable."""
-    if 'HYMNUS_DB' in os.environ.keys():
+    if 'HYMNUS_DB' in os.environ.keys() and os.path.isfile(os.environ['HYMNUS_DB']):
       return os.environ['HYMNUS_DB']
     elif os.path.isfile(DB_PATH):
       return DB_PATH
