@@ -239,7 +239,7 @@ class SQLiteMetadataReader(metaclass=SingletonMeta):
 ###############################################################################
 
 
-class SQLiteWriteMetadata(metaclass=SingletonMeta):
+class SQLiteMetadataWriter(metaclass=SingletonMeta):
   """Metadata WRITE interface for SQLITE database."""
 
   def __generateComposerCode(self, knownas_name: str) -> str:
