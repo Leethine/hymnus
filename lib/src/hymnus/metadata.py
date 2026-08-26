@@ -1,6 +1,15 @@
 import hashlib
-from utilities import SingletonMeta, toAscii
-from sqlite_adapter import SQLite3Adapter
+import importlib
+
+if importlib.util.find_spec('hymnus') is not None:
+  from hymnus.utilities import SingletonMeta, toAscii
+  from hymnus.sqlite_adapter import SQLite3Adapter
+  from hymnus.CONFIG import COMPOSERS_PER_PAGE,COLLECTIONS_PER_PAGE,PIECES_PER_PAGE
+else:
+  from utilities import SingletonMeta, toAscii
+  from sqlite_adapter import SQLite3Adapter
+  from CONFIG import COMPOSERS_PER_PAGE,COLLECTIONS_PER_PAGE,PIECES_PER_PAGE
+
 
 class SQLiteMetadataReader(metaclass=SingletonMeta):
   """Metadata READ interface for SQLITE database."""
@@ -17,7 +26,7 @@ class SQLiteMetadataReader(metaclass=SingletonMeta):
       return []
 
 
-  def getPartialComposers(self, items_per_page: int, page_number: int, listed_only=True) -> list:
+  def getPartialComposers(self, page_number: int, items_per_page=COMPOSERS_PER_PAGE, listed_only=True) -> list:
     """Get metadata of partial (paginated) composers from DB."""
     if listed_only:
       rows = SQLite3Adapter().selectRows( \
@@ -60,7 +69,7 @@ class SQLiteMetadataReader(metaclass=SingletonMeta):
       return []
 
 
-  def getPartialPieces(self, items_per_page: int, page_number: int) -> list:
+  def getPartialPieces(self, page_number: int, items_per_page=PIECES_PER_PAGE) -> list:
     """Get metadata of partial (paginated) pieces from DB."""
     rows = SQLite3Adapter().selectRows( \
       f"SELECT * FROM Pieces ORDER BY title \
@@ -126,7 +135,7 @@ class SQLiteMetadataReader(metaclass=SingletonMeta):
       return []
 
 
-  def getPartialCollections(self, items_per_page: int, page_number: int) -> list:
+  def getPartialCollections(self, page_number: int, items_per_page=COLLECTIONS_PER_PAGE) -> list:
     """Get metadata of partial (paginated) collections from DB."""
     rows = SQLite3Adapter().selectRows( \
       f"SELECT * FROM Collections ORDER BY title \
@@ -434,15 +443,15 @@ class SQLiteMetadataWriter(metaclass=SingletonMeta):
     # Update Pieces table
     err += SQLite3Adapter().updateRows( \
       f"UPDATE Pieces SET                                                     \
-          title             = COALESCE('{title}', title),                     \
-          subtitle          = COALESCE('{subtitle}', subtitle),               \
-          subsubtitle       = COALESCE('{subsubtitle}', subsubtitle),         \
-          opus              = COALESCE('{opus}', opus),                       \
-          dedicated_to      = COALESCE('{dedicated}', dedicated_to),          \
+          title             = COALESCE('{title}',           title),           \
+          subtitle          = COALESCE('{subtitle}',        subtitle),        \
+          subsubtitle       = COALESCE('{subsubtitle}',     subsubtitle),     \
+          opus              = COALESCE('{opus}',            opus),            \
+          dedicated_to      = COALESCE('{dedicated}',       dedicated_to),    \
           collection_code   = COALESCE('{collection_code}', collection_code), \
-          composed_year     = COALESCE('{year}', composed_year),              \
-          instruments       = COALESCE('{instruments}', instruments),         \
-          comment           = COALESCE('{comment}', comment)                  \
+          composed_year     = COALESCE('{year}',            composed_year),   \
+          instruments       = COALESCE('{instruments}',     instruments),     \
+          comment           = COALESCE('{comment}',         comment)          \
         WHERE folder_hash = '{piece_hash}';")
     return err
 
@@ -454,12 +463,12 @@ class SQLiteMetadataWriter(metaclass=SingletonMeta):
       return f"Collection '{collection_code}' does not exist in DB."
     err = SQLite3Adapter().updateRows( \
       f"UPDATE Collections SET \
-          title            = COALESCE('{title}', title),                 \
-          subtitle         = COALESCE('{subtitle}', subtitle),           \
+          title            = COALESCE('{title}',       title),           \
+          subtitle         = COALESCE('{subtitle}',    subtitle),        \
           subsubtitle      = COALESCE('{subsubtitle}', subsubtitle),     \
-          editor           = COALESCE('{editor}', editor),               \
-          opus             = COALESCE('{opus}', opus),                   \
-          volume           = COALESCE('{volume}', volume),               \
+          editor           = COALESCE('{editor}',      editor),          \
+          opus             = COALESCE('{opus}',        opus),            \
+          volume           = COALESCE('{volume}',      volume),          \
           instruments      = COALESCE('{instruments}', instruments),     \
           description_text = COALESCE('{description}', description_text) \
         WHERE code = '{collection_code}';")

@@ -1,7 +1,15 @@
 import sqlite3, os, time
-from utilities import SingletonMeta
-from CONFIG import SQLITE_MAX_RETRY, SQLITE_WAIT_TIME
-from CONFIG import DB_PATH
+import importlib.util
+
+if importlib.util.find_spec('hymnus') is not None:
+  from hymnus.utilities import SingletonMeta
+  from hymnus.CONFIG import SQLITE_MAX_RETRY, SQLITE_WAIT_TIME
+  from hymnus.CONFIG import DB_PATH
+else:
+  from utilities import SingletonMeta
+  from CONFIG import SQLITE_MAX_RETRY, SQLITE_WAIT_TIME
+  from CONFIG import DB_PATH
+
 
 class SQLite3Adapter(metaclass=SingletonMeta):
   """Low-level SQLite database interface. """
