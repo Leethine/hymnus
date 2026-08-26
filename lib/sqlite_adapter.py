@@ -90,6 +90,7 @@ class SQLite3Adapter(metaclass=SingletonMeta):
     return selected_rows
 
 
+  #DEPRECATED
   def selectPartialRows(self, query_select: str, n_rows: int, part=1) -> list:
     """Execute select query from SQLITE DB and return the result as Python list.
       (Only select N rows from the N-th part.)"""
