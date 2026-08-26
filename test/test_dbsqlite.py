@@ -1,9 +1,11 @@
-import sys
-sys.path.append('../webapp/')
+#!/usr/bin/python3
 
-import random, os
+import sys
+sys.path.append('../lib/')
+
+import random, os, time
 from multiprocessing import Process
-from db_sqlite import DB_SQLITE
+from sqlite_adapter import SQLite3Adapter
 
 SAMPLE = 1000
 
@@ -28,19 +30,21 @@ hashes3 = []
 for i in range(SAMPLE):
   hashes3.append(makerandomhash())
 
-def runQuery(folder_hash_list) -> str:
+def runQuery(folder_hash_list : list) -> str:
   err = ""
   for folder_hash in folder_hash_list:
     insert_query = f"INSERT INTO Pieces (folder_hash, title) VALUES ('{folder_hash}', 'title');"
-    err += DB_SQLITE().updateRows(insert_query)
+    err += SQLite3Adapter().updateRows(insert_query)
   return err
 
 def countDBRows():
-  count = DB_SQLITE().countRows("SELECT COUNT(*) FROM Pieces;")
+  count = SQLite3Adapter().countRows("SELECT COUNT(*) FROM Pieces;")
   return count
 
 def eraseDB():
-  DB_SQLITE().updateRows("DELETE FROM Pieces;")
+  SQLite3Adapter().updateRows("DELETE FROM Pieces;")
+
+
 
 if __name__ == "__main__":
 
@@ -50,6 +54,8 @@ if __name__ == "__main__":
   t2 = Process(target=runQuery, args=(hashes2,))
   t3 = Process(target=runQuery, args=(hashes3,))
 
+  ts = time.time()
+
   t1.start()
   t2.start()
   t3.start()
@@ -57,6 +63,8 @@ if __name__ == "__main__":
   t2.join()
   t3.join()
 
+  totaltime = time.time() - ts
+
   assert countDBRows() == SAMPLE * 3, f"Expected {SAMPLE * 3} rows, but got {countDBRows()} rows."
-  print(f"Test passed: {countDBRows()} rows inserted successfully.")
+  print(f"Test passed: {countDBRows()} rows inserted successfully in {totaltime:.2f}s.")
   eraseDB()
