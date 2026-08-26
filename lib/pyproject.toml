@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hymnus"
+version = "0.3"
+authors = [
+  { name="Tzu-An Lee", email="hautbois-editions@protonmail.com" },
+]
+description = "HYMNUS score management tool - library"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = []
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "MIT"
+license-files = ["LICENSE"]
+
+[project.urls]
+Homepage = "https://github.com/Leethind/hymnus"
+Issues = "https://github.com/Leethind/hymnus/issues"
