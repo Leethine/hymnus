@@ -2,3 +2,11 @@ test/__pycache__
 test/test.db
 test/test_fs
 test/test_usr
+test/bin
+test/include
+test/lib
+test/lib64
+test/.gitignore
+test/.pyvenv.cfg
+lib/dist
+lib/src/hymnus.egg-info
