@@ -157,9 +157,9 @@ class SQLiteMetadataReader(metaclass=SingletonMeta):
   def getCollectionPieces(self, collection_code: str) -> list:
     """Get pieces in a specific collection."""
     rows = SQLite3Adapter().selectRows( \
-      f"SELECT * FROM Pieces WHERE collection_code LIKE '%{collection_code}%' ORDER BY title;")
-    if not SQLite3Adapter().getSqlSelectError(rows):
-      return rows
+      f"SELECT * FROM Collections WHERE code = '{collection_code}';")
+    if rows and len(rows) == 1 and type(rows[0]) == dict:
+      return [x for x in rows[0].get('list_pieces','').split(',') if x != '']
     else:
       return []
 
@@ -332,15 +332,15 @@ class SQLiteMetadataWriter(metaclass=SingletonMeta):
     return err
 
 
-  def createPiece(self, composer_code: str, title: str, subtitle="", subsubtitle="", \
-                  opus="", dedicated="", arranger_code="", arranger_name="", \
-                  collection_code="", year="?", instruments="", comment="") -> str:
+  def createPiece(self, composer_code: str, title: str, subtitle="", \
+                  subsubtitle="", opus="", dedicated="", arranger_code="", \
+                  arranger_name="", year="?", instruments="", comment="") -> str:
     """Insert piece metadata into DB."""
     is_arranged = 0
     if arranger_code or arranger_name:
       is_arranged = 1
     all_information = [composer_code, title, subtitle, subsubtitle, opus, dedicated, str(is_arranged), \
-                       arranger_code, arranger_name, collection_code, year, instruments, comment]
+                       arranger_code, arranger_name, year, instruments, comment]
     piece_hash = self.__generatePieceHash('-'.join(all_information))
     if self.__checkPieceExists(piece_hash):
       return f"Piece '{piece_hash}' already exists in DB."
@@ -350,10 +350,10 @@ class SQLiteMetadataWriter(metaclass=SingletonMeta):
       err = SQLite3Adapter().updateRows( \
         f"INSERT INTO Pieces \
         (folder_hash, composer_code, title, subtitle, subsubtitle, opus, dedicated_to, \
-         arranged, arranger_code, arranger_name, collection_code, composed_year, instruments, comment) \
-        VALUES ('{piece_hash}', '{composer_code}', '{title}', '{subtitle}', '{subsubtitle}', '{opus}', \
-                '{dedicated}', {is_arranged}, '{arranger_code}', '{arranger_name}', \
-                '{collection_code}', '{year}', '{instruments}', '{comment}'); ")
+         arranged, arranger_code, arranger_name, composed_year, instruments, comment) \
+        VALUES ('{piece_hash}', '{composer_code}', '{title}', '{subtitle}', \
+                '{subsubtitle}', '{opus}', '{dedicated}', {is_arranged},    \
+                '{arranger_code}', '{arranger_name}', '{year}', '{instruments}', '{comment}');")
       # Get composer information and write to DB 'Piece_Search' table
       selected_rows = SQLite3Adapter().selectRows(f"SELECT * FROM Composers WHERE code = '{composer_code}';")
       err += SQLite3Adapter().getSqlSelectError(selected_rows)
@@ -529,7 +529,10 @@ class SQLiteMetadataWriter(metaclass=SingletonMeta):
         f"SELECT * FROM Collections WHERE code = '{collection_code}';")
       if rows and not SQLite3Adapter().getSqlSelectError(rows):
         current_pieces = rows[0].get('list_pieces', '')
-      new_listpieces = ','.join([p for p in current_pieces.split(',') if p != piece_hash])
+      # Add new piece's hash to the list if not already there
+      new_listpieces = ""
+      if type(current_pieces) == str:
+        new_listpieces = ','.join([p for p in current_pieces.split(',') if p != piece_hash])
       new_listpieces += f",{piece_hash}"
       # Update in Collection table
       err = SQLite3Adapter().updateRows( \
