@@ -1,11 +1,8 @@
 #!/usr/bin/python3
 
-import sys
-sys.path.append('../lib/')
-
 import random, os, time
 from multiprocessing import Process
-from sqlite_adapter import SQLite3Adapter
+from hymnus.sqlite_adapter import SQLite3Adapter
 
 SAMPLE = 1000
 
