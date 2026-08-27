@@ -411,48 +411,43 @@ class SQLiteMetadataWriter(metaclass=SingletonMeta):
     return err
 
 
-  def updatePiece(self, piece_hash: str, title="", subtitle="", subsubtitle="", opus="", \
-                  dedicated="", collection_code="", year="", instruments="", comment="") -> str:
+  def updatePiece(self, piece_hash: str, title="", subtitle="", subsubtitle="", \
+                  opus="", dedicated="", year="", instruments="", comment="") -> str:
     """Update piece metadata in DB."""
     if not self.__checkPieceExists(piece_hash):
       return f"Piece '{piece_hash}' does not exist in DB."
-    # update Piece_Search table
-    try:
-      rows = SQLite3Adapter().selectRows(f"SELECT composer_code FROM Pieces WHERE folder_hash = '{piece_hash}';")
-      composer_code = "x"
-      composer = {}
-      if not SQLite3Adapter().getSqlSelectError(rows):
-        composer_code = rows[0]['composer_code']
-        rows_ = SQLite3Adapter().selectRows(f"SELECT * FROM Composers WHERE code = '{composer_code}';")
-        if not SQLite3Adapter().getSqlSelectError(rows_):
-          composer = rows_[0]
-      composerfullname = composer['firstname'] + " " + composer['lastname']
-      author = composerfullname + " " + collection_code
-      context = f"{title} {subtitle} {subsubtitle} {dedicated} {composerfullname} {collection_code}"
+    # Extract piece information
+    rows = SQLite3Adapter().selectRows(f"SELECT composer_code FROM Pieces WHERE folder_hash = '{piece_hash}';")
+    composer = {}
+    composer_code = ""
+    if rows and not SQLite3Adapter().getSqlSelectError(rows):
+      composer_code = rows[0]['composer_code']
+      # Extract composer information
+      rows_c = SQLite3Adapter().selectRows(f"SELECT * FROM Composers WHERE code = '{composer_code}';")
+      if rows_c and not SQLite3Adapter().getSqlSelectError(rows_c):
+        composer = rows_c[0]
+      composerfullname = composer.get('firstname','') + " " + composer.get('lastname', '')
+      author = composerfullname + " " + composer.get('knownas_name','')
+      context = f"{title} {subtitle} {subsubtitle} {dedicated} {author}"
       err = SQLite3Adapter().updateRows( \
-        f"UPDATE Piece_Search SET                                           \
-            context       = COALESCE('{toAscii(context)}', context),        \
-            author        = COALESCE('{toAscii(author)}', author),          \
-            opus          = COALESCE('{opus}', opus),                       \
-            composed_year = COALESCE('{year}', composed_year),              \
-            instruments   = COALESCE('{toAscii(instruments)}', instruments) \
+        f"UPDATE Piece_Search SET                                              \
+            context       = COALESCE('{toAscii(context)}',     context),       \
+            author        = COALESCE('{toAscii(author)}',      author),        \
+            opus          = COALESCE('{toAscii(opus)}',        opus),          \
+            composed_year = COALESCE('{year}',                 composed_year), \
+            instruments   = COALESCE('{toAscii(instruments)}', instruments)    \
           WHERE folder_hash = '{piece_hash}';")
-    except IndexError:
-      return f"Piece '{piece_hash}' does not have a valid composer code in DB. Cannot update piece."
-    #
-    # Update Pieces table
-    err += SQLite3Adapter().updateRows( \
-      f"UPDATE Pieces SET                                                     \
-          title             = COALESCE('{title}',           title),           \
-          subtitle          = COALESCE('{subtitle}',        subtitle),        \
-          subsubtitle       = COALESCE('{subsubtitle}',     subsubtitle),     \
-          opus              = COALESCE('{opus}',            opus),            \
-          dedicated_to      = COALESCE('{dedicated}',       dedicated_to),    \
-          collection_code   = COALESCE('{collection_code}', collection_code), \
-          composed_year     = COALESCE('{year}',            composed_year),   \
-          instruments       = COALESCE('{instruments}',     instruments),     \
-          comment           = COALESCE('{comment}',         comment)          \
-        WHERE folder_hash = '{piece_hash}';")
+      err += SQLite3Adapter().updateRows( \
+        f"UPDATE Pieces SET                                                 \
+            title             = COALESCE('{title}',       title),           \
+            subtitle          = COALESCE('{subtitle}',    subtitle),        \
+            subsubtitle       = COALESCE('{subsubtitle}', subsubtitle),     \
+            opus              = COALESCE('{opus}',        opus),            \
+            dedicated_to      = COALESCE('{dedicated}',   dedicated_to),    \
+            composed_year     = COALESCE('{year}',        composed_year),   \
+            instruments       = COALESCE('{instruments}', instruments),     \
+            comment           = COALESCE('{comment}',     comment)          \
+          WHERE folder_hash = '{piece_hash}';")
     return err
 
 
@@ -503,11 +498,18 @@ class SQLiteMetadataWriter(metaclass=SingletonMeta):
     return err
 
 
-  def deleteCollection(self, collection_code: str) -> str:
+  def deleteCollection(self, collection_code: str, delete_associated_pieces=False) -> str:
     """Delete collection from DB."""
     if not self.__checkCollectionExists(collection_code):
-      return f"Collection '{collection_code}' does not exist in DB."    
-    err = SQLite3Adapter().updateRows(f"DELETE FROM Collections WHERE code = '{collection_code}';")
+      return f"Collection '{collection_code}' does not exist in DB."
+    err = ""
+    if delete_associated_pieces:
+      rows = SQLite3Adapter().selectRows(f"SELECT * FROM Collections WHERE code = '{collection_code}';")
+      if rows and not SQLite3Adapter().getSqlSelectError(rows):
+        for piece_hash in rows[0].get('list_pieces','').split(','):
+          self.deletePiece(piece_hash)
+    # Delete the collection
+    err += SQLite3Adapter().updateRows(f"DELETE FROM Collections WHERE code = '{collection_code}';")
     return err
 
 
