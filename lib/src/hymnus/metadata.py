@@ -381,7 +381,8 @@ class SQLiteMetadataWriter(metaclass=SingletonMeta):
   def createCollection(self, title: str, subtitle="", subsubtitle="", editor="", \
                        composer_code="", opus="", volume="", instruments="", description="") -> str:
     """Insert collection metadata into DB."""
-    information = [title, subtitle, subsubtitle, editor, composer_code, opus, volume]
+    information = [title, subtitle, subsubtitle, editor, \
+                   composer_code, opus, volume, instruments, description]
     collection_code = self.__generateCollectionCode('-'.join(information))
     if self.__checkCollectionExists(collection_code):
       return f"Collection '{collection_code}' already exists in DB."
