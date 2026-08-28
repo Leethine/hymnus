@@ -5,9 +5,9 @@ CREATE TABLE composers (
   firstname     TEXT NOT NULL,
   lastname      TEXT NOT NULL,
   knownas_name  TEXT UNIQUE NOT NULL,
-  bornyear      INTEGER,
-  diedyear      INTEGER,
-  listed        INTEGER DEFAULT 0,
+  bornyear      INTEGER DEFAULT -1,
+  diedyear      INTEGER DEFAULT -1,
+  listed        BOOLEAN NOT NULL DEFAULT 0,
   wikipedia_url TEXT DEFAULT '',
   imslp_url     TEXT DEFAULT ''
 );
