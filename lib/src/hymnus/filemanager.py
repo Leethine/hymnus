@@ -1,14 +1,14 @@
 import importlib
-import os, sys, shutil
+import os, sys, shutil, pathlib
 
 if importlib.util.find_spec('hymnus') is not None:
   from hymnus.utilities import SingletonMeta
   from hymnus.sqlite_adapter import SQLite3Adapter
-  from hymnus.CONFIG import FILESYSTEM_PATH
+  from hymnus.CONFIG import FS_PATH
 else:
   from hymnus.utilities import SingletonMeta
   from hymnus.sqlite_adapter import SQLite3Adapter
-  from hymnus.CONFIG import FILESYSTEM_PATH
+  from hymnus.CONFIG import FS_PATH
 
 
 class FileManager(metaclass=SingletonMeta):
@@ -18,8 +18,8 @@ class FileManager(metaclass=SingletonMeta):
     """ Get the root path of the file system. """
     if 'HYMNUS_FS' in os.environ.keys() and os.path.isdir(os.environ['HYMNUS_FS']):
       return os.path.abspath(os.environ['HYMNUS_FS'])
-    elif os.path.isdir(FILESYSTEM_PATH):
-      return os.path.abspath(FILESYSTEM_PATH)
+    elif os.path.isdir(FS_PATH):
+      return os.path.abspath(FS_PATH)
     else:
       return os.path.abspath("./")
 
@@ -111,6 +111,8 @@ class FileManager(metaclass=SingletonMeta):
 
 
   def uploadFile(self, folder_hash: str, file_name: str, file_blob: bytes):
+    destdir = pathlib.Path(self.getPieceDir(folder_hash))
+    destdir.mkdir(parents=True, exist_ok=True)
     file_path = os.path.join(self.getPieceDir(folder_hash), file_name)
     if os.path.isfile(file_path):
       os.remove(file_path)
