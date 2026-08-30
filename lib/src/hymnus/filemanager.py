@@ -149,7 +149,7 @@ class FileManager(metaclass=SingletonMeta):
     return err
 
 
-  def reuploadFileMetadata(self, folder_hash: str, new_file_name: str, old_file_name: str) -> str:
+  def reuploadFileMetadata(self, folder_hash: str, old_file_name: str, new_file_name: str) -> str:
     """ Update database metadata for a re-uploaded file. """
     file_path = os.path.join(self.getPieceDir(folder_hash), new_file_name)
     file_path = file_path.replace(self.getPieceDir(folder_hash), self.getPieceDirReplaceStr())
@@ -166,6 +166,7 @@ class FileManager(metaclass=SingletonMeta):
     if old_extension != file_extension:
       return f"File extension cannot be changed when re-uploading file."
     # Update DB
+    err = ""
     UPDATE_SQL = f"UPDATE piece_files SET last_modified = CURRENT_TIMESTAMP, \
                      file_path = '{file_path}', file_name = '{new_file_name}'   \
                    WHERE folder_hash = '{folder_hash}' AND file_name = '{old_file_name}';"
@@ -198,6 +199,14 @@ class FileManager(metaclass=SingletonMeta):
     if err:
       return f"Failed to update file metadata, DB error: {err}"
     return ""
+
+
+  def getFileNameFromTitle(self, folder_hash: str, file_title: str) -> str:
+    rows = SQLite3Adapter().selectRows( \
+      f"SELECT * FROM Piece_files WHERE folder_hash = '{folder_hash}' \
+        AND file_title = '{file_title}';")
+    if len(rows) == 1 and type(rows[0]) == dict:
+      return rows[0].get('file_name', '')
 
 
   def deleteFileByTitle(self, folder_hash: str, file_title: str) -> str:
@@ -239,8 +248,10 @@ class FileManager(metaclass=SingletonMeta):
     file_path = self.getPieceFilePathDB(folder_hash=folder_hash, file_title="", file_name=file_name)
     if os.path.isfile(file_path):
       try:
+        file_bin = b""
         with open(file_path, 'rb') as f:
-          return f.read()
+          file_bin = f.read()
+        return file_bin
       except Exception as e:
         print(f"Failed to read file from disk: {str(e)}", file=sys.stderr)
         return b""
@@ -254,8 +265,10 @@ class FileManager(metaclass=SingletonMeta):
     file_path = self.getPieceFilePathDB(folder_hash=folder_hash, file_title=file_title, file_name="")
     if os.path.isfile(file_path):
       try:
+        file_bin = b""
         with open(file_path, 'rb') as f:
-          return f.read()
+          file_bin = f.read()
+        return file_bin
       except Exception as e:
         print(f"Failed to read file from disk: {str(e)}", file=sys.stderr)
         return b""
